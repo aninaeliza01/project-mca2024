@@ -1,0 +1,208 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #FA9A50;
+    color: white;
+}
+
+.container {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px; /* Add padding to center the content vertically */
+}
+
+.logo-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px; /* Add spacing below the logo and title */
+}
+
+.logo {
+    width: 90px;
+    height: auto;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 36px;
+    font-weight: 400;
+    width: 443px;
+    height: 77px;
+    left: 188px;
+    top: 71px;
+    color: white;
+    font-size: 60px;
+    font-family: PoetsenOne;
+    font-weight: 400;
+    line-height: 60px;
+    word-wrap: break-word;
+    margin: 0;
+}
+
+.content-container {
+    display: flex;
+    flex-wrap: wrap; /* Wrap form and image to the next line on smaller screens */
+    justify-content: space-between; /* Separate form and image on larger screens */
+    align-items: flex-start; /* Align form and image to the top */
+}
+
+.form-container {
+    width:45%; /* Increase the width as needed */
+    height: auto;
+    background: #FA9A50;
+    border: 4px white solid;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px; /* Add spacing between form and image */
+}
+.form-container h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+/* Your existing CSS for form styles */
+
+.image-container {
+    width: 55%; /* Adjust the image container width */
+    position: relative;
+    overflow: hidden;
+}
+
+.background-image {
+    width: 100%;
+    height: auto;
+}
+
+.form-container label {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="tel"],
+.form-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+
+.social-icons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    border-radius: 30px;
+    margin: 0 10px;
+}
+
+.google-signup {
+    position: absolute;
+    left: 257px;
+    top: 859px;
+    color: white;
+    font-size: 24px;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 500;
+    line-height: 24px;
+    word-wrap: break-word;
+}
+
+.already-member {
+    color: white;
+    text-decoration: none;
+}
+.already{
+    color: #000000;
+    text-decoration: none;
+}
+
+.or-divider {
+    width: 26px;
+    height: 16px;
+    left: 354px;
+    top: 812px;
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 500;
+    line-height: 12px;
+    word-wrap: break-word;
+}
+
+.white-border-1 {
+    width: 162px;
+    height: 0px;
+    left: 171px;
+    top: 820px;
+    position: absolute;
+    border: 1px white solid;
+}
+
+.white-border-2 {
+    width: 162px;
+    height: 0px;
+    left: 381px;
+    top: 820px;
+    position: absolute;
+    border: 1px white solid;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background: #FA9A50;
+    border: 4px white solid;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    color: white;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .container {
+        text-align: left;
+        padding: 20px; /* Add additional padding for spacing */
+    }
+
+    .content-container {
+        flex-direction: column-reverse; /* Stack form and image vertically on smaller screens */
+    }
+
+    .logo-title-container {
+        flex-direction: column; /* Stack logo and title vertically */
+        padding: 20px 0; /* Adjust padding as needed */
+    }
+
+    .logo {
+        margin-right: 0; /* Remove margin for smaller screens */
+    }
+    
+    .form-container,
+    .image-container {
+        width: 80%;
+    }
+}

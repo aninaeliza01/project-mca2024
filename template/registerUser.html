@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    <link rel="stylesheet" href="{% static 'css/regstyles.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo-title-container">
+            <img class="logo" src="{% static 'images/logo.png'%}" alt="Logo">
+            <h1 class="title">Hybrid Energy</h1>
+        </div>
+        <div class="content-container">
+            <div class="form-container">
+                <h2>Create Account</h2>
+                <form method="POST">
+                   
+                    <label for="full-name">User Name</label>
+                    <div class="d-flex align-items-center position-relative">
+                        <input type="text" id="username" placeholder="Enter your Username" name="username" required oninput="validateUsername()">
+                    </div>
+                    <div id="nameValidation" class="invalid-feedback">*Please enter a valid name containing only letters.
+                    </div>
+                    <br>
+                    <br>
+
+                    <label for="email">E-mail Address</label>
+                    <div class="d-flex align-items-center position-relative">
+                        <input type="email" id="email" placeholder="Enter your email address" name="email" required>
+                    </div>
+                    <div id="emailValidation" class="invalid-feedback">
+                        *Please enter a valid email address.
+                    </div>
+                    <br>
+                    <br>
+
+                    <label for="phone">Phone Number</label>
+                    <div class="form-outline mb-3 ">
+                        <div class="d-flex align-items-center position-relative">
+                            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required onkeyup="validatePhoneNumber()"
+                             class="form-control form-control-lg placform">
+                            </div>
+                            <div id="phoneValidation" class="invalid-feedback">
+                                *Please enter 10-digit valid phone number
+                            </div>
+                    </div>
+                    <br>
+                    <br>
+
+                    <label class="form-label" for="form2Example27">Password</label>
+                    <div class="form-outline mb-3 ">
+                        <div class="d-flex align-items-center position-relative">
+                            <input type="password" id="pass" name="pass" class="form-control form-control-lg placform" placeholder="Enter Password" required>
+                        </div>
+                        <div id="passValidation" class="invalid-feedback">
+                            *Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+                        </div>
+                        <div id="passValid" class="valid-feedback">
+                            Looks good!
+                        </div>
+                    </div>
+                    <br>
+                    <br>                
+
+                    <label class="form-label" for="form2Example27">Confirm Password</label>
+                    <div class="form-outline mb-2 ">
+                        <div class="d-flex align-items-center position-relative">
+                            <input type="password" id="cpass" name="cpass" class="form-control form-control-lg placform" placeholder="Confirm Password" required>
+                        </div>
+                        <div id="cpassValidation" class="invalid-feedback">
+                            *Passwords do not match.
+                        </div>
+                        <div id="cpassValid" class="valid-feedback">
+                            Passwords match!
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                                    
+                <button type="submit">Create</button>
+                </form>  
+                <div class="already-member">
+                    <span>Already a member?</span> <span class="already"><a href="/login">Login</a></span>
+                </div>
+            </div>  
+            <div class="image-container">
+                <img class="background-image" src="{% static 'images/main.png'%}" alt="Background Image">
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const nameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('pass');
+        const confirmPasswordInput = document.getElementById('cpass');
+
+        nameInput.addEventListener('blur', validateName);
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+        confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
+        phoneInput.addEventListener('blur', validatePhoneNumber);
+        phoneInput.addEventListener('blur', function(event) { formatPhoneNumber(); });
+
+        function validateName() {
+            const namePattern = /^[A-Za-z ]+$/;
+            const nameValidation = document.getElementById('nameValidation');
+            const nameValid = document.getElementById('nameValid');
+
+            if (!namePattern.test(nameInput.value)) {
+                nameInput.classList.add('is-invalid');
+                nameInput.classList.remove('is-valid');
+                nameValidation.style.display = 'block';
+                nameValid.style.display = 'none';
+            } else {
+                nameInput.classList.remove('is-invalid');
+                nameInput.classList.add('is-valid');
+                nameValidation.style.display = 'none';
+                nameValid.style.display = 'block';
+            }
+        }
+
+        function validateEmail() {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/;
+            const emailValidation = document.getElementById('emailValidation');
+            const emailValid = document.getElementById('emailValid');
+            if (!emailPattern.test(emailInput.value)) {
+                emailInput.classList.add('is-invalid');
+                emailInput.classList.remove('is-valid');
+                emailValidation.style.display = 'block';
+                emailValid.style.display = 'none';
+                return false;
+            } else {
+                emailInput.classList.remove('is-invalid');
+                emailInput.classList.add('is-valid');
+                emailValidation.style.display = 'none';
+                emailValid.style.display ='block' ;
+                return true;
+            }
+        }
+
+        function formatPhoneNumber() {
+            const phoneInput = document.getElementById('phone');
+            const phoneNumber = phoneInput.value.replace(/\s/g, ''); // Remove any white spaces
+
+            if (phoneNumber.length > 5 && phoneNumber.substring(0, 5) !== '00000') {
+                phoneInput.value = phoneNumber.replace(/(\d{5})(\d{0,5})(\d{0,4})(\d{0,4})/, '$1 $2 $3 $4');
+            } else {
+                phoneInput.value = phoneNumber;
+            }
+        }
+
+        function validatePhoneNumber() {
+            const phonePattern = /^(?!0)(?!.*0{5})[0-9 ]{10,}$/; // Phone number must not start with 0, and no sequence of 5 consecutive 0s
+            const phoneInput = document.getElementById('phone');
+            const phoneValidation = document.getElementById('phoneValidation');
+            const phoneValid = document.getElementById('phoneValid');
+
+            if (!phonePattern.test(phoneInput.value.replace(/\s/g, ''))) {
+                phoneInput.classList.add('is-invalid'); // Adding invalid class to show input in red
+                phoneInput.classList.remove('is-valid'); // Removing valid class
+                phoneValidation.style.display = 'block';
+                phoneValid.style.display ='none' ;
+                return false;
+            } else {
+                phoneInput.classList.remove('is-invalid'); // Removing invalid class
+                phoneInput.classList.add('is-valid'); // Adding valid class
+                phoneValidation.style.display = 'none';
+                phoneValid.style.display ='block' ; // Clear error message
+                return true;
+            }
+        }
+
+        function validatePassword() {
+            const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
+            const passValidation = document.getElementById('passValidation');
+            const passValid = document.getElementById('passValid');
+
+            if (!passwordPattern.test(passwordInput.value)) {
+                passwordInput.classList.add('is-invalid');
+                passwordInput.classList.remove('is-valid');
+                passValidation.style.display = 'block';
+                passValid.style.display = 'none';
+            } else {
+                passwordInput.classList.remove('is-invalid');
+                passwordInput.classList.add('is-valid');
+                passValidation.style.display = 'none';
+                passValid.style.display = 'block';
+            }
+        }
+
+        function validateConfirmPassword() {
+            const confirmPasswordValidation = document.getElementById('cpassValidation');
+            const confirmPasswordValid = document.getElementById('cpassValid');
+
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                confirmPasswordInput.classList.remove('is-valid');
+                confirmPasswordValidation.style.display = 'block';
+                confirmPasswordValid.style.display = 'none';
+            } else {
+                confirmPasswordInput.classList.remove('is-invalid');
+                confirmPasswordInput.classList.add('is-valid');
+                confirmPasswordValidation.style.display = 'none';
+                confirmPasswordValid.style.display = 'block';
+            }
+        }
+    });
+</script>
+</html>
+

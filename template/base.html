@@ -1,0 +1,44 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/basestyle.css'%}">
+    <title>Fuel Delivery System</title>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="header">
+                <div class="logo">
+                    <img src="{% static 'images/logo.png'%}" alt="Fuel Delivery System Logo">
+                </div>
+                <h1>Hybrid Energy</h1>
+            </div>
+            
+            <ul>
+                <li><a href="dashboard">Dashboard</a></li>
+                <li><a href="orders">Orders</a></li>
+                <li><a href="profile">Profile</a></li>
+                <li><a href="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Hybrid Energy</p>
+    </footer>
+</body>
+
+</html>
