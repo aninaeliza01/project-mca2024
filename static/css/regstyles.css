@@ -11,6 +11,11 @@ body {
     background-color: #FA9A50;
     color: white;
 }
+.invalid-feedback {
+    color: red;
+    font-size: 14px;
+    margin-top:5px;
+}
 
 .container {
     width: 100%;

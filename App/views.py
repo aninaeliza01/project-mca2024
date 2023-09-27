@@ -1,14 +1,18 @@
 from django.shortcuts import render,redirect
-
-from django.contrib import messages
 from django.contrib.auth import authenticate ,login ,logout
-
+from django.contrib import messages
+from django.contrib.auth.models import User
 # Create your views here.
 def index(request):
     return render(request, 'index.html')
 
-def register(request):
-    # if request.method == 'POST':
+def register_user(request):
+    if request.method == 'POST':
+        username=request.POST['username']
+        email=request.POST['email']
+        phone=request.POST['phone']
+        password=request.POST['pass']
+    
     #     # Process the registration form data
     #     username = request.POST['username']
     #     email = request.POST['email']
@@ -37,12 +41,23 @@ def register(request):
     # Handle GET request to render the registration form
     return render(request, 'registerUser.html')
 
-def login(request):
-    return render(request, 'login.html')
-def signout(request):
+def login_user(request):
+    if request.method =='POST':
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('/userhome')
+        else:
+            messages.success(request,("there was an error"))
+            return redirect('/login')
+    else:
+        return render(request, 'login.html')
+def logout_user(request):
     logout(request)
-    messages.success(request,())
-    return  redirect('index')
+    messages.success(request,("Logged out"))
+    return  redirect('userhome')
 def userhome(request):
     return render(request, 'userhome.html')
     

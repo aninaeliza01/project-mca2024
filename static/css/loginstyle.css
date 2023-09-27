@@ -17,6 +17,25 @@ body, h1, h2, p, input, button {
     padding: 20px;
     box-sizing: border-box;
 }
+/* Add custom CSS to style the alert */
+.alert{
+    background-color: #f8d7da; /* Background color for a warning alert */
+    border-color: #f5c6cb; /* Border color for a warning alert */
+    color: #721c24; /* Text color for a warning alert */
+    /* Add any other styling you want here */
+}
+
+/* Style the close button */
+.alert button.close {
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.5rem 1rem; /* Adjust padding as needed */
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    /* Add any other styling you want here */
+}
 
 .left-side {
     width: 50%; /* 50% of the parent container */
