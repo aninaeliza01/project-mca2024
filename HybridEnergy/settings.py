@@ -121,7 +121,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
 
-# AUTH_USER_MODEL = 'App.CustomUser'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_URL ='userhome'
+LOGOUT_REDIRECT_URL = 'index'
+
+AUTH_USER_MODEL = 'App.CustomUser'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
