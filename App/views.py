@@ -35,6 +35,7 @@ def register_user(request):
 
 
 def login_user(request):
+    
     if request.method == 'POST':
         username = request.POST["username"]
         password = request.POST["password"]
@@ -50,10 +51,11 @@ def login_user(request):
             user = authenticate(request, username =username , password=password)
             if user is not None:
                 auth_login(request,user)
-            
+                request.session['username'] = username
                 if request.user.user_type==CustomUser.CUSTOMER:
-                
+                    # if request.user.is_authenticated:
                     return redirect('/userhome')
+                    # return redirect('/userhome')
                 # elif request.user.user_typ == CustomUser.VENDOR:
                 #     print("user is therapist")
                 #     return redirect(reverse('therapist'))
@@ -69,16 +71,24 @@ def login_user(request):
         else:
             messages.success(request,("Please fill out all fields."))
         
+        
     return render(request, 'login.html')
 
 
 def logout_user(request):
-    logout(request)
-    messages.success(request,("Logged out"))
+    # if request.user.is_authenticated:
+    #     logout(request)
+    # messages.success(request,("Logged out"))
     return  redirect('userhome')
 
 def userhome(request):
-    return render(request, 'userhome.html')
+    if request.user.is_authenticated:
+         return redirect('userhome')
+    return render(request, 'login.html')
+
+def register_pump(request):
+    return render(request, 'registerPump.html')
+
 def about(request):
     return render(request, 'about.html')
 def contact(request):

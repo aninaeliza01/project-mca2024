@@ -13,6 +13,7 @@
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
 </head>
 <body>
     {% if messages %}
@@ -33,76 +34,50 @@
         <div class="content-container">
             <div class="form-container">
                 <h2>Create Account</h2>
-                <form method="POST">
+                <form method="POST" onsubmit="return validateForm();">
                     {% csrf_token %}
-                    <label for="username">User Name</label>
-                    <div class="d-flex align-items-center position-relative">
-                        <input type="text" id="username" placeholder="Enter your Username" name="username" required oninput="validateUsername()">
-                    </div>
-                    <div id="nameValidation" class="invalid-feedback">*Please enter a valid name containing only letters.
-                    </div>
-                    <br>
-                    <br>
-
-                    <label for="email">E-mail Address</label>
-                    <div class="d-flex align-items-center position-relative">
-                        <input type="email" id="email" placeholder="Enter your email address" name="email" required>
-                    </div>
-                    <div id="emailValidation" class="invalid-feedback">
-                        *Please enter a valid email address.
-                    </div>
-                    <br>
-                    <br>
-
-                    <label for="phone">Phone Number</label>
-                    <div class="form-outline mb-3 ">
-                        <div class="d-flex align-items-center position-relative">
-                            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required onkeyup="validatePhoneNumber()"
-                             class="form-control form-control-lg placform">
-                            </div>
-                            <div id="phoneValidation" class="invalid-feedback">
-                                *Please enter 10-digit valid phone number
-                            </div>
-                    </div>
-                    <br>
-                    <br>
-
-                    <label class="form-label" for="form2Example27">Password</label>
-                    <div class="form-outline mb-3 ">
-                        <div class="d-flex align-items-center position-relative">
-                            <input type="password" id="pass" name="pass" class="form-control form-control-lg placform" placeholder="Enter Password" required>
+                    <div class="input-box">
+                        <span class="details">Username</span>
+                        <input type="text" name="username" id="username" placeholder="Enter your username" oninput="validateUsername()">
+                        <span id="usernameError" class="error"></span>
+                        
+                      </div>
+                      <div class="input-box">
+                        <span class="details">Email</span>
+                        <input type="text" name="email" id="email" placeholder="Enter your email" oninput="validateEmail()">
+                        <span id="emailError" class="error"></span>
+                        
+                      </div>
+                      <div class="input-box">
+                        <span class="details">Phone Number</span>
+                        <input type="text" name="phoneNumber" id="phoneNumber" placeholder="Enter your number" oninput="validatePhoneNumber()">
+                        <span id="phoneNumberError" class="error"></span>
+                        
+                      </div>
+                      <div class="input-box">
+                            <span class="details">Password</span>
+                            <input type="password" name="password" id="password" placeholder="Enter your password" oninput="validatePassword()">
+                            <label for="showPassword">
+                                </label>
+                            <span id="passwordError" class="error"></span>
+                    
                         </div>
-                        <div id="passValidation" class="invalid-feedback">
-                            *Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+            
+                        <div class="input-box">
+                            <span class="details">Confirm Password</span>
+                            <input type="password" name="password" id="cpassword" placeholder="Confirm your password" oninput="validatePassword()">
+                            <label for="showCPassword">
+                            </label>
+                            <span id="cpasswordError" class="error"></span>
+                   
                         </div>
-                        <div id="passValid" class="valid-feedback">
-                            Looks good!
-                        </div>
-                    </div>
-                    <br>
-                    <br>                
-
-                    <label class="form-label" for="form2Example27">Confirm Password</label>
-                    <div class="form-outline mb-2 ">
-                        <div class="d-flex align-items-center position-relative">
-                            <input type="password" id="cpass" name="cpass" class="form-control form-control-lg placform" placeholder="Confirm Password" required>
-                        </div>
-                        <div id="cpassValidation" class="invalid-feedback">
-                            *Passwords do not match.
-                        </div>
-                        <div id="cpassValid" class="valid-feedback">
-                            Passwords match!
-                        </div>
-                    </div>
-                    <br>
-                    <br>
-                                    
-                <button type="submit">Create</button>
-                </form>  
+            
+                    <button type="submit">Create</button>
+                </form>
                 <div class="already-member">
                     <span>Already a member?</span> <span class="already"><a href="/login">Login</a></span>
                 </div>
-            </div>  
+            </div>
             <div class="image-container">
                 <img class="background-image" src="{% static 'images/main.png'%}" alt="Background Image">
             </div>
@@ -110,124 +85,263 @@
     </div>
 </body>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const nameInput = document.getElementById('username');
-        const emailInput = document.getElementById('email');
-        const phoneInput = document.getElementById('phone');
-        const passwordInput = document.getElementById('pass');
-        const confirmPasswordInput = document.getElementById('cpass');
+    
+    function validateUsername() {
+    var username = document.getElementById("username").value.trim();
+    var usernameError = document.getElementById("usernameError");
+    var usernamePattern = /^[A-Za-z0-9_]{3,20}$/; // Allow letters, numbers, and underscores; length between 3 and 20 characters
 
-        nameInput.addEventListener('blur', validateName);
-        emailInput.addEventListener('blur', validateEmail);
-        passwordInput.addEventListener('blur', validatePassword);
-        confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
-        phoneInput.addEventListener('blur', validatePhoneNumber);
-        phoneInput.addEventListener('blur', function(event) { formatPhoneNumber(); });
+    if (username === "") {
+        usernameError.textContent = "Please enter your username.";
+		usernameError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!usernamePattern.test(username)) {
+        usernameError.textContent = "Username must be between 3 and 20 characters and can only contain letters, numbers, and underscores.";
+		usernameError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        usernameError.textContent = "";
+        return true;
+    }
+}
 
-        function validateName() {
-            const namePattern = /^[A-Za-z ]+$/;
-            const nameValidation = document.getElementById('nameValidation');
-            const nameValid = document.getElementById('nameValid');
+    function validateEmail() {
+        var email = document.getElementById("email").value.trim();
+        var emailError = document.getElementById("emailError");
+        var emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/; // Check if email starts with a letter
+        var validEmailPattern = /\S+@\S+\.\S+/;
 
-            if (!namePattern.test(nameInput.value)) {
-                nameInput.classList.add('is-invalid');
-                nameInput.classList.remove('is-valid');
-                nameValidation.style.display = 'block';
-                nameValid.style.display = 'none';
-            } else {
-                nameInput.classList.remove('is-invalid');
-                nameInput.classList.add('is-valid');
-                nameValidation.style.display = 'none';
-                nameValid.style.display = 'block';
-            }
+        if (email === "") {
+            emailError.textContent = "Please enter your Email.";
+			emailError.style.color = "red"; // Set error message color to red
+            return false;
+        } else if (!emailPattern.test(email) || !validEmailPattern.test(email)) {
+            emailError.textContent = "Please enter a valid Email address.";
+			emailError.style.color = "red"; // Set error message color to red
+            return false;
+        } else {
+            emailError.textContent = "";
+            return true;
+        }
+    }
+
+    
+	function validatePhoneNumber() {
+		var phoneNumber = document.getElementById("phoneNumber").value.trim();
+		var phoneNumberError = document.getElementById("phoneNumberError");
+		var phoneNumberPattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
+
+		if (phoneNumber === "") {
+			phoneNumberError.textContent = "Please enter your phone number.";
+			phoneNumberError.style.color = "red"; // Set error message color to red
+			return false;
+		} else if (!phoneNumberPattern.test(phoneNumber)) {
+			phoneNumberError.textContent = "Invalid phone number. It should start with 6, 7, 8, or 9 and have 10 digits.";
+			phoneNumberError.style.color = "red"; // Set error message color to red
+			return false;
+		} else {
+			phoneNumberError.textContent = "";
+			return true;
+		}
+	}
+
+
+
+    function validatePassword() {
+        var password = document.getElementById("password").value;
+        var cpassword = document.getElementById("cpassword").value;
+        var passwordError = document.getElementById("passwordError");
+        var cpasswordError = document.getElementById("cpasswordError");
+
+        if (password === "") {
+            passwordError.textContent = "Please enter a Password.";
+			passwordError.style.color = "red"; // Set error message color to red
+            return false;
+        } else if (password.length < 8) {
+            passwordError.textContent = "Password must be at least 8 characters.";
+			passwordError.style.color = "red"; // Set error message color to red
+            return false;
+        } else {
+            passwordError.textContent = "";
         }
 
-        function validateEmail() {
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/;
-            const emailValidation = document.getElementById('emailValidation');
-            const emailValid = document.getElementById('emailValid');
-            if (!emailPattern.test(emailInput.value)) {
-                emailInput.classList.add('is-invalid');
-                emailInput.classList.remove('is-valid');
-                emailValidation.style.display = 'block';
-                emailValid.style.display = 'none';
-                return false;
-            } else {
-                emailInput.classList.remove('is-invalid');
-                emailInput.classList.add('is-valid');
-                emailValidation.style.display = 'none';
-                emailValid.style.display ='block' ;
-                return true;
-            }
+        if (cpassword === "") {
+            cpasswordError.textContent = "Please confirm your password.";
+			cpasswordError.style.color = "red"; // Set error message color to red
+            return false;
+        } else if (password !== cpassword) {
+            cpasswordError.textContent = "Passwords do not match.";
+			cpasswordError.style.color = "red"; // Set error message color to red
+            return false;
+        } else {
+            cpasswordError.textContent = "";
+            return true;
         }
+    }
 
-        function formatPhoneNumber() {
-            const phoneInput = document.getElementById('phone');
-            const phoneNumber = phoneInput.value.replace(/\s/g, ''); // Remove any white spaces
+    
 
-            if (phoneNumber.length > 5 && phoneNumber.substring(0, 5) !== '00000') {
-                phoneInput.value = phoneNumber.replace(/(\d{5})(\d{0,5})(\d{0,4})(\d{0,4})/, '$1 $2 $3 $4');
-            } else {
-                phoneInput.value = phoneNumber;
-            }
-        }
 
-        function validatePhoneNumber() {
-            const phonePattern = /^(?!0)(?!.*0{5})[0-9 ]{10,}$/; // Phone number must not start with 0, and no sequence of 5 consecutive 0s
-            const phoneInput = document.getElementById('phone');
-            const phoneValidation = document.getElementById('phoneValidation');
-            const phoneValid = document.getElementById('phoneValid');
+    function validateForm() {
+      var isFormValid = true;
 
-            if (!phonePattern.test(phoneInput.value.replace(/\s/g, ''))) {
-                phoneInput.classList.add('is-invalid'); // Adding invalid class to show input in red
-                phoneInput.classList.remove('is-valid'); // Removing valid class
-                phoneValidation.style.display = 'block';
-                phoneValid.style.display ='none' ;
-                return false;
-            } else {
-                phoneInput.classList.remove('is-invalid'); // Removing invalid class
-                phoneInput.classList.add('is-valid'); // Adding valid class
-                phoneValidation.style.display = 'none';
-                phoneValid.style.display ='block' ; // Clear error message
-                return true;
-            }
-        }
+      
 
-        function validatePassword() {
-            const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
-            const passValidation = document.getElementById('passValidation');
-            const passValid = document.getElementById('passValid');
+      if (!validateUsername()) {
+        isFormValid = false;
+      }
 
-            if (!passwordPattern.test(passwordInput.value)) {
-                passwordInput.classList.add('is-invalid');
-                passwordInput.classList.remove('is-valid');
-                passValidation.style.display = 'block';
-                passValid.style.display = 'none';
-            } else {
-                passwordInput.classList.remove('is-invalid');
-                passwordInput.classList.add('is-valid');
-                passValidation.style.display = 'none';
-                passValid.style.display = 'block';
-            }
-        }
+      if (!validateEmail()) {
+        isFormValid = false;
+      }
 
-        function validateConfirmPassword() {
-            const confirmPasswordValidation = document.getElementById('cpassValidation');
-            const confirmPasswordValid = document.getElementById('cpassValid');
+      if (!validatePhoneNumber()) {
+        isFormValid = false;
+      }
 
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                confirmPasswordInput.classList.add('is-invalid');
-                confirmPasswordInput.classList.remove('is-valid');
-                confirmPasswordValidation.style.display = 'block';
-                confirmPasswordValid.style.display = 'none';
-            } else {
-                confirmPasswordInput.classList.remove('is-invalid');
-                confirmPasswordInput.classList.add('is-valid');
-                confirmPasswordValidation.style.display = 'none';
-                confirmPasswordValid.style.display = 'block';
-            }
-        }
-    });
+      if (!validatePassword()) {
+        isFormValid = false;
+      }
+
+     
+
+      return isFormValid;
+    }
+
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     const nameInput = document.getElementById('username');
+    //     const emailInput = document.getElementById('email');
+    //     const phoneInput = document.getElementById('phone');
+    //     const passwordInput = document.getElementById('pass');
+    //     const confirmPasswordInput = document.getElementById('cpass');
+
+    //     nameInput.addEventListener('blur', validateName);
+    //     emailInput.addEventListener('blur', validateEmail);
+    //     passwordInput.addEventListener('blur', validatePassword);
+    //     confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
+    //     phoneInput.addEventListener('blur', validatePhoneNumber);
+    //     phoneInput.addEventListener('blur', formatPhoneNumber);
+
+    //     function validateName() {
+    //         const namePattern = /^[A-Za-z ]+$/;
+    //         const nameValidation = document.getElementById('nameValidation');
+
+    //         if (!namePattern.test(nameInput.value)) {
+    //             nameInput.classList.add('is-invalid');
+    //             nameInput.classList.remove('is-valid');
+    //             nameValidation.style.display = 'block';
+    //             return false;
+    //         } else {
+    //             nameInput.classList.remove('is-invalid');
+    //             nameInput.classList.add('is-valid');
+    //             nameValidation.style.display = 'none';
+    //             return true;
+    //         }
+    //     }
+
+    //     function validateEmail() {
+    //         const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/;
+    //         const emailValidation = document.getElementById('emailValidation');
+
+    //         if (!emailPattern.test(emailInput.value)) {
+    //             emailInput.classList.add('is-invalid');
+    //             emailInput.classList.remove('is-valid');
+    //             emailValidation.style.display = 'block';
+    //             return false;
+    //         } else {
+    //             emailInput.classList.remove('is-invalid');
+    //             emailInput.classList.add('is-valid');
+    //             emailValidation.style.display = 'none';
+    //             return true;
+    //         }
+    //     }
+
+    //     function formatPhoneNumber() {
+    //         const phoneInput = document.getElementById('phone');
+    //         const phoneNumber = phoneInput.value.replace(/\s/g, '');
+
+    //         if (phoneNumber.length > 5 && phoneNumber.substring(0, 5) !== '00000') {
+    //             phoneInput.value = phoneNumber.replace(/(\d{5})(\d{0,5})(\d{0,4})(\d{0,4})/, '$1 $2 $3 $4');
+    //         } else {
+    //             phoneInput.value = phoneNumber;
+    //         }
+    //     }
+
+    //     function validatePhoneNumber() {
+    //         const phonePattern = /^(?!0)(?!.*0{5})[0-9 ]{10,}$/;
+    //         const phoneValidation = document.getElementById('phoneValidation');
+
+    //         if (!phonePattern.test(phoneInput.value.replace(/\s/g, ''))) {
+    //             phoneInput.classList.add('is-invalid');
+    //             phoneInput.classList.remove('is-valid');
+    //             phoneValidation.style.display = 'block';
+    //             return false;
+    //         } else {
+    //             phoneInput.classList.remove('is-invalid');
+    //             phoneInput.classList.add('is-valid');
+    //             phoneValidation.style.display = 'none';
+    //             return true;
+    //         }
+    //     }
+
+    //     function validatePassword() {
+    //         const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
+    //         const passValidation = document.getElementById('passValidation');
+
+    //         if (!passwordPattern.test(passwordInput.value)) {
+    //             passwordInput.classList.add('is-invalid');
+    //             passwordInput.classList.remove('is-valid');
+    //             passValidation.style.display = 'block';
+    //             return false;
+    //         } else {
+    //             passwordInput.classList.remove('is-invalid');
+    //             passwordInput.classList.add('is-valid');
+    //             passValidation.style.display = 'none';
+    //             return true;
+    //         }
+    //     }
+
+    //     function validateConfirmPassword() {
+    //         const confirmPasswordValidation = document.getElementById('cpassValidation');
+
+    //         if (passwordInput.value !== confirmPasswordInput.value) {
+    //             confirmPasswordInput.classList.add('is-invalid');
+    //             confirmPasswordInput.classList.remove('is-valid');
+    //             confirmPasswordValidation.style.display = 'block';
+    //             return false;
+    //         } else {
+    //             confirmPasswordInput.classList.remove('is-invalid');
+    //             confirmPasswordInput.classList.add('is-valid');
+    //             confirmPasswordValidation.style.display = 'none';
+    //             return true;
+    //         }
+    //     }
+    // });
+
+    // function validateForm() {
+    //     var isFormValid = true;
+
+    //     if (!validateName()) {
+    //         isFormValid = false;
+    //     }
+
+    //     if (!validateEmail()) {
+    //         isFormValid = false;
+    //     }
+
+    //     if (!validatePhoneNumber()) {
+    //         isFormValid = false;
+    //     }
+
+    //     if (!validatePassword()) {
+    //         isFormValid = false;
+    //     }
+
+    //     if (!validateConfirmPassword()) {
+    //         isFormValid = false;
+    //     }
+
+    //     return isFormValid;
+    // }
 </script>
 </html>
-
