@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,HttpResponse
 from .models import CustomUser,UserProfile
 from django.contrib.auth import authenticate ,login as auth_login,logout
 from django.contrib import messages
@@ -11,9 +11,9 @@ def register_user(request):
     if request.method == 'POST':
         username = request.POST.get('username', None)
         email = request.POST.get('email', None)
-        phone = request.POST.get('phone', None)
-        password = request.POST.get('pass', None)
-        confirm_password = request.POST.get('cpass', None)
+        phone = request.POST.get('phoneNumber', None)
+        password = request.POST.get('password', None)
+        confirm_password = request.POST.get('cpassword', None)
         # role = CustomUser.CUSTOMER
         if username and email and phone and password:
             if CustomUser.objects.filter(email=email,username=username).exists():
@@ -24,7 +24,7 @@ def register_user(request):
             else:
                 user = CustomUser(username=username, email=email, phone=phone)
                 user.set_password(password)  # Set the password securely
-                user.is_active=False
+                user.is_active=True
                 user.save()
                 user_profile = UserProfile(user=user)
                 user_profile.save()
@@ -51,8 +51,9 @@ def login_user(request):
             user = authenticate(request, username =username , password=password)
             if user is not None:
                 auth_login(request,user)
-                request.session['username'] = username
+                
                 if request.user.user_type==CustomUser.CUSTOMER:
+                    request.session["username"] = user.username
                     # if request.user.is_authenticated:
                     return redirect('/userhome')
                     # return redirect('/userhome')
@@ -70,21 +71,27 @@ def login_user(request):
                 messages.success(request,("Invalid credentials."))
         else:
             messages.success(request,("Please fill out all fields."))
-        
+
         
     return render(request, 'login.html')
 
 
 def logout_user(request):
-    # if request.user.is_authenticated:
-    #     logout(request)
-    # messages.success(request,("Logged out"))
+    try:
+        del request.session["username"]
+    except KeyError:
+        pass
+    logout(request)
+    messages.success(request,("Logged out"))
     return  redirect('userhome')
 
+    # return  redirect('userhome')
+
 def userhome(request):
-    if request.user.is_authenticated:
-         return redirect('userhome')
-    return render(request, 'login.html')
+    print("you are:",request.session.get('username'))
+    # if request.user.is_authenticated:
+    #      return redirect('userhome')
+    return render(request, 'userhome.html')
 
 def register_pump(request):
     return render(request, 'registerPump.html')

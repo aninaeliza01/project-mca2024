@@ -20,9 +20,7 @@
         {% for message in messages %}
             <div class="alert" role="alert">
                 {{ message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                <!-- <span aria-hidden="true">&times;</span> -->
             </div>
         {% endfor %}
     {% endif %}
@@ -65,7 +63,7 @@
             
                         <div class="input-box">
                             <span class="details">Confirm Password</span>
-                            <input type="password" name="password" id="cpassword" placeholder="Confirm your password" oninput="validatePassword()">
+                            <input type="password" name="cpassword" id="cpassword" placeholder="Confirm your password" oninput="validatePassword()">
                             <label for="showCPassword">
                             </label>
                             <span id="cpasswordError" class="error"></span>
@@ -147,12 +145,18 @@
 
 
 
-    function validatePassword() {
+    function validatePassword() 
+    {
         var password = document.getElementById("password").value;
         var cpassword = document.getElementById("cpassword").value;
         var passwordError = document.getElementById("passwordError");
         var cpasswordError = document.getElementById("cpasswordError");
-
+        var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
+         {
+    //             passwordInput.classList.add('is-invalid');
+    //             passwordInput.classList.remove('is-valid');
+    //             passValidation.style.display = 'block';
+    //             return false;
         if (password === "") {
             passwordError.textContent = "Please enter a Password.";
 			passwordError.style.color = "red"; // Set error message color to red
@@ -161,7 +165,14 @@
             passwordError.textContent = "Password must be at least 8 characters.";
 			passwordError.style.color = "red"; // Set error message color to red
             return false;
-        } else {
+        }
+        else if(!passwordPattern.test(password)){
+                passwordError.textContent = "*Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+			    passwordError.style.color = "red"; // Set error message color to red
+                return false;
+        } 
+        else
+        {
             passwordError.textContent = "";
         }
 
@@ -178,9 +189,7 @@
             return true;
         }
     }
-
-    
-
+}
 
     function validateForm() {
       var isFormValid = true;
@@ -202,146 +211,7 @@
       if (!validatePassword()) {
         isFormValid = false;
       }
-
-     
-
       return isFormValid;
     }
-
-    // document.addEventListener('DOMContentLoaded', function () {
-    //     const nameInput = document.getElementById('username');
-    //     const emailInput = document.getElementById('email');
-    //     const phoneInput = document.getElementById('phone');
-    //     const passwordInput = document.getElementById('pass');
-    //     const confirmPasswordInput = document.getElementById('cpass');
-
-    //     nameInput.addEventListener('blur', validateName);
-    //     emailInput.addEventListener('blur', validateEmail);
-    //     passwordInput.addEventListener('blur', validatePassword);
-    //     confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
-    //     phoneInput.addEventListener('blur', validatePhoneNumber);
-    //     phoneInput.addEventListener('blur', formatPhoneNumber);
-
-    //     function validateName() {
-    //         const namePattern = /^[A-Za-z ]+$/;
-    //         const nameValidation = document.getElementById('nameValidation');
-
-    //         if (!namePattern.test(nameInput.value)) {
-    //             nameInput.classList.add('is-invalid');
-    //             nameInput.classList.remove('is-valid');
-    //             nameValidation.style.display = 'block';
-    //             return false;
-    //         } else {
-    //             nameInput.classList.remove('is-invalid');
-    //             nameInput.classList.add('is-valid');
-    //             nameValidation.style.display = 'none';
-    //             return true;
-    //         }
-    //     }
-
-    //     function validateEmail() {
-    //         const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/;
-    //         const emailValidation = document.getElementById('emailValidation');
-
-    //         if (!emailPattern.test(emailInput.value)) {
-    //             emailInput.classList.add('is-invalid');
-    //             emailInput.classList.remove('is-valid');
-    //             emailValidation.style.display = 'block';
-    //             return false;
-    //         } else {
-    //             emailInput.classList.remove('is-invalid');
-    //             emailInput.classList.add('is-valid');
-    //             emailValidation.style.display = 'none';
-    //             return true;
-    //         }
-    //     }
-
-    //     function formatPhoneNumber() {
-    //         const phoneInput = document.getElementById('phone');
-    //         const phoneNumber = phoneInput.value.replace(/\s/g, '');
-
-    //         if (phoneNumber.length > 5 && phoneNumber.substring(0, 5) !== '00000') {
-    //             phoneInput.value = phoneNumber.replace(/(\d{5})(\d{0,5})(\d{0,4})(\d{0,4})/, '$1 $2 $3 $4');
-    //         } else {
-    //             phoneInput.value = phoneNumber;
-    //         }
-    //     }
-
-    //     function validatePhoneNumber() {
-    //         const phonePattern = /^(?!0)(?!.*0{5})[0-9 ]{10,}$/;
-    //         const phoneValidation = document.getElementById('phoneValidation');
-
-    //         if (!phonePattern.test(phoneInput.value.replace(/\s/g, ''))) {
-    //             phoneInput.classList.add('is-invalid');
-    //             phoneInput.classList.remove('is-valid');
-    //             phoneValidation.style.display = 'block';
-    //             return false;
-    //         } else {
-    //             phoneInput.classList.remove('is-invalid');
-    //             phoneInput.classList.add('is-valid');
-    //             phoneValidation.style.display = 'none';
-    //             return true;
-    //         }
-    //     }
-
-    //     function validatePassword() {
-    //         const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
-    //         const passValidation = document.getElementById('passValidation');
-
-    //         if (!passwordPattern.test(passwordInput.value)) {
-    //             passwordInput.classList.add('is-invalid');
-    //             passwordInput.classList.remove('is-valid');
-    //             passValidation.style.display = 'block';
-    //             return false;
-    //         } else {
-    //             passwordInput.classList.remove('is-invalid');
-    //             passwordInput.classList.add('is-valid');
-    //             passValidation.style.display = 'none';
-    //             return true;
-    //         }
-    //     }
-
-    //     function validateConfirmPassword() {
-    //         const confirmPasswordValidation = document.getElementById('cpassValidation');
-
-    //         if (passwordInput.value !== confirmPasswordInput.value) {
-    //             confirmPasswordInput.classList.add('is-invalid');
-    //             confirmPasswordInput.classList.remove('is-valid');
-    //             confirmPasswordValidation.style.display = 'block';
-    //             return false;
-    //         } else {
-    //             confirmPasswordInput.classList.remove('is-invalid');
-    //             confirmPasswordInput.classList.add('is-valid');
-    //             confirmPasswordValidation.style.display = 'none';
-    //             return true;
-    //         }
-    //     }
-    // });
-
-    // function validateForm() {
-    //     var isFormValid = true;
-
-    //     if (!validateName()) {
-    //         isFormValid = false;
-    //     }
-
-    //     if (!validateEmail()) {
-    //         isFormValid = false;
-    //     }
-
-    //     if (!validatePhoneNumber()) {
-    //         isFormValid = false;
-    //     }
-
-    //     if (!validatePassword()) {
-    //         isFormValid = false;
-    //     }
-
-    //     if (!validateConfirmPassword()) {
-    //         isFormValid = false;
-    //     }
-
-    //     return isFormValid;
-    // }
 </script>
 </html>
