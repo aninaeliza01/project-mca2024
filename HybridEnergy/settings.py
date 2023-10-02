@@ -123,6 +123,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'aninaelizebeth2024a@mca.ajce.in'  
+EMAIL_HOST_PASSWORD = 'anina@mca'  
+# DEFAULT_FROM_EMAIL = 'aninaelizebeth2024a@mca.ajce.in'
 
 JAZZMIN_SETTINGS = {
 "show_ui_builder" : True }
@@ -158,7 +165,7 @@ JAZZMIN_UI_TWEAKS = {
         }
     }
     
-# LOGIN_URL = 'login'
+LOGIN_URL = 'login'
 # LOGIN_REDIRECT_URL = 'index'
 # LOGOUT_URL ='userhome'
 # LOGOUT_REDIRECT_URL = 'index'
@@ -171,5 +178,8 @@ AUTH_USER_MODEL = 'App.CustomUser'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'COOKIES'
+
+

@@ -6,9 +6,11 @@
             <div class="alert" role="alert">
                 {{ message }}
                 <span aria-hidden="true">&times;</span>
-                </button>
             </div>
         {% endfor %}
     {% endif %}
-<p>welcome</p>
+    {% if user.is_authenticated %}
+        <p></p>
+    {% endif %}
+
 {% endblock content %}

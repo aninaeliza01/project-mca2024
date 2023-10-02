@@ -16,9 +16,10 @@ def register_user(request):
         confirm_password = request.POST.get('cpassword', None)
         # role = CustomUser.CUSTOMER
         if username and email and phone and password:
-            if CustomUser.objects.filter(email=email,username=username).exists():
+            if CustomUser.objects.filter(email=email).exists():
                 messages.success(request,("Email is already registered."))
-            
+            elif CustomUser.objects.filter(username=username).exists():
+                messages.success(request,("Username is already registered."))
             elif password!=confirm_password:
                 messages.success(request,("Password's Don't Match, Enter correct Password"))
             else:
@@ -34,8 +35,11 @@ def register_user(request):
     return render(request, 'registerUser.html')
 
 
+
+
 def login_user(request):
-    
+    if 'username' in request.session:
+        return redirect('/userhome')
     if request.method == 'POST':
         username = request.POST["username"]
         password = request.POST["password"]
@@ -54,8 +58,7 @@ def login_user(request):
                 
                 if request.user.user_type==CustomUser.CUSTOMER:
                     request.session["username"] = user.username
-                    # if request.user.is_authenticated:
-                    return redirect('/userhome')
+                    return redirect('/userhome', {'username':username})
                     # return redirect('/userhome')
                 # elif request.user.user_typ == CustomUser.VENDOR:
                 #     print("user is therapist")
@@ -93,7 +96,35 @@ def userhome(request):
     #      return redirect('userhome')
     return render(request, 'userhome.html')
 
+def pumphome(request):
+    return render(request, 'pumphome.html')
+
+
 def register_pump(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', None)
+        email = request.POST.get('email', None)
+        phone = request.POST.get('phoneNumber', None)
+        password = request.POST.get('password', None)
+        confirm_password = request.POST.get('cpassword', None)
+        gst=request.POST.get('gst',None)
+        # role = CustomUser.CUSTOMER
+        if username and email and phone and password:
+            if CustomUser.objects.filter(email=email).exists():
+                messages.success(request,("Email is already registered."))
+            elif CustomUser.objects.filter(username=username).exists():
+                messages.success(request,("Username is already registered."))
+            elif password!=confirm_password:
+                messages.success(request,("Password's Don't Match, Enter correct Password"))
+            else:
+                user = CustomUser(username=username, email=email, phone=phone)
+                user.set_password(password)  # Set the password securely
+                user.is_active=True
+                user.save()
+                user_profile = UserProfile(user=user)
+                user_profile.save()
+                # activateEmail(request, user, email)
+                return redirect('login') 
     return render(request, 'registerPump.html')
 
 def about(request):
