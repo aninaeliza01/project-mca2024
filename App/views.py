@@ -34,49 +34,47 @@ def register_user(request):
             
     return render(request, 'registerUser.html')
 
-
-
-
 def login_user(request):
-    if 'username' in request.session:
-        return redirect('/userhome')
-    if request.method == 'POST':
-        username = request.POST["username"]
-        password = request.POST["password"]
-        # if user is not None:
-        #     auth_login(request, user)
-        #     return redirect('/userhome')
-        # else:
-        #    messages.success(request,("Invalid credentials."))
-        # print(username)  # Print the email for debugging
-        # print(password)  # Print the password for debugging
+    if request.user.is_authenticated:
+         return redirect('/userhome')
+    else:
+        if request.method == 'POST':
+            username = request.POST["username"]
+            password = request.POST["password"]
+            # if user is not None:
+            #     auth_login(request, user)
+            #     return redirect('/userhome')
+            # else:
+            #    messages.success(request,("Invalid credentials."))
+            # print(username)  # Print the email for debugging
+            # print(password)  # Print the password for debugging
 
-        if username and password:
-            user = authenticate(request, username =username , password=password)
-            if user is not None:
-                auth_login(request,user)
-                
-                if request.user.user_type==CustomUser.CUSTOMER:
-                    request.session["username"] = user.username
-                    return redirect('/userhome', {'username':username})
-                    # return redirect('/userhome')
-                # elif request.user.user_typ == CustomUser.VENDOR:
-                #     print("user is therapist")
-                #     return redirect(reverse('therapist'))
-                elif request.user.user_type == CustomUser.ADMIN:
-                    print("user is admin")                   
-                    return redirect('http://127.0.0.1:8000/admin/')
-                # else:
-                #     print("user is normal")
-                #     return redirect('')
+            if username and password:
+                user = authenticate(request, username =username , password=password)
+                if user is not None:
+                    auth_login(request,user)
+                    
+                    if request.user.user_type==CustomUser.CUSTOMER:
+                        request.session["username"] = user.username
+                        return redirect('/userhome', {'username':username})
+                        # return redirect('/userhome')
+                    # elif request.user.user_typ == CustomUser.VENDOR:
+                    #     print("user is therapist")
+                    #     return redirect(reverse('therapist'))
+                    elif request.user.user_type == CustomUser.ADMIN:
+                        print("user is admin")                   
+                        return redirect('http://127.0.0.1:8000/admin/')
+                    # else:
+                    #     print("user is normal")
+                    #     return redirect('')
 
+                else:
+                    messages.success(request,("Invalid credentials."))
             else:
-                messages.success(request,("Invalid credentials."))
-        else:
-            messages.success(request,("Please fill out all fields."))
+                messages.success(request,("Please fill out all fields."))
 
-        
-    return render(request, 'login.html')
+            
+        return render(request, 'login.html')
 
 
 def logout_user(request):

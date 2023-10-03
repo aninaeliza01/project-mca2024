@@ -40,13 +40,13 @@ class CustomUser(AbstractUser):
     CUSTOMER=4
 
     USER_TYPES = (
-        (ADMIN, 'Admin'),
-        (VENDOR, 'Vendor'),
-        (DELIVERYTEAM, 'Deliveryteam'),
-        (CUSTOMER, 'Customer'),
+        ('ADMIN', 'Admin'),
+        ('VENDOR', 'Vendor'),
+        ('DELIVERYTEAM', 'Deliveryteam'),
+        ('CUSTOMER', 'Customer'),
     )
 
-    user_type = models.PositiveSmallIntegerField(choices=USER_TYPES, default='4')
+    user_type = models.PositiveSmallIntegerField(choices=USER_TYPES)
     username=models.CharField(max_length=50,unique=True)
     email = models.EmailField(max_length=100, unique=True)
     phone = models.CharField(max_length=12)
