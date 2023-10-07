@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}userhome{% endblock %}
+{% block content %}
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+                <span aria-hidden="true">&times;</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if user.is_authenticated %}
+        {% for fuel in fueltype %}
+            <h1>{{ fuel.fueltype }}</h1>
+            <h1>{{ fuel.price }}</h1>
+        {% endfor %}
+    {% endif %}
+
+{% endblock content %}

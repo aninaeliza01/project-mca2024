@@ -1,0 +1,110 @@
+/* basestyle.css */
+
+/* Reset some default browser styles */
+body, h1, h2, h3, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+/* Set a background color and text color for the entire page */
+body {
+    background-color: #f2f2f2;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Style the header with a background color, logo, and navigation links */
+header {
+    background-color: #FA9A50;
+    color: #fff;
+    padding: 1px 0;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    display: flex;
+    align-items: center; /* Vertically align items */
+    background-color:  #FA9A50; /* Set background color to your desired color */
+    padding: 10px; /* Add some spacing */
+}
+
+.logo img {
+    max-width: 60px;
+    height: auto;
+    margin-right: 10px; /* Add spacing between logo and title */
+}
+
+.header h1 {
+    color: #f8f5f3; /* Change the color to your desired color */
+    font-size: 28px;
+    font-family: PoetsenOne;
+    font-weight: 400;
+    margin: 0; /* Remove any default margin to eliminate extra space */
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #ff6b6b;
+}
+
+/* Style the main content container */
+main {
+    background-color: #fff;
+    padding: 10px 0;
+}
+
+/* Style the footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav ul {
+        margin-top: 10px;
+    }
+
+    nav ul li {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .logo img {
+        max-width: 80px;
+    }
+
+    main {
+        padding: 10px;
+    }
+}

@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="">
+  <title>HybrideEnergy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600,700&display=swap" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
+  <link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
+</head>
+<body>
+  <div class="hero_area">
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="index.html">
+            <div>
+              <span>HybridEnergy</span></div>
+          </a>
+          <div class="navbar-collapse">
+            <div class="user_option">
+              <a href="">Search</a>
+              <a href="">Offers</a>
+              <a href="login">Login</a>
+                <div class="registration-dropdown">
+                  <span class="registration-label">Sign Up</span>
+                  <ul class="registration-options">
+                      <li><a href="registerUser/">Customer</a></li>
+                      <li><a href="registerPump">Vendor</a></li>
+                      <!-- <li><a href="registerDeliveryTeam/">Delivery Team</a></li> -->
+                      <!-- Add more registration options as needed -->
+                  </ul>
+              </div>
+            </div>
+            <div class="custom_menu-btn">
+              <button onclick="openNav()">
+                <span class="s-1"></span>
+                <span class="s-2"></span>
+                <span class="s-3"></span>
+              </button>
+            </div>
+            <div id="myNav" class="overlay">
+              <div class="overlay-content">
+                <a href="/">Home</a>
+                <a href="about.html">About</a>
+                <a href="Pump.html">Pump</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="login">Login</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <section class="slider_section position-relative">
+      <div class="slider_container">
+        <div class="img-box">
+          <img src="{% static 'images/main.png'%}" alt="">
+        </div>
+        <div class="detail_container">
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <div class="detail-box">
+                  <h1>"Fueling Your Journey: Quality, Convenience, and Reliability"</h1>
+                  <a href="#">Contact Us</a>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="detail-box">
+                  <h1>"Fueling Your Journey: Quality, Convenience, and Reliability"</h1>
+                  <a href="#">Contact Us</a>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="detail-box">
+                  <h1>"Fueling Your Journey: Quality, Convenience, and Reliability"</h1>
+                  <a href="#">Contact Us</a>
+                </div>
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <section class="book_section">
+    <div class="form_container">
+      <form action="">
+        <div class="form-row">
+              <div class="col-md-6">
+                <label for="parkingName">Pump Location</label>
+                <input type="text" class="form-control" placeholder="Search Pump">
+              </div>
+              <div class="btn-container">
+                <button type="submit">Search</button>
+              </div>
+        </div>
+      </form>
+    </div>
+    <div class="img-box">
+      <img src="{% static 'images/.png'%}" alt="">
+    </div>
+  </section>
+  
+  <section class="best_section">
+    <div class="container">
+      <div class="book_now">
+        <div class="detail-box">
+          <h2>Our Offers Of The Day</h2>
+        </div>
+        <div class="btn-box">
+          <a href="/userhome">Order Now</a>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+  <section class="rent_section layout_padding">
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table fuel-table">
+                <tbody>
+                    {% for fuel in fuels %}
+                    <tr>
+                        <th scope="row">{{ fuel.fueltype }}</th>
+                        <td>${{ fuel.price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+  
+  <section class="about_section layout_padding-bottom">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-7 px-0">
+          <div class="img-box">
+            <img src="{% static 'images/about-img.png'%}" alt="">
+          </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <div class="detail-box">
+            <h2>About Our Pumps</h2>
+            <p>"Fueling Your Needs. Your Business. Your Life. Fuel like: Diesel Fuel. Petrol Fuel. Natural Gas. Biofuels. Kerosene. Heating Oil. What are we delivering? Oh! Convenience. Reliability. Efficiency. Peace of Mind. Support for Your Journey. Commitment to Quality. Sustainability. Exceptional Service. We are more than just a fuel delivery service. We're your trusted partner, ensuring you're always ready to move forward. Explore our range of fuels and services and experience a new level of reliability and convenience for all your fueling needs."</p>
+            <a href="#">Read More</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+ <!-- <section class="contact_section layout_padding">
+    <div class="container">
+      <div class="heading_container">
+        <h2>Request A call back</h2>
+      </div>
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+          <div class="form_container">
+            <form>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <input type="text" class="form-control" id="inputName4" placeholder="Name">
+                </div>
+                <div class="form-group col-md-6">
+                  <input type="text" class="form-control" id="inputSubject4" placeholder="Phone">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col">
+                  <input type="email" class="form-control" id="inputEmail4" placeholder="Email id">
+                </div>
+              </div>
+              <div class="form-group">
+                <input type="text" class="form-control" id="inputMessage" placeholder="Message">
+              </div>
+              <div class="d-flex justify-content-center">
+                <button type="submit">Send</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="contact_items">
+        <a href="#">
+          <div class="img-box">
+            <img src="{% static 'images/location.png'}" alt="">
+          </div>
+          <h6>Loram Ipusum ari lo elisant na</h6>
+        </a>
+        <a href="#">
+          <div class="img-box">
+            <img src="{% static 'images/call.png'}" alt="">
+          </div>
+          <h6>(+12 1234456789)</h6>
+        </a>
+        <a href="#">
+          <div class="img-box">
+            <img src="{% static 'images/mail.png'}" alt="">
+          </div>
+          <h6>demo@gmail.com</h6>
+        </a>
+      </div>
+      <div class="social_container">
+        <div class="social-box">
+          <div>
+            <a href="#">
+              <img src="{% static 'images/fb.png'%}" alt="">
+            </a>
+          </div>
+          <div>
+            <a href="#">
+              <img src="{% static 'images/twitter.png'%}" alt="">
+            </a>
+          </div>
+          <div>
+            <a href="#">
+              <img src="{% static 'images/linkedin.png'%}" alt="">
+            </a>
+          </div>
+          <div>
+            <a href="#">
+              <img src="{% static 'images/insta.png'%}" alt="">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>-->
+  <footer class="container-fluid footer_section">
+    <p>
+      Copyright &copy; 2020 All Rights Reserved. Design by
+      <a href="https://html.design/">Free Html Templates</a> Distributed by <a href="https://themewagon.com">ThemeWagon</a>
+    </p>
+  </footer>
+  <script src="{% static 'js/jquery-3.4.1.min.js'%}"></script>
+  <script src="{% static 'js/bootstrap.js'%}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="{% static 'js/custom.js'%}"></script>
+</body>
+<style>
+
+
+
+</style>
+</html>

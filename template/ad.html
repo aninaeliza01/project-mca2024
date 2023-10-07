@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css"> <!-- Create a separate CSS file for custom styling -->
+    <script>
+        // JavaScript code as before
+    </script>
+</head>
+<body>
+    <div id="content-main" class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <h2 class="sidebar-heading">Admin Dashboard</h2>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Settings</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Welcome to the Admin Dashboard</h1>
+                    <a href="/logout" id="logout-link" class="btn btn-danger">Logout</a>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-box">
+                            <h2>Total Users</h2>
+                            <p>{{ user_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mb-3">Registered Users</h3>
+                <h3>Customer</h3>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <!-- <th>Action</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            {% if user.is_customer %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <!-- Add any action buttons here -->
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Vendor -->
+                <h3 class="mb-3">Pump</h3>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <!-- <th>Action</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            {% if user.is_vendor %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <!-- Add any action buttons here -->
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <h3 class="mb-3">Fuel</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Add Fuel</button>
+                </form>
+                <div class="table-responsive">
+                    <h3 class="mb-3">Fuel Records</h3>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Fuel Type</th>
+                                <th>Price</th>
+                                <th>Date Recorded</th>
+                                <th>Actions</th>
+                                <!-- Add more columns if needed -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fuel in fuels %}
+                            <tr>
+                                <form action="" method="POST"></form>
+                                <td>{{ fuel.fueltype }}</td>
+                                <form method="POST" action="{% url 'update_fuel' fuel.id %}">
+                                    {% csrf_token %}
+                                <td>
+                                <input type="number" id="price" name="price" value="{{ fuel.price }}" required></td>
+                                <td>{{ fuel.profile_modified_at }}</td>
+                                <td>
+                                    
+                          
+                                        <button type="submit" class="btn btn-danger btn-sm">Update</button>
+
+                                </td>
+                                <!-- Add more columns if needed -->
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+            </main>
+            
+        </div>
+      
+    </div>
+    
+
+    <style>
+        /* Your existing CSS styles here */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color:  #FA9A50;
+            color: #fff;
+        }
+
+        .sidebar-heading {
+            padding: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+        }
+
+        main {
+            margin-top: 1.5rem;
+            margin-left: 16.25rem; /* Same as sidebar width */
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        .table-responsive {
+            margin-top: 1rem;
+        }
+    /* Custom CSS for the "Total Users" stat box */
+    .stat-box {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .stat-box h2 {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
+    }
+
+    .stat-box p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007BFF; /* Custom color */
+    }
+
+    </style>
+</body>
+<script>
+    // Wait for the document to be fully loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        // Find the logout button by its ID
+        var logoutButton = document.getElementById("logout-link");
+
+        // Add a click event listener to the logout button
+        logoutButton.addEventListener("click", function () {
+            // Reload the page after a short delay (you can adjust the delay as needed)
+            setTimeout(function () {
+                location.reload();
+            }, 1000); // Reload after 1 second (1000 milliseconds)
+        });
+    });
+</script>
+</html>

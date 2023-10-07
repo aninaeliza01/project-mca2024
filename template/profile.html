@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}userhome{% endblock %}
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert" role="alert">
+            {{ message }}
+            <span aria-hidden="true">&times;</span>
+        </div>
+    {% endfor %}
+{% endif %}
+<div class="profile-header">
+    <!-- Profile picture and user details -->
+    <div class="profile-picture">
+          
+        {% if user_profile.profile_picture %}
+            <input type="radio" name="profile" value="{{'user_profile.profile_picture.url'}}" style="margin-left:40px;" onclick="chooseProfile(this.value, 'profile.html')">
+            <img src="{{'user_profile.profile_picture.url'}}"  style="margin-left:25px;"width="200" height="200" alt="Profile Picture" class="rounded-circle">
+        {% else %}
+            <div class="profile-placeholder rounded-circle">
+                <p>No profile picture available</p>
+            </div>
+        {% endif %}
+    </div>
+    <div class="user-details">
+        <h2>{{ user_details.username }}</h2>
+        <p><strong>Email:</strong> {{ user_details.email }}</p>
+        <p><strong>Phone:</strong> {{ user_details.phone }}</p>
+    </div>
+</div>
+
+<div class="profile-content">
+    <h3>User Profile Details</h3>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="profile_picture">Change Profile Picture:</label>
+        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+        
+        
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" value="{{ user_profile.address }}">
+        
+        <label for="addressline1">Address Line 1:</label>
+        <input type="text" id="addressline1" name="addressline1" value="{{ user_profile.addressline1 }}">
+        
+        <label for="addressline2">Address Line 2:</label>
+        <input type="text" id="addressline2" name="addressline2" value="{{ user_profile.addressline2 }}">
+        
+        <label for="state">State:</label>
+        <input type="text" id="state" name="state" value="{{ user_profile.state }}">
+        
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" value="{{ user_profile.city }}">
+        
+        <label for="pin_code">Pin Code:</label>
+        <input type="text" id="pin_code" name="pin_code" value="{{ user_profile.pin_code }}">
+        
+        <label for="gender">Gender:</label>
+        <input type="text" id="gender" name="gender" value="{{ user_profile.gender }}">
+        
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" value="{{ user_profile.dob|date:'Y-m-d' }}">
+        
+        <input type="submit" value="Save">
+    </form>
+</div>
+
+<style>
+/* Profile Header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+    overflow: hidden; /* Ensure the image stays within the circle */
+}
+
+
+/* Circular placeholder for profile picture */
+.profile-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #ccc; /* Placeholder background color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.profile-placeholder p {
+    font-size: 16px;
+}
+
+.user-details h2 {
+    font-size: 24px;
+}
+
+.user-details p {
+    font-size: 16px;
+}
+.profile-content {
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+}
+
+.profile-content h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.profile-content form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.profile-content form input[type="text"],
+.profile-content form input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.profile-content form input[type="file"] {
+    margin-top: 10px;
+}
+
+.profile-content form input[type="submit"] {
+    background-color: #3897f0;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.profile-content form input[type="submit"]:hover {
+    background-color: #2763a3;
+}
+/* Rest of your existing styles */
+</style>
+{% endblock content %}
