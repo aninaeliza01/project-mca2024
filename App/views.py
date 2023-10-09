@@ -47,7 +47,7 @@ def activate(request, uidb64, token):
             messages.warning(request, "Your account is already activated. You can log in.")
             return redirect('login')
 
-        if account_activation_token.check_token(user, token):
+        elif account_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
 
@@ -62,8 +62,7 @@ def activate(request, uidb64, token):
 def activateEmail(request, user):
     mail_subject = "Activate your user account."
     message = render_to_string("template_activate_account.html", {
-        'user': user,
-        
+        'user': user, 
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
         "protocol": 'https' if request.is_secure() else 'http'
@@ -71,7 +70,7 @@ def activateEmail(request, user):
     to_email = user.email  # Get the user's email from the user object
     email = EmailMessage(mail_subject, message, to=[to_email])
     if email.send():
-        messages.success(request, f'Dear <b>{user.username}</b>, please go to your email <b>{to_email}</b> inbox and click on \
+        messages.success(request, f'Dear {user.username}, please go to your email {to_email} inbox and click on \
                 the received activation link to confirm and complete the registration. <b>Note:</b> Check your spam folder.')
     else:
         messages.error(request, f'Problem sending email to {to_email}, check if you typed it correctly.')
@@ -83,7 +82,6 @@ def register_user(request):
         phone = request.POST.get('phoneNumber', None)
         password = request.POST.get('password', None)
         confirm_password = request.POST.get('cpassword', None)
-
         user_type = 'CUSTOMER'
 
         # Validate the email
@@ -120,14 +118,14 @@ def register_user(request):
 
 def login_user(request):
             if request.user.is_authenticated:
+                return redirect('/')
+            if 'username' in request.session:
                 return redirect('/userhome')
+            if 'username' in request.session:
+                return redirect('/pumphome')
+            if 'username' in request.session:
+                return redirect('/adminhome')
 
-            # if request.user.is_customer ==True:
-            #     return render(request,'userhome.html')
-            # if 'username' in request.session:
-            #     return redirect('/pumphome')
-            # if 'username' in request.session:
-            #     return redirect('http://127.0.0.1:8000/admin/')
         
         
             if request.method == 'POST':
@@ -137,15 +135,15 @@ def login_user(request):
                     user = authenticate(request, username =username , password=password)
 
                     if user is not None:
-                        auth_login(request,user)
-                        print(request.user.is_customer,"1")
-                        if request.user.is_customer == True:
-                            # request.session["username"] = user.username
+                        auth_login(request, user)
+                        print(request.user.is_customer, "1")
+                        if user.is_customer:
+                            request.session["username"] = user.username  # Use single equal sign (=) here
                             return redirect('/userhome')
-                        elif request.user.is_vendor == True:
+                        elif user.is_vendor:
                             request.session["username"] = user.username
                             return redirect('/pumphome')
-                        elif request.user.is_superuser == True:
+                        elif user.is_superuser:
                             request.session["username"] = user.username
                             return redirect('/adminhome')
                     else:
@@ -164,14 +162,15 @@ def logout_user(request):
 
 def customer_Profile(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    profile = None  # Initialize profile with a default value
 
     if request.method == 'POST':
         # Update the user profile fields directly from the form data
         profile_picture = request.FILES.get('profile_picture')
         if profile_picture:
             user_profile.profile_picture = profile_picture
-            user_profile.save()
-            messages.success(request, 'Profile picture updated successfully')
+
+        
         user_profile.address = request.POST.get('address')
         user_profile.addressline1 = request.POST.get('addressline1')
         user_profile.addressline2 = request.POST.get('addressline2')
@@ -180,16 +179,18 @@ def customer_Profile(request):
         user_profile.pin_code = request.POST.get('pin_code')
         user_profile.gender = request.POST.get('gender')
         user_profile.dob = request.POST.get('dob')
-
         user_profile.save()
         messages.success(request, 'Profile updated successfully')
+
     user_details = CustomUser.objects.filter(id=request.user.id).values('username', 'email', 'phone').first()
+
     context = {
         'user_profile': user_profile,
-        'user_details': user_details,
+        'user_details': user_details, # Assign the value of 'profile' here
     }
 
     return render(request, 'profile.html', context)
+
 
 def register_pump(request):
     if request.method == 'POST':
@@ -211,26 +212,28 @@ def register_pump(request):
             else:
                 user = CustomUser(username=username, email=email, phone=phone,gstn=gstn,user_type=user_type)
                 user.set_password(password)  # Set the password securely
-                user.is_active=True
+                user.is_active=False
                 user.is_vendor=True
+                user.is_customer = False
                 user.save()
                 user_profile = UserProfile(user=user)
                 user_profile.save()
-                # activateEmail(request, user, email)
+                activateEmail(request, user)
                 return redirect('login') 
     return render(request, 'registerPump.html')
 
 
 @login_required(login_url='login')
 def userhome(request):
-    content=Fuel.objects.all()
-    # fueltype = 
-    # price = 
-    context={
-        'fueltype':content
-    }
-    return render(request,'userhome.html',context)
-    # return redirect('/login')
+    if request.user.is_customer:
+        content=Fuel.objects.all()
+        # fueltype = 
+        # price = 
+        context={
+            'fueltype':content
+        }
+        return render(request,'userhome.html',context)
+    return redirect('/login')
     # return redirect('log')
 
 @login_required(login_url='login')
@@ -248,12 +251,13 @@ def base(request):
 
 @login_required(login_url='login')
 def adminhome(request):
-    if request.method == 'POST':
-        form = FuelForm(request.POST)
-        if form.is_valid():
-            form.save()
-            # Redirect to the admin dashboard page after successfully saving the data
-            return redirect('/adminhome')
+    if request.user.is_staff:
+        if request.method == 'POST':
+            form = FuelForm(request.POST)
+            if form.is_valid():
+                form.save()
+                # Redirect to the admin dashboard page after successfully saving the data
+                return redirect('/adminhome')
     
     users = CustomUser.objects.all()
     user_count = users.count()  # Calculate the count of users
@@ -277,6 +281,7 @@ def update_fuel(request, fuel_id):
     if request.method == 'POST':
         # Get the updated values from the POST request
         fuel.price = request.POST.get('price')
+        # if(fuel.price<=0):
 
         # Save the updated fuel object
         fuel.save()

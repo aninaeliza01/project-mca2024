@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
         ('CUSTOMER', 'Customer'),
     )
 
-    user_type = models.CharField(max_length=20,choices=USER_TYPES,blank=True, null=True)
+    user_type = models.CharField(max_length=20,choices=USER_TYPES,blank=True, null=True, default='CUSTOMER')
     
     # USERNAME_FIELD  = 'email'
     username = models.CharField(max_length=50,unique=True)
@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=12, unique=True,blank=True, null=True)
     password = models.CharField(max_length=128)
 
-    is_customer = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=True)
     is_vendor = models.BooleanField(default=False)
     is_deliveryteam = models.BooleanField(default=False)
 

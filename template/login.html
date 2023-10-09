@@ -41,7 +41,7 @@
                                
                     <input type="text" placeholder="USERNAME" name="username">
                     <input type="password" placeholder="PASSWORD" name="password">
-                    <button>LOGIN</button>
+                    <button id="logout-link">LOGIN</button>
                     <p class="forgot-password"><a href="{% url 'reset_password' %}">Forgot Password?</a></p>
                     <p class="signup">Don't have an account? <span><a href="/registerUser">Signup</a></span></p>
                     <button><a href="{% provider_login_url 'google' %}">Sign in with Google</a></button>
@@ -61,6 +61,22 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Wait for the document to be fully loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        // Find the logout button by its ID
+        var logoutButton = document.getElementById("logout-link");
+
+        // Add a click event listener to the logout button
+        logoutButton.addEventListener("click", function () {
+            // Reload the page after a short delay (you can adjust the delay as needed)
+            setTimeout(function () {
+                location.reload();
+            }, 1000); // Reload after 1 second (1000 milliseconds)
+        });
+    });
+</script>
 </body>
 </html>
 

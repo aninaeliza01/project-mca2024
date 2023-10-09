@@ -14,13 +14,12 @@
     <div class="profile-picture">
           
         {% if user_profile.profile_picture %}
-            <input type="radio" name="profile" value="{{'user_profile.profile_picture.url'}}" style="margin-left:40px;" onclick="chooseProfile(this.value, 'profile.html')">
-            <img src="{{'user_profile.profile_picture.url'}}"  style="margin-left:25px;"width="200" height="200" alt="Profile Picture" class="rounded-circle">
-        {% else %}
-            <div class="profile-placeholder rounded-circle">
-                <p>No profile picture available</p>
-            </div>
-        {% endif %}
+        <img src="{{ user_profile.profile_picture.url }}" width="120px" height="100px" alt="Profile Picture" >
+    {% else %}
+        <div class="profile-placeholder rounded-circle">
+            <p>No profile picture available</p>
+        </div>
+    {% endif %}
     </div>
     <div class="user-details">
         <h2>{{ user_details.username }}</h2>
@@ -60,7 +59,7 @@
         <input type="text" id="gender" name="gender" value="{{ user_profile.gender }}">
         
         <label for="dob">Date of Birth:</label>
-        <input type="date" id="dob" name="dob" value="{{ user_profile.dob|date:'Y-m-d' }}">
+        <input type="date" id="dob" name="dob" value="{{ user_profile.dob|date:'d-m-Y' }}">
         
         <input type="submit" value="Save">
     </form>
