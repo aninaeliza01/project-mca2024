@@ -22,8 +22,8 @@
     }
 
     .user_option a {
-        display: none;
-    }
+        display: inline; /* or display: inline-block; */
+      }
 
     .slider_section .slider_container .detail_container .detail-box {
         width: auto;

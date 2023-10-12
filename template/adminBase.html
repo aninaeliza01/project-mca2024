@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css"> <!-- Create a separate CSS file for custom styling -->
+    <script>
+        // JavaScript code as before
+    </script>
+</head>
+<body>
+    <div id="content-main" class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <h2 class="sidebar-heading">Admin Dashboard</h2>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/adminhome">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/adminuser">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/adminpump">Pump</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/fuel">Fuel</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Settings</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <a href="/logout" id="logout-link" class="btn btn-danger">Logout</a>
+                {% block content %}
+                {% endblock %}
+            </main>
+            
+        </div>
+      
+    </div>
+    
+
+    <style>
+        /* Your existing CSS styles here */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color:  #FA9A50;
+            color: #fff;
+        }
+
+        .sidebar-heading {
+            padding: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+        }
+
+        main {
+            margin-top: 1.5rem;
+            margin-left: 16.25rem; /* Same as sidebar width */
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        .table-responsive {
+            margin-top: 1rem;
+        }
+    /* Custom CSS for the "Total Users" stat box */
+    .stat-box {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .stat-box h2 {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
+    }
+
+    .stat-box p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007BFF; /* Custom color */
+    }
+
+    </style>
+</body>
+<script>
+    // Wait for the document to be fully loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        // Find the logout button by its ID
+        var logoutButton = document.getElementById("logout-link");
+
+        // Add a click event listener to the logout button
+        logoutButton.addEventListener("click", function () {
+            // Reload the page after a short delay (you can adjust the delay as needed)
+            setTimeout(function () {
+                location.reload();
+            }, 1000); // Reload after 1 second (1000 milliseconds)
+        });
+    });
+</script>
+</html>

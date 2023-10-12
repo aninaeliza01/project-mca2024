@@ -19,7 +19,9 @@ urlpatterns = [
 
     path('adminhome/', views.adminhome,name="adminhome"),
     path('update_fuel/<int:fuel_id>/', views.update_fuel, name='update_fuel'),
-
+    path('adminuser/', views.adminuser,name="adminuser"),
+    path('adminpump/', views.adminpump,name="adminpump"),
+    path('fuel/', views.fuel,name="fuel"),
 
     path('reset_password/', auth_views.PasswordResetView.as_view(), name="reset_password"),
     path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
@@ -31,9 +33,11 @@ urlpatterns = [
      
 
     path('base/', views.base),
+    path('adminbase/', views.adminbase),
     path('userhome/', views.userhome,name="userhome"),
     path('pumphome/', views.pumphome,name="pumphome"),
-    
+    path('pump/', views.pump,name="pump"),
+    path('userBase/', views.userBase,name="userBase"),
 ]
 
 if settings.DEBUG:

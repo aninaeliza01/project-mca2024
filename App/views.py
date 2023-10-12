@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .models import CustomUser,UserProfile,Fuel
 from .forms import FuelForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate ,login as auth_login,logout
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -20,8 +21,10 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-
-
+def pump(request):
+    return render(request, 'Pump.html')
+def userBase(request):
+    return render(request,'userBase.html')
 
 
 from django.core.exceptions import ValidationError
@@ -71,10 +74,10 @@ def activateEmail(request, user):
     email = EmailMessage(mail_subject, message, to=[to_email])
     if email.send():
         messages.success(request, f'Dear {user.username}, please go to your email {to_email} inbox and click on \
-                the received activation link to confirm and complete the registration. <b>Note:</b> Check your spam folder.')
+                the received activation link to confirm and complete the registration. Note: Check your spam folder.')
     else:
         messages.error(request, f'Problem sending email to {to_email}, check if you typed it correctly.')
-
+@never_cache
 def register_user(request):
     if request.method == 'POST':
         username = request.POST.get('username', None)
@@ -115,7 +118,7 @@ def register_user(request):
 
     return render(request, 'registerUser.html')
 
-
+@never_cache
 def login_user(request):
             if request.user.is_authenticated:
                 return redirect('/')
@@ -139,7 +142,7 @@ def login_user(request):
                         print(request.user.is_customer, "1")
                         if user.is_customer:
                             request.session["username"] = user.username  # Use single equal sign (=) here
-                            return redirect('/userhome')
+                            return redirect('/pump')
                         elif user.is_vendor:
                             request.session["username"] = user.username
                             return redirect('/pumphome')
@@ -147,8 +150,8 @@ def login_user(request):
                             request.session["username"] = user.username
                             return redirect('/adminhome')
                     else:
-                        messages.success(request,("Invalid credentials."))
-                        return redirect('/login')
+                          messages.success(request,("Invalid credentials."))
+                          return redirect('/login')
                 else:
                      messages.success(request,("Please fill out all fields."))
                      return redirect('/login')
@@ -160,6 +163,7 @@ def logout_user(request):
         logout(request)
     return redirect('/login')
 
+@login_required(login_url='login')
 def customer_Profile(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     profile = None  # Initialize profile with a default value
@@ -191,7 +195,7 @@ def customer_Profile(request):
 
     return render(request, 'profile.html', context)
 
-
+@never_cache
 def register_pump(request):
     if request.method == 'POST':
         username = request.POST.get('username', None)
@@ -222,7 +226,7 @@ def register_pump(request):
                 return redirect('login') 
     return render(request, 'registerPump.html')
 
-
+@never_cache
 @login_required(login_url='login')
 def userhome(request):
     if request.user.is_customer:
@@ -249,6 +253,31 @@ def pumphome(request):
 def base(request):
     return render(request, 'base.html')
 
+def adminbase(request):
+    return render(request, 'adminBase.html')
+
+def adminuser(request):
+    return render(request, 'adminUser.html')
+
+def adminpump(request):    
+    return render(request, 'adminPump.html')
+
+def fuel(request):
+    if request.user.is_staff:
+        if request.method == 'POST':
+            form = FuelForm(request.POST)
+            if form.is_valid():
+                form.save()
+                # Redirect to the admin dashboard page after successfully saving the data
+                return redirect('fuel')
+    fuels = Fuel.objects.all()
+    form = FuelForm()
+    context = {
+    'fuels': fuels,
+    'form': form, # Pass the user count to the template
+    }
+    return render(request, 'fuel.html',context)
+
 @login_required(login_url='login')
 def adminhome(request):
     if request.user.is_staff:
@@ -274,7 +303,6 @@ def adminhome(request):
     return render(request, 'ad.html',context)
 
 
-
 def update_fuel(request, fuel_id):
     fuel = get_object_or_404(Fuel, pk=fuel_id)
 
@@ -286,8 +314,8 @@ def update_fuel(request, fuel_id):
         # Save the updated fuel object
         fuel.save()
 
-        return redirect('adminhome')  # Redirect to the fuel records page after updating
+        return redirect('fuel')  # Redirect to the fuel records page after updating
 
-    return render(request, 'ad.html', {'fuel': fuel})
+    return render(request, 'fuel.html', {'fuel': fuel})
 
 

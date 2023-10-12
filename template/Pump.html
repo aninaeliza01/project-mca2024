@@ -28,6 +28,81 @@
   <link href="{% static 'css/style.css'%}" rel="stylesheet" />
   <!-- responsive style -->
   <link href="{% static 'css/responsive.css'%}" rel="stylesheet" />
+  <style>
+    .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f22324;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f22324;
+        }
+
+        /* Show the dropdown when hovering over the parent element */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        @media screen and (max-width: 768px) {
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f22324;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f22324;
+        }
+
+        /* Show the dropdown when hovering over the parent element */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+    }
+  </style>
 </head>
 
 <body class="sub_page">
@@ -41,11 +116,26 @@
               HybrideEnergy
             </span>
           </a>
+    
+          <!-- Search Form -->
+          <form class="form-inline search-form">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+          
           <div class="navbar-collapse" id="">
             <div class="user_option">
-              <a href="">
-                Login
-              </a>
+              {% if user.is_authenticated %}
+            <li class="dropdown">
+            <a href="#" class="dropbtn">{{ user.username }}</a>
+            <div class="dropdown-content">
+              <a href="/profile">Profile</a>
+              <a href="/logout" id="logout-link">LogOut</a>
+            </div>
+          </li>
+          {% else %}
+          <li><a href="/login">Login</a></li>
+          {% endif %}
             </div>
             <div class="custom_menu-btn">
               <button onclick="openNav()">
@@ -66,6 +156,9 @@
             </div>
           </div>
         </nav>
+      </div>
+    </header>
+    
       </div>
     </header>
     <!-- end header section -->

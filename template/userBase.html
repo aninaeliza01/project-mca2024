@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <title>HybrideEnergy</title>
+
+  <!-- slider stylesheet -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+   <!-- Add Bootstrap CSS -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css'%}" />
+
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600,700&display=swap" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'css/style.css'%}" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="{% static 'css/responsive.css'%}" rel="stylesheet" />
+  <style>
+    .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f22324;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f22324;
+        }
+
+        /* Show the dropdown when hovering over the parent element */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        @media screen and (max-width: 768px) {
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f22324;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f22324;
+        }
+
+        /* Show the dropdown when hovering over the parent element */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    }
+
+  </style>
+</head>
+
+<body class="sub_page">
+  <div class="hero_area">
+    <!-- header section strats -->
+    <header class="header_section">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg custom_nav-container">
+      <a class="navbar-brand" href="index.html">
+        <span>
+          HybrideEnergy
+        </span>
+      </a>
+
+      <!-- Search Form -->
+      <form class="form-inline search-form">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+
+      <div class="navbar-collapse" id="">
+        <div class="user_option">
+          {% if user.is_authenticated %}
+        <li class="dropdown">
+        <a href="#" class="dropbtn">{{ user.username }}</a>
+        <div class="dropdown-content">
+          <a href="/profile">Profile</a>
+          <a href="/logout" id="logout-link">LogOut</a>
+        </div>
+      </li>
+      {% else %}
+      <li><a href="/login">Login</a></li>
+      {% endif %}
+        </div>
+      <div class="custom_menu-btn">
+        <button onclick="openNav()">
+          <span class="s-1"> </span>
+          <span class="s-2"> </span>
+          <span class="s-3"> </span>
+        </button>
+      </div>
+      <div id="myNav" class="overlay">
+        <div class="overlay-content">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          <a href="car.html">Cars</a>
+          <a href="blog.html">Blog</a>
+          <a href="contact.html">Contact Us</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="container-fluid footer_section">
+        <p>
+          Copyright &copy; 2020 All Rights Reserved. Design by
+          <a href="https://html.design/">Free Html Templates</a> Distributed by <a href="https://themewagon.com">ThemeWagon</a>
+        </p>
+      </footer>
+      <!-- footer section -->
+    
+      <script src="{% static 'js/jquery-3.4.1.min.js'%}"></script>
+      <script src="{% static 'js/bootstrap.js'%}"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
+      </script>
+      <script src="{% static 'js/custom.js'%}"></script>
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    
+    </body>
+    <script>
+        // Wait for the document to be fully loaded
+        document.addEventListener("DOMContentLoaded", function () {
+            // Find the logout button by its ID
+            var logoutButton = document.getElementById("logout-link");
+            
+            // Add a click event listener to the logout button
+            logoutButton.addEventListener("click", function () {
+                // Reload the page after a short delay (you can adjust the delay as needed)
+                setTimeout(function () {
+                    location.reload();
+                }, 1000); // Reload after 1 second (1000 milliseconds)
+            });
+        });
+    </script>
+    
+    </html>

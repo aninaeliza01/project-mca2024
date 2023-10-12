@@ -140,7 +140,7 @@ EMAIL_FROM='aninaelizebeth2024a@mca.ajce.in'
 EMAIL_HOST_USER = 'aninaelizebeth2024a@mca.ajce.in'  
 EMAIL_HOST_PASSWORD = 'anina@mca' 
 
-PASSWORD_RESET_TIMEOUT=14400
+# PASSWORD_RESET_TIMEOUT=14400
 
 JAZZMIN_SETTINGS = {
 "show_ui_builder" : True }
