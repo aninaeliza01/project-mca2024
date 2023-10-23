@@ -5,5 +5,5 @@ from .models import *
 admin.site.register(CustomUser)
 admin.site.register(UserProfile)
 admin.site.register(Fuel)
-admin.site.register(PumpDetails)
+admin.site.register(FuelStation)
 admin.site.register(LocationDetails)

@@ -43,8 +43,15 @@
                     <input type="password" placeholder="PASSWORD" name="password">
                     <button id="logout-link">LOGIN</button>
                     <p class="forgot-password"><a href="{% url 'reset_password' %}">Forgot Password?</a></p>
-                    <p class="signup">Don't have an account? <span><a href="/registerUser">Signup</a></span></p>
-                    <button><a href="{% provider_login_url 'google' %}">Sign in with Google</a></button>
+                    <p class="signup">Don't have an account? <span><a href="/registerPump">Signup</a></span></p>
+
+                    <div class="google"style="border: 2px solid  #FA9A50; padding: 10px; border-radius: 5px; text-align: center;">
+                        <p>For Customers</p>
+                        <button style="background-color:  #FA9A50;color: #ffffff; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">
+                            <a href="{% provider_login_url 'google' %}" style="text-decoration: none; color: #ffffff;">Sign in with Google</a>
+                        </button>
+                      </div>
+                      
                 </div>
                 <br>
                 
@@ -78,5 +85,11 @@
     });
 </script>
 </body>
+<style>
+    .google:hover {
+      background-color: #ab1313; /* Background color on hover */
+      color: #ffffff; /* Text color on hover */
+    }
+  </style>
 </html>
 

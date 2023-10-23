@@ -32,13 +32,24 @@
         <div class="content-container">
             <div class="form-container">
                 <h2>Create Account</h2>
-                <form method="POST" onsubmit="return validateForm();">
+                <form method="POST" onsubmit="return validateForm();" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="input-box">
                         <span class="details">Username</span>
-                        <input type="text" name="username" id="username" placeholder="Enter your username" oninput="validateUsername()">
+                        <input type="text" name="username" id="username" placeholder="Enter username" oninput="validateUsername()">
                         <span id="usernameError" class="error"></span>
                         
+                      </div>
+                      <div class="input-box">
+                        <span class="details">Fuel Station Name</span>
+                        <input type="text" name="station_name" id="station_name" placeholder="Enter Fuel Station Name" oninput="validateStationName()">
+                        <span id="stationNameError" class="error"></span>
+                    </div>
+                    
+                      <div class="input-box">
+                        <span class="details">Owner Name</span>
+                        <input type="text" name="ownername" id="ownername" placeholder="Enter Owner Name" oninput="validateOwnername()">
+                        <span id="ownernameError" class="error"></span>                        
                       </div>
                       <div class="input-box">
                         <span class="details">Email</span>
@@ -49,14 +60,32 @@
                       <div class="input-box">
                         <span class="details">Phone Number</span>
                         <input type="text" name="phoneNumber" id="phoneNumber" placeholder="Enter your number" oninput="validatePhoneNumber()">
-                        <span id="phoneNumberError" class="error"></span>
-                        
+                        <span id="phoneNumberError" class="error"></span>    
                       </div>
+                      
                       <div class="input-box">
                         <span class="details">GST Number</span>
                         <input type="text" name="gstNumber" id="gstNumber" placeholder="Enter your GST Number" oninput="validateGST()">
                         <span id="gstNumberError" class="error"></span>
                     </div>
+                    <div class="input-box">
+                        <span class="details">Address</span>
+                        <input type="text" name="address" id="address" placeholder="Enter your address" oninput="validateAddress()">
+                        <span id="addressError" class="error"></span>
+                    </div>
+                    
+                    <div class="input-box">
+                        <span class="details">City</span>
+                        <select name="location" id="location" onchange="validateLocation()">
+                            <option value="">Select a City</option>
+                            {% for location in locations %}
+                                <option value="{{ location.id }}">{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span id="locationError" class="error"></span>
+                    </div>
+                    
+                    
                       <div class="input-box">
                             <span class="details">Password</span>
                             <input type="password" name="password" id="password" placeholder="Enter your password" oninput="validatePassword()">
@@ -75,6 +104,11 @@
                             <span id="cpasswordError" class="error"></span>
                    
                         </div>
+                        <div class="input-box">
+                            <span class="details">Fuel Station Image</span>
+                            <input type="file" name="logo_image" id="logo_image" accept="image/*" onchange="validateImage()">
+                            <span id="imageError" class="error"></span>
+                        </div>
 
                         
                         
@@ -91,6 +125,28 @@
         </div>
     </div>
 </body>
+<style>
+    /* Style for the select element */
+    select#location {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Style for the options in the dropdown */
+    select#location option {
+        font-size: 16px;
+        padding: 5px;
+    }
+    .input-box input[type="file"] {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+    }
+</style>
 <script>
     
     function validateUsername() {
@@ -111,6 +167,75 @@
         return true;
     }
 }
+function validateStationName() {
+    var stationName = document.getElementById("station_name").value.trim();
+    var stationNameError = document.getElementById("stationNameError");
+    var stationNamePattern = /^[A-Za-z0-9\s]+$/; // Allow letters, numbers, and spaces
+
+    if (stationName === "") {
+        stationNameError.textContent = "Please enter the fuel station name.";
+        stationNameError.style.color = "red";
+        return false;
+    } else if (!stationNamePattern.test(stationName)) {
+        stationNameError.textContent = "Fuel station name must contain letters, numbers, and spaces only.";
+        stationNameError.style.color = "red";
+        return false;
+    } else {
+        stationNameError.textContent = "";
+        return true;
+    }
+}
+
+function validateOwnername() {
+    var ownername = document.getElementById("ownername").value.trim();
+    var ownernameError = document.getElementById("ownernameError");
+    var ownernamePattern = /^[A-Za-z\s]+$/; // Allow letters and spaces
+
+    if (ownername === "") {
+        ownernameError.textContent = "Please enter the owner's name.";
+        ownernameError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!ownernamePattern.test(ownername)) {
+        ownernameError.textContent = "Owner's name must contain letters and spaces only.";
+        ownernameError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        ownernameError.textContent = "";
+        return true;
+    }
+}
+
+function validateAddress() {
+    var address = document.getElementById("address").value.trim();
+    var addressError = document.getElementById("addressError");
+    var addressPattern = /^[A-Za-z0-9\s,.'-]+$/; // Adjust the pattern to your specific requirements
+
+    if (address === "") {
+        addressError.textContent = "Please enter your address.";
+        addressError.style.color = "red";
+        return false;
+    } else if (!addressPattern.test(address)) {
+        addressError.textContent = "Please enter a valid address.";
+        addressError.style.color = "red";
+        return false;
+    } else {
+        addressError.textContent = ""; // Clear the error message if the address is valid
+        return true;
+    }
+}
+
+function validateLocation() {
+    var location = document.getElementById("location");
+    var locationError = document.getElementById("locationError");
+
+    if (location.value === "") {
+        locationError.textContent = "Please select a valid location.";
+        locationError.style.color = "red";
+    } else {
+        locationError.textContent = ""; // Clear the error message
+    }
+}
+
 
     function validateEmail() {
         var email = document.getElementById("email").value.trim();
@@ -152,6 +277,21 @@
 		}
 	}
 
+    function validateImage() {
+    var imageInput = document.getElementById("logo_image");
+    var imageError = document.getElementById("imageError");
+    
+    if (imageInput.files.length === 0) {
+        imageError.textContent = "Please select an image for your logo.";
+        imageError.style.color = "red";
+        return false;
+    }
+
+    // You can add additional validation here if needed, such as checking the file size or type.
+
+    imageError.textContent = ""; // Clear the error message if the image is valid
+    return true;
+}
 
 
     function validatePassword() 
@@ -234,13 +374,25 @@
       if (!validatePhoneNumber()) {
         isFormValid = false;
       }
+      if (!validateAddress()) {
+        isFormValid = false;
+    }
+
+    if (!validateLocation()) {
+        isFormValid = false;
+    }
 
       if (!validatePassword()) {
         isFormValid = false;
       }
-      if (!validateGST()) {
+      if (!validateOwnername()) {
         isFormValid = false;
       }
+      
+      if (!validateImage()) {
+        isFormValid = false;
+      }
+      
 
       return isFormValid;
     }

@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .models import CustomUser,UserProfile,Fuel
+from .models import *
 from .forms import FuelForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -11,17 +11,19 @@ from django.core.validators import validate_email
 
 # from django.contrib.auth.models import User
 # Create your views here.
+@never_cache
 def index(request):
     fuels = Fuel.objects.all()  # Retrieve fuel records
-    # Other context data as needed
+    user = request.user
     context = {
         'fuels': fuels,
+        'user':user,
         # Other context data
     }
     return render(request, 'index.html', context)
 
-
-def pump(request):
+@never_cache
+def userhome(request):
     return render(request, 'Pump.html')
 def userBase(request):
     return render(request,'userBase.html')
@@ -77,57 +79,69 @@ def activateEmail(request, user):
                 the received activation link to confirm and complete the registration. Note: Check your spam folder.')
     else:
         messages.error(request, f'Problem sending email to {to_email}, check if you typed it correctly.')
-@never_cache
-def register_user(request):
-    if request.method == 'POST':
-        username = request.POST.get('username', None)
-        email = request.POST.get('email', None)
-        phone = request.POST.get('phoneNumber', None)
-        password = request.POST.get('password', None)
-        confirm_password = request.POST.get('cpassword', None)
-        user_type = 'CUSTOMER'
+# @never_cache
+# def register_user(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username', None)
+#         email = request.POST.get('email', None)
+#         phone = request.POST.get('phoneNumber', None)
+#         password = request.POST.get('password', None)
+#         confirm_password = request.POST.get('cpassword', None)
+       
+#         user_type = 'CUSTOMER'
 
-        # Validate the email
-        # try:
-        #     validate_email(email)
-        # except ValidationError:
-        #     messages.error(request, "Invalid email address.")
-        #     return render(request, 'registerUser.html')
+#         # Validate the email
+#         # try:
+#         #     validate_email(email)
+#         # except ValidationError:
+#         #     messages.error(request, "Invalid email address.")
+#         #     return render(request, 'registerUser.html')
 
-        if username and email and password:
-            if CustomUser.objects.filter(email=email).exists():
-                messages.success(request, "Email is already registered.")
-                return redirect('registerUser')
-            elif CustomUser.objects.filter(username=username).exists():
-                messages.success(request, "Username is already registered.")
-                return redirect('registerUser')
-            elif password != confirm_password:
-                messages.success(request, "Passwords don't match. Please enter correct passwords.")
-                return redirect('registerUser')
-            else:
-                user = CustomUser(username=username, email=email, user_type=user_type,phone=phone)
-                user.set_password(password)  # Set the password securely
-                user.is_active = False
-                user.is_customer = True
-                user.user_type = user_type
-                user.save()
-                user_profile = UserProfile(user=user)
-                user_profile.save()
-                activateEmail(request, user)
-                return redirect('login')
+#         if username and email and password:
+#             if CustomUser.objects.filter(email=email).exists():
+#                 messages.success(request, "Email is already registered.")
+#                 return redirect('registerUser')
+#             elif CustomUser.objects.filter(username=username).exists():
+#                 messages.success(request, "Username is already registered.")
+#                 return redirect('registerUser')
+#             elif password != confirm_password:
+#                 messages.success(request, "Passwords don't match. Please enter correct passwords.")
+#                 return redirect('registerUser')
+#             else:
+#                 user = CustomUser(username=username, email=email, user_type=user_type,phone=phone)
+#                 user.set_password(password)  # Set the password securely
+#                 user.is_active = False
+#                 user.is_customer = True
+#                 user.user_type = user_type
+#                 user.save()
+#                 user_profile = UserProfile(user=user)
+#                 user_profile.save()
+#                 activateEmail(request, user)
+#                 userFuel = FuelStation(user=user)
+#                 userFuel.station_name = request.POST.get('station_name')
+#                 userFuel.ownername = request.POST.get('ownername')
+#                 userFuel.address = request.POST.get('address')
+#                 userFuel.email = email
+#                 userFuel.phone_number = phone
+#                 userFuel.gst_number = gstn
+#                 userFuel.logo_image = request.FILES.get('logo_image')
+#                 userFuel.location = LocationDetails.objects.get(pk=request.POST.get('location'))
+#                 userFuel.save()
 
-    return render(request, 'registerUser.html')
+#                 return redirect('login')
+
+#     return render(request, 'registerUser.html')
 
 @never_cache
 def login_user(request):
-            if request.user.is_authenticated:
-                return redirect('/')
-            if 'username' in request.session:
-                return redirect('/userhome')
-            if 'username' in request.session:
-                return redirect('/pumphome')
-            if 'username' in request.session:
-                return redirect('/adminhome')
+            # # if request.user.is_authenticated:
+            # #     return redirect('/')
+            # if 'username' in request.session:
+            #     return redirect('/userhome')
+            # elif 'username' in request.session:
+            #     return redirect('/pumphome')
+            # elif 'username' in request.session:
+            #     return redirect('/adminhome')
 
         
         
@@ -142,7 +156,7 @@ def login_user(request):
                         print(request.user.is_customer, "1")
                         if user.is_customer:
                             request.session["username"] = user.username  # Use single equal sign (=) here
-                            return redirect('/pump')
+                            return redirect('/userhome')
                         elif user.is_vendor:
                             request.session["username"] = user.username
                             return redirect('/pumphome')
@@ -158,6 +172,7 @@ def login_user(request):
 
             return render(request, 'login.html')
 
+@login_required(login_url='login')
 def logout_user(request):
     if request.user.is_authenticated:
         logout(request)
@@ -220,26 +235,35 @@ def register_pump(request):
                 user.is_vendor=True
                 user.is_customer = False
                 user.save()
-                user_profile = UserProfile(user=user)
-                user_profile.save()
+                userFuel = FuelStation(user=user)
+                userFuel.station_name = request.POST.get('station_name')
+                userFuel.ownername = request.POST.get('ownername')
+                userFuel.address = request.POST.get('address')
+                userFuel.email = email
+                userFuel.phone_number = phone
+                userFuel.gst_number = gstn
+                userFuel.location = LocationDetails.objects.get(pk=request.POST.get('location'))
+                userFuel.logo_image = request.FILES.get('logo_image')
+                userFuel.save()
                 activateEmail(request, user)
                 return redirect('login') 
-    return render(request, 'registerPump.html')
+    locations = LocationDetails.objects.all()
+    return render(request, 'registerPump.html', {'locations': locations})
 
-@never_cache
-@login_required(login_url='login')
-def userhome(request):
-    if request.user.is_customer:
-        content=Fuel.objects.all()
-        # fueltype = 
-        # price = 
-        context={
-            'fueltype':content
-        }
-        return render(request,'userhome.html',context)
-    return redirect('/login')
+# @never_cache
+# @login_required(login_url='login')
+# def userhome(request):
+#     if request.user.is_customer:
+#         content=Fuel.objects.all()
+#         # fueltype = 
+#         # price = 
+#         context={
+#             'fueltype':content
+#         }
+#         return render(request,'userhome.html',context)
+#     return redirect('/login')
     # return redirect('log')
-
+@never_cache
 @login_required(login_url='login')
 def pumphome(request):
     if request.user.is_vendor == True:
@@ -256,12 +280,41 @@ def base(request):
 def adminbase(request):
     return render(request, 'adminBase.html')
 
+@never_cache
+@login_required(login_url='login')
 def adminuser(request):
-    return render(request, 'adminUser.html')
+    users = CustomUser.objects.all()
+    context = {
+       'users':users  
+     }
+    return render(request, 'adminUser.html',context)
+@never_cache
+@login_required(login_url='login')
+def block_unblock_user(request, user_id):
+    user = CustomUser.objects.get(pk=user_id)
+    if user.is_active:
+        user.is_active = False  # Block the user
+        subject = 'Account Blocked'
+        message = 'Your account has been blocked by the admin.'
+        from_email = 'aninaelizebeth2024a@mca.ajce.in'  # Use your admin's email address
+        recipient_list = [user.email]
+        send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+    else:
+        user.is_active = True  # Unblock the user
+    user.save()
+    return redirect('/adminuser') 
 
-def adminpump(request):    
-    return render(request, 'adminPump.html')
+@never_cache
+@login_required(login_url='login')
+def adminpump(request):  
+    users = CustomUser.objects.all()
+    context = {
+       'users':users  
+     }  
+    return render(request, 'adminPump.html',context)
 
+@never_cache
+@login_required(login_url='login')
 def fuel(request):
     if request.user.is_staff:
         if request.method == 'POST':
@@ -278,6 +331,18 @@ def fuel(request):
     }
     return render(request, 'fuel.html',context)
 
+@never_cache
+@login_required(login_url='login')
+def location(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        LocationDetails.objects.create(name=name)
+    
+    locations = LocationDetails.objects.all()
+    
+    return render(request, "location.html", {"locations": locations})
+
+@never_cache
 @login_required(login_url='login')
 def adminhome(request):
     if request.user.is_staff:
@@ -302,7 +367,8 @@ def adminhome(request):
     }
     return render(request, 'ad.html',context)
 
-
+@never_cache
+@login_required(login_url='login')
 def update_fuel(request, fuel_id):
     fuel = get_object_or_404(Fuel, pk=fuel_id)
 

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "userBase.html" %}
 {% block title %}userhome{% endblock %}
 {% block content %}
 {% if messages %}
@@ -37,7 +37,7 @@
         <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
         
         
-        <label for="address">Address:</label>
+        <!-- <label for="address">Address:</label>
         <input type="text" id="address" name="address" value="{{ user_profile.address }}">
         
         <label for="addressline1">Address Line 1:</label>
@@ -59,7 +59,7 @@
         <input type="text" id="gender" name="gender" value="{{ user_profile.gender }}">
         
         <label for="dob">Date of Birth:</label>
-        <input type="date" id="dob" name="dob" value="{{ user_profile.dob|date:'d-m-Y' }}">
+        <input type="date" id="dob" name="dob" value="{{ user_profile.dob|date:'d-m-Y' }}"> -->
         
         <input type="submit" value="Save">
     </form>

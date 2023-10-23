@@ -1,0 +1,40 @@
+{% extends "adminbase.html" %}
+{% block title %}Location{% endblock %}
+{% block content %}
+  <div class="container">
+    <h3>Add Location</h3>
+  <form method="post">
+    {% csrf_token %}
+    <label for="name">Location Name:</label>
+    <input type="text" id="name" name="name" required>
+    <a href="{% url 'location' %}" class="btn btn-success">Add Location</a>
+  </form>
+    <h3>Locations</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Location Name</th>
+          <!-- <th>Action</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for location in locations %}
+          <tr>
+            <td>{{ location.name }}</td>
+            <!-- <td>
+              <a href="" class="btn btn-primary">Edit</a>
+              <a href="" class="btn btn-danger">Delete</a>
+            </td> -->
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No locations available.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+
+    
+  </div>
+{% endblock content %}

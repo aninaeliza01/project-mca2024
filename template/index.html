@@ -27,16 +27,27 @@
             <div class="user_option">
               <a href="">Search</a>
               <a href="">Offers</a>
-          {% if user.is_authenticated %}
-              <a href="/userhome">Home</a>
-          {% else %}
-              <a href="login">Login</a>
+              {% if user.is_authenticated %}
+                {% if user.is_customer %}
+                  <a href="/userhome">Home</a>
+                {% elif user.is_vendor %}
+                  <a href="/pumphome">Home</a>
+                {% elif user.is_superuser %}
+                  <a href="/adminhome">Home</a>
+                {% endif %}
+              {% else %}
+                <a href="login">Login</a>
                 <div class="registration-dropdown">
                   <span class="registration-label">Sign Up</span>
                   <ul class="registration-options">
-                      <li><a href="registerUser/">Customer</a></li>
-                      <li><a href="registerPump">Vendor</a></li>
-            {% endif %}
+                    <!-- <li><a href="registerUser/">Customer</a></li> -->
+                    <li><a href="registerPump">Vendor</a></li>
+                    <!-- <li><a href="registerDeliveryTeam/">Delivery Team</a></li> -->
+                    <!-- Add more registration options as needed -->
+                  </ul>
+                </div>
+              {% endif %}
+
                       <!-- <li><a href="registerDeliveryTeam/">Delivery Team</a></li> -->
                       <!-- Add more registration options as needed -->
                   </ul>

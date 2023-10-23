@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('login/', views.login_user,name="login"),
     path('logout/', views.logout_user,name="logout"),
-    path('registerUser/', views.register_user,name="registerUser"),
+    path('registerPump/', views.register_pump,name="registerPump"),
     path('profile/', views.customer_Profile,name="profile"),
     path('accounts/profile/', views.userhome,name="userhome"),
 
@@ -20,8 +20,10 @@ urlpatterns = [
     path('adminhome/', views.adminhome,name="adminhome"),
     path('update_fuel/<int:fuel_id>/', views.update_fuel, name='update_fuel'),
     path('adminuser/', views.adminuser,name="adminuser"),
+    path('block_unblock_user/<int:user_id>/', views.block_unblock_user, name='block_unblock_user'),
     path('adminpump/', views.adminpump,name="adminpump"),
     path('fuel/', views.fuel,name="fuel"),
+    path('location/', views.location,name="location"),
 
     path('reset_password/', auth_views.PasswordResetView.as_view(), name="reset_password"),
     path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
@@ -36,7 +38,7 @@ urlpatterns = [
     path('adminbase/', views.adminbase),
     path('userhome/', views.userhome,name="userhome"),
     path('pumphome/', views.pumphome,name="pumphome"),
-    path('pump/', views.pump,name="pump"),
+    # path('pump/', views.pump,name="pump"),
     path('userBase/', views.userBase,name="userBase"),
 ]
 

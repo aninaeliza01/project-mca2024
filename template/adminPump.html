@@ -10,7 +10,7 @@
                 <th>Username</th>
                 <th>Email</th>
                 <th>Status</th>
-                <!-- <th>Action</th> -->
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -20,10 +20,18 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                    <!-- Status information here -->
+                    {% if user.is_active %}
+                        Active
+                    {% else %}
+                        Blocked
+                    {% endif %}
                 </td>
                 <td>
-                    <!-- Add any action buttons here -->
+                    {% if user.is_active %}
+                        <a href="{% url 'block_unblock_user' user.id %}" class="btn btn-danger">Block</a>
+                    {% else %}
+                        <a href="{% url 'block_unblock_user' user.id %}" class="btn btn-success">Unblock</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endif %}

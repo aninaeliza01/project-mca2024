@@ -195,7 +195,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'email',
         ],
         'AUTH_PARAMS': {
-            'access_type': 'online',
+            'access_type': 'offline',
         },
         'APP': {
             'client_id': '804776885827-ogb750pp2jn19ipn31spbkemh120g95j.apps.googleusercontent.com',  # Replace with your actual client ID

@@ -57,7 +57,7 @@ class UserProfile(models.Model):
     def str(self):
         return self.user.username
     
-    from django.db import models
+    
 
 class Fuel(models.Model):
     fueltype = models.CharField(max_length=255)  # Define the field for fuel type
@@ -72,11 +72,25 @@ class LocationDetails(models.Model):
     def __str__(self):
         return self.name
     
-class PumpDetails(models.Model):
-    name = models.CharField(max_length=255)  # Define the field for fuel type
-    location= models.ForeignKey(LocationDetails,on_delete=models.CASCADE,related_name='pumb') # Define the field for price
-    valueaddedservice = models.CharField(max_length=255,blank=True, null=True)
+# class PumpDetails(models.Model):
+#     name = models.CharField(max_length=255)  # Define the field for fuel type
+#     location= models.ForeignKey(LocationDetails,on_delete=models.CASCADE,related_name='pumb') # Define the field for price
+#     valueaddedservice = models.CharField(max_length=255,blank=True, null=True)
     
 
+#     def __str__(self):
+#         return self.name
+
+class FuelStation(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    station_name = models.CharField(max_length=100)
+    ownername = models.CharField(max_length=50)
+    address = models.CharField(max_length=50, blank=True, null=True)
+    location= models.ForeignKey(LocationDetails,on_delete=models.CASCADE)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=12)
+    gst_number = models.CharField(max_length=15)
+    logo_image = models.ImageField(upload_to='media/fuel_station_logos', null=True, blank=True)
+
     def __str__(self):
-        return self.name
+        return self.station_name
