@@ -23,8 +23,23 @@ def index(request):
     return render(request, 'index.html', context)
 
 @never_cache
+@login_required(login_url='login')
 def userhome(request):
-    return render(request, 'Pump.html')
+    pumps = FuelStation.objects.all() 
+    context = {'pumps': pumps}
+    return render(request, 'userhome.html', context)
+
+def place_order(request, pump_id):
+    fuel_types = Fuel.objects.all()
+    pump = get_object_or_404(FuelStation, pk=pump_id)
+    context = {
+        'fuel_types': fuel_types,
+        'pump': pump
+        # Include other context data you need
+    }
+
+
+    return render(request, 'place_order.html', context)
 def userBase(request):
     return render(request,'userBase.html')
 

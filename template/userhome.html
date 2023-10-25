@@ -8,12 +8,40 @@
                 <span aria-hidden="true">&times;</span>
             </div>
         {% endfor %}
-    {% endif %}
-    {% if user.is_authenticated %}
-        {% for fuel in fueltype %}
-            <h1>{{ fuel.fueltype }}</h1>
-            <h1>{{ fuel.price }}</h1>
-        {% endfor %}
-    {% endif %}
+{% endif %}
+<section class="pump_section layout_padding">
+    <div class="container">
+        <div class="heading_container">
+            <h2>
+                Find the Nearest Fuel Stations
+            </h2>
+            <p>
+                Discover the closest fuel stations and place your order now.
+            </p>
+        </div>
+        <div class="pump_container">
+            <!-- Replace this block with a loop through your pump data -->
+            {% for pump in pumps %}
+            <div class="box">
+                <div class="img-box"> 
+                      <img src="" alt="{{ pump.station_name }}"> 
+                </div>
+                <div class="detail-box">
+                    <h5>
+                        {{ pump.station_name }}
+                    </h5>
+                    <p>
+                        Address: {{ pump.address }}
+                        <br>
+                        Location: {{ pump.location.name }}
+                    </p>
+                    <button><a href="{% url 'place_order' pump.id %}">Place Order</a></button>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- End loop -->
+        </div>
+    </div>
+  </section>
 
 {% endblock content %}

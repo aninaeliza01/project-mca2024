@@ -10,11 +10,12 @@ urlpatterns = [
 
     path('login/', views.login_user,name="login"),
     path('logout/', views.logout_user,name="logout"),
-    path('registerPump/', views.register_pump,name="registerPump"),
+
+    path('userhome/', views.userhome,name="userhome"),
     path('profile/', views.customer_Profile,name="profile"),
     path('accounts/profile/', views.userhome,name="userhome"),
-
-    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
+    path('place_order/<int:pump_id>/', views.place_order, name='place_order'),
+    
 
 
     path('adminhome/', views.adminhome,name="adminhome"),
@@ -32,11 +33,11 @@ urlpatterns = [
 
     
     path('registerPump/', views.register_pump,name="registerPump"),
+    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
      
 
     path('base/', views.base),
     path('adminbase/', views.adminbase),
-    path('userhome/', views.userhome,name="userhome"),
     path('pumphome/', views.pumphome,name="pumphome"),
     # path('pump/', views.pump,name="pump"),
     path('userBase/', views.userBase,name="userBase"),

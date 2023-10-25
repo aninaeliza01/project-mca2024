@@ -1,0 +1,49 @@
+{% extends "userBase.html" %}
+{% block title %}Place Order{% endblock %}
+{% block content %}
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+                <span aria-hidden="true">&times;</span>
+            </div>
+        {% endfor %}
+{% endif %}
+<h1>Place an Order at {{ pump.station_name }}</h1>
+<p>Address: {{ pump.address }}</p>
+<p>Location: {{ pump.location.name }}</p>
+
+<!-- Order placement form -->
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Select field for choosing the fuel type -->
+    <div class="form-group">
+        <label for="fuel_type">Fuel Type:</label>
+        <select name="fuel_type" id="fuel_type">
+            <option value="">Select Fuel Type</option>
+            {% for fuel in fuel_types %}
+                <option value="{{ fuel.fueltype }}">{{ fuel.fueltype }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <!-- Input field for specifying the quantity -->
+    <div class="form-group">
+        <label for="quantity">Quantity (in liters):</label>
+        <input type="number" name="quantity" id="quantity" required>
+    </div>
+    
+    <!-- Input field for specifying the delivery point -->
+    <div class="form-group">
+        <label for="delivery_point">Delivery Point:</label>
+        <input type="text" name="delivery_point" id="delivery_point" required>
+    </div>
+
+    <!-- Add more form fields as needed for other order details -->
+    
+    <!-- Add a submit button to place the order -->
+    <button type="submit">Place Order</button>
+</form>
+
+{% endblock content %}
