@@ -1,44 +1,166 @@
 {% extends "adminbase.html" %}
 {% block title %}fuel{% endblock %}
 {% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 <h3 class="mb-3">Fuel</h3>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Add Fuel</button>
-    </form>
+<form method="POST" onsubmit="return validateForm()">
+    {% csrf_token %}
+    <label for="id_fueltype">Fuel Type:</label>
+    <input type="text" name="fueltype" id="id_fueltype">
+    <span class="error" id="fueltypeError"></span><br>
 
-    <div class="table-responsive">
-        <h3 class="mb-3">Fuel Records</h3>
-        <table class="table table-striped table-sm">
-            <thead>
-                <tr>
-                    <th>Fuel Type</th>
-                    <th>Price</th>
-                    <th>Date Recorded</th>
-                    <th>Actions</th>
+    <label for="id_price">Price:</label>
+    <input type="number" name="price" id="id_price">
+    <span class="error" id="priceError"></span><br>
+
+    <button type="submit">Add Fuel</button>
+</form>
+<div class="table-responsive">
+    <h3 class="mb-3">Fuel Records</h3>
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Fuel Type</th>
+                <th>Price</th>
+                <th>Date Recorded</th>
+                <th>Actions</th>
+                <!-- Add more columns if needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for fuel in fuels %}
+            <tr>
+                <form method="POST" action="{% url 'update_fuel' fuel.id %}">
+                    {% csrf_token %}
+                    <td>{{ fuel.fueltype }}</td>
+                    <td>
+                        <input type="number" id="price_{{ fuel.id }}" name="price" value="{{ fuel.price }}">
+                        <span class="error" id="priceError_{{ fuel.id }}"></span><br>
+                    </td>
+                    <td>{{ fuel.profile_modified_at }}</td>
+                    <td>
+                        <button type="submit" class="btn btn-danger btn-sm" name="update_fuel" value="{{ fuel.id }}">Update</button>
+                        <a href="{% url 'delete_fuel' fuel.id %}" class="btn btn-danger">Delete</a>
+                    </td>
                     <!-- Add more columns if needed -->
-                </tr>
-            </thead>
-            <tbody>
-                {% for fuel in fuels %}
-                <tr>
-                    <form method="POST" action="{% url 'update_fuel' fuel.id %}">
-                        {% csrf_token %}
-                        <td>{{ fuel.fueltype }}</td>
-                        <td>
-                            <input type="number" id="price" name="price" value="{{ fuel.price }}" required>
-                        </td>
-                        <td>{{ fuel.profile_modified_at }}</td>
-                        <td>
-                            <button type="submit" class="btn btn-danger btn-sm">Update</button>
-                        </td>
-                        <!-- Add more columns if needed -->
-                    </form>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</div>
+<script>
+    function validateForm() {
+        var fueltype = document.getElementById("id_fueltype").value;
+        var price = parseFloat(document.getElementById("id_price").value);
+
+        var fueltypePattern = /^[A-Za-z\s]+$/;
+        var fueltypeError = document.getElementById("fueltypeError");
+        var priceError = document.getElementById("priceError");
+
+        var priceFields = document.querySelectorAll('[id^="price_"]');
+        var priceErrors = document.querySelectorAll('[id^="priceError_"]');
+
+        for (var i = 0; i < priceFields.length; i++) {
+            var priceField = priceFields[i];
+            var priceError = priceErrors[i];
+            var price = parseFloat(priceField.value);
+
+            if (isNaN(price) || price <= 0) {
+                priceError.textContent = "Price must be a valid number greater than zero.";
+                priceError.style.color = "red";
+                return false;
+            } else {
+                priceError.textContent = "";
+            }
+        }
+
+        if (!fueltype.match(fueltypePattern)) {
+            fueltypeError.textContent = "Fuel type should contain only letters and spaces.";
+            fueltypeError.style.color = "red";
+            return false;
+        } else {
+            fueltypeError.textContent = "";
+        }
+
+        if (isNaN(price) || price <= 0) {
+            priceError.textContent = "Price must be a valid number greater than zero.";
+            priceError.style.color = "red";
+            return false;
+        } else {
+            priceError.textContent = "";
+        }
+        
+        return true;
+    }
+</script>
+<style>
+    .alert {
+        background-color: #f2dede; /* Background color for alert */
+        border: 1px solid #ebccd1; /* Border color for alert */
+        color: #a94442; /* Text color for alert */
+        padding: 10px; /* Padding inside the alert */
+        margin: 10px 0; /* Margin around the alert */
+    }
+    /* Style the form container */
+    form {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+    }
+
+    /* Style labels and input fields */
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Style error messages */
+    .error {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    /* Style the submit button */
+    button[type="submit"] {
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    /* Style the form container */
+    .table-responsive {
+        margin-top: 20px;
+    }
+</style>
+
 
 {% endblock content %}

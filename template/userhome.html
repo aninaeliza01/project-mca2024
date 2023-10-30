@@ -5,7 +5,7 @@
         {% for message in messages %}
             <div class="alert" role="alert">
                 {{ message }}
-                <span aria-hidden="true">&times;</span>
+                
             </div>
         {% endfor %}
 {% endif %}
@@ -22,9 +22,14 @@
         <div class="pump_container">
             <!-- Replace this block with a loop through your pump data -->
             {% for pump in pumps %}
+            
             <div class="box">
                 <div class="img-box"> 
-                      <img src="" alt="{{ pump.station_name }}"> 
+                    {% if pump.logo_image %}
+                    <img src="{{ pump.logo_image.url }}" alt="{{ pump.station_name }}" width="150px" height="100px"> 
+                    {% else %}
+                    <p>Profile photo not available</p>
+                    {% endif %}
                 </div>
                 <div class="detail-box">
                     <h5>

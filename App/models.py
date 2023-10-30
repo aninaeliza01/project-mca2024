@@ -60,7 +60,7 @@ class UserProfile(models.Model):
     
 
 class Fuel(models.Model):
-    fueltype = models.CharField(max_length=255)  # Define the field for fuel type
+    fueltype = models.CharField(max_length=255,unique=True)  # Define the field for fuel type
     price = models.DecimalField(max_digits=10, decimal_places=2)  # Define the field for price
     profile_modified_at = models.DateTimeField(auto_now=True)
 
@@ -68,7 +68,7 @@ class Fuel(models.Model):
         return self.fueltype
     
 class LocationDetails(models.Model):
-    name = models.CharField(max_length=255)  # Define the field for fuel type
+    name = models.CharField(max_length=255,unique=True)  # Define the field for fuel type
     def __str__(self):
         return self.name
     
@@ -90,7 +90,7 @@ class FuelStation(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=12)
     gst_number = models.CharField(max_length=15)
-    logo_image = models.ImageField(upload_to='media/fuel_station_logos', null=True, blank=True)
+    logo_image = models.ImageField(upload_to='media/fuel_station_logos', blank=True, null=True)
 
     def __str__(self):
         return self.station_name

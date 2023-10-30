@@ -21,7 +21,7 @@
                         <a class="nav-link active" href="/adminhome">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/adminuser">Users</a>
+                        <a class="nav-link" href="/adminuser">Customers</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/adminpump">Pump</a>
@@ -32,14 +32,18 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/location">Location</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="#">Settings</a>
+                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout" id="logout-link">Logout</a>
                     </li>
+                    
                 </ul>
             </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-                <a href="/logout" id="logout-link" class="btn btn-danger">Logout</a>
+                
                 {% block content %}
                 {% endblock %}
             </main>
@@ -47,6 +51,26 @@
         </div>
       
     </div>
+    <style>
+        /* Style the navigation bar */
+        .nav-item {
+            display: inline-block; /* Display items in the same line */
+            margin-right: 15px; /* Space between each item */
+        }
+    
+        /* Style the logout link */
+        #logout-link {
+            color: #fff; /* Text color */
+            background-color: #ff0000; /* Background color */
+            padding: 8px 15px; /* Padding around the link text */
+            border-radius: 5px; /* Rounded corners */
+            text-decoration: none; /* Remove default underline */
+        }
+    
+        #logout-link:hover {
+            background-color: #cc0000; /* Background color on hover */
+        }
+    </style>
     
 
     <style>

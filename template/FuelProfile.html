@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Fuel Station Profile{% endblock %}
+{% block content %}
+    <style>
+        /* Add styles for the profile */
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+
+        .profile-details {
+            margin-bottom: 30px;
+        }
+
+        .profile-details p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .edit-input {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .update-button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .update-button:hover {
+            background-color: #217dbb;
+        }
+    </style>
+{% if messages %}
+{% for message in messages %}
+    <div class="alert" role="alert">
+        {{ message }}
+    </div>
+{% endfor %}
+{% endif %}
+    <div class="profile-container">
+        <div class="profile-header">
+            {% if fuel_station.logo_image %}
+                <img src="{{ fuel_station.logo_image.url }}"  class="profile-image" alt="Fuel Station Logo" style="max-width: 200px; height: auto;">
+            {% else %}
+                <p>Profile photo not available</p>
+            {% endif %}
+            
+            <h1>{{ fuel_station.station_name }}</h1>
+        </div>
+
+        <div class="profile-details">
+            <p><strong>Owner:</strong> <span id="ownername" contenteditable>{{ fuel_station.ownername }}</span></p>
+            <p><strong>Address:</strong> <span id="address" contenteditable>{{ fuel_station.address }}</span></p>
+            <p><strong>Location:</strong> <span id="location" contenteditable>{{ fuel_station.location }}</span></p>
+            <p><strong>Email:</strong> <span id="email" contenteditable>{{ fuel_station.email }}</span></p>
+            <p><strong>Phone Number:</strong> <span id="phone_number" contenteditable>{{ fuel_station.phone_number }}</span></p>
+            <p><strong>GST Number:</strong> <span id="gst_number" contenteditable>{{ fuel_station.gst_number }}</span></p>
+        </div>
+
+
+        <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <p><strong>Change Profile Picture:</strong></p>
+            <input class="edit-input" type="file" name="logo_image" id="logo_image" accept="image/*">
+            <p><strong>Owner:</strong></p>
+            <input class="edit-input" type="text" id="ownername" name="ownername" value="{{ fuel_station.ownername }}" oninput="validateOwnername()">
+            <span id="ownernameError" style="color: red;"></span>
+            <p><strong>Phone Number:</strong></p>
+            <input class="edit-input" type="text" name="phone_number" value="{{ fuel_station.phone_number }}" oninput="validatePhoneNumber()">
+            <span id="phoneNumberError" style="color: red;"></span>
+            <p><strong>GST Number:</strong></p>
+            <input class="edit-input" type="text" name="gst_number" value="{{ fuel_station.gst_number }}" oninput="validateGST()">
+            <span id="gstNumberError" style="color: red;"></span>
+            <button class="update-button" type="submit">Update Profile</button>
+        </form>
+        
+        <script>
+            function validateOwnername() {
+                var ownername = document.getElementById("ownername").value.trim();
+                var ownernameError = document.getElementById("ownernameError");
+        
+                if (ownername === "") {
+                    ownernameError.textContent = "Owner's name is required";
+                    return false;
+                }
+        
+                ownernameError.textContent = "";
+                return true;
+            }
+        
+            function validatePhoneNumber() {
+                var phoneNumber = document.getElementsByName("phone_number")[0].value.trim();
+                var phoneNumberError = document.getElementById("phoneNumberError");
+                var phoneNumberPattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
+        
+                if (phoneNumber === "") {
+                    phoneNumberError.textContent = "Phone number is required";
+                    return false;
+                }
+        
+                if (!phoneNumberPattern.test(phoneNumber)) {
+                    phoneNumberError.textContent = "Invalid phone number format";
+                    return false;
+                }
+        
+                phoneNumberError.textContent = "";
+                return true;
+            }
+        
+            function validateGST() {
+                var gstNumber = document.getElementsByName("gst_number")[0].value.trim();
+                var gstNumberError = document.getElementById("gstNumberError");
+                var gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[A-Z]{1}[A-Z]{1}$/;
+        
+                if (gstNumber === "") {
+                    gstNumberError.textContent = "GST number is required";
+                    return false;
+                }
+        
+                if (!gstPattern.test(gstNumber)) {
+                    gstNumberError.textContent = "Invalid GST number format";
+                    return false;
+                }
+        
+                gstNumberError.textContent = "";
+                return true;
+            }
+        </script>
+        
+{% endblock %}

@@ -9,6 +9,7 @@
             <tr>
                 <th>Username</th>
                 <th>Email</th>
+                <th>Phone Number</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -19,6 +20,7 @@
             <tr>
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
+                <td>{{ user.phone }}</td>
                 <td>
                     {% if user.is_active %}
                         Active

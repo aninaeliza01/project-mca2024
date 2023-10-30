@@ -5,11 +5,15 @@
         {% for message in messages %}
             <div class="alert" role="alert">
                 {{ message }}
-                <span aria-hidden="true">&times;</span>
             </div>
         {% endfor %}
 {% endif %}
-<h1>Place an Order at {{ pump.station_name }}</h1>
+<div class="container">
+    <div class="heading_container">
+        <h2>
+            Place an Order at {{ pump.station_name }}
+        </h2>
+
 <p>Address: {{ pump.address }}</p>
 <p>Location: {{ pump.location.name }}</p>
 
@@ -45,5 +49,6 @@
     <!-- Add a submit button to place the order -->
     <button type="submit">Place Order</button>
 </form>
-
+</div>
+</div>
 {% endblock content %}

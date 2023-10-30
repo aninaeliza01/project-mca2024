@@ -13,7 +13,7 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
 
-  <title>HybrideEnergy</title>
+  <title>HybridEnergy</title>
 
   <!-- slider stylesheet -->
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
@@ -28,6 +28,7 @@
   <link href="{% static 'css/style.css'%}" rel="stylesheet" />
   <!-- responsive style -->
   <link href="{% static 'css/responsive.css'%}" rel="stylesheet" />
+  <link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
   <style>
     .dropdown {
             position: relative;
@@ -102,6 +103,20 @@
         }
         
     }
+    .nav-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color:#FA9A50; /* Button background color */
+        color: #fff; /* Text color */
+        text-decoration: none; /* Remove underline */
+        border-radius: 5px; /* Rounded corners */
+        margin-left: 150px; /* Margin between buttons */
+    }
+
+    .nav-button:hover {
+        background-color:#f22324;  /* Change background color on hover */
+        /* Additional hover styles if needed */
+    }
   </style>
 </head>
 
@@ -113,21 +128,19 @@
         <nav class="navbar navbar-expand-lg custom_nav-container">
           <a class="navbar-brand" href="index.html">
             <span>
-              HybrideEnergy
+              HybridEnergy
             </span>
           </a>
     
           <!-- Search Form -->
-          <form class="form-inline search-form">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
+          <a href="/userhome" class="nav-button">Home</a>
+          <a href="/userhome" class="nav-button">Orders</a>
           
           <div class="navbar-collapse" id="">
             <div class="user_option">
               {% if user.is_authenticated %}
             <li class="dropdown">
-            <a href="#" class="dropbtn">{{ user.username }}</a>
+            <a href="#" class="dropbtn">Hi, {{ user.username }}</a>
             <div class="dropdown-content">
               <a href="/profile">Profile</a>
               <a href="/logout" id="logout-link">LogOut</a>
@@ -146,12 +159,9 @@
             </div>
             <div id="myNav" class="overlay">
               <div class="overlay-content">
-                <a href="/">Home</a>
-                <a href="about.html">About</a>
-                <a href="car.html">Cars</a>
-                <a href="blog.html">Blog</a>
-                <a href="contact.html">Contact Us</a>
-                <a href="#">Login</a>
+                <a href="/userhome">Home</a>
+                <a href="/profile">Profile</a>
+                <a href="/logout" id="logout-link">LogOut</a>
               </div>
             </div>
           </div>
@@ -171,7 +181,7 @@
   <footer class="container-fluid footer_section">
     <p>
       Copyright &copy; 2020 All Rights Reserved. Design by
-      <a href="https://html.design/">Free Html Templates</a> Distributed by <a href="https://themewagon.com">ThemeWagon</a>
+      HybridEnergy
     </p>
   </footer>
   <!-- footer section -->

@@ -1,40 +1,111 @@
 {% extends "adminbase.html" %}
 {% block title %}Location{% endblock %}
 {% block content %}
-  <div class="container">
-    <h3>Add Location</h3>
-  <form method="post">
+  
+<style>
+  /* Style the form container */
+  form.form1 {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+  }
+
+  /* Style labels and input fields */
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  /* Style the submit button */
+  button[type="submit"] {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<div class="container">
+  <!-- Add Location Form -->
+  <h3 class="mb-3">Add Location</h3>
+  <form method="post" class="form1">
     {% csrf_token %}
     <label for="name">Location Name:</label>
-    <input type="text" id="name" name="name" required>
-    <a href="{% url 'location' %}" class="btn btn-success">Add Location</a>
+    <input type="text" id="name" name="name" required pattern="[A-Za-z]+" title="Please enter only letters (A-Z, a-z)">
+    <button type="submit" class="btn btn-success">Add Location</button>
   </form>
+
+  <div class="container">
     <h3>Locations</h3>
     <table class="table table-striped">
       <thead>
         <tr>
           <th>Location Name</th>
-          <!-- <th>Action</th> -->
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
         {% for location in locations %}
-          <tr>
-            <td>{{ location.name }}</td>
-            <!-- <td>
-              <a href="" class="btn btn-primary">Edit</a>
-              <a href="" class="btn btn-danger">Delete</a>
-            </td> -->
-          </tr>
+        <tr>
+          <td>
+            <form method="post" action="{% url 'update_location' location.id %}">
+              {% csrf_token %}
+              <input type="text" id="update-location-name-{{ location.id }}" pattern="[A-Za-z]+" title="Please enter only letters (A-Z, a-z)" name="name" value="{{ location.name }}">
+          </td>
+          <td>
+              <button type="submit" class="btn btn-success">Update</button>
+            </form>
+            <!-- <a href="{% url 'delete_location' location.id %}" class="btn btn-danger">Delete</a> -->
+          </td>
+        </tr>
         {% empty %}
-          <tr>
-            <td colspan="2">No locations available.</td>
-          </tr>
+        <tr>
+          <td colspan="2">No locations available.</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-    
-
-    
   </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const inputField = document.getElementById('name');
+    inputField.addEventListener('input', function(event) {
+      let enteredValue = event.data;
+      if (enteredValue && !/^[A-Za-z]+$/.test(enteredValue)) {
+        inputField.value = inputField.value.slice(0, -1);
+      }
+    });
+
+    {% for location in locations %}
+      const updateInputField_{{ location.id }} = document.getElementById('update-location-name-{{ location.id }}');
+      updateInputField_{{ location.id }}.addEventListener('input', function() {
+        const currentValue = updateInputField_{{ location.id }}.value;
+        if (!/^[A-Za-z]+$/.test(currentValue)) {
+          updateInputField_{{ location.id }}.value = currentValue.slice(0, -1);
+        }
+      });
+    {% endfor %}
+  });
+</script>
+
 {% endblock content %}

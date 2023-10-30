@@ -32,7 +32,7 @@
         <div class="content-container">
             <div class="form-container">
                 <h2>Create Account</h2>
-                <form method="POST" onsubmit="return validateForm();" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm();">
                     {% csrf_token %}
                     <div class="input-box">
                         <span class="details">Username</span>
@@ -83,7 +83,7 @@
                             {% endfor %}
                         </select>
                         <span id="locationError" class="error"></span>
-                    </div>
+                    </div><br>
                     
                     
                       <div class="input-box">
@@ -104,12 +104,13 @@
                             <span id="cpasswordError" class="error"></span>
                    
                         </div>
-                        <div class="input-box">
-                            <span class="details">Fuel Station Image</span>
-                            <input type="file" name="logo_image" id="logo_image" accept="image/*" onchange="validateImage()">
-                            <span id="imageError" class="error"></span>
-                        </div>
+                        
 
+                        <div class="input-box">
+                            <span class="details">Logo Image</span>
+                            <input type="file" name="logo_image" id="logo_image" accept="image/*">
+                            <span id="logoImageError" class="error"></span>
+                        </div>
                         
                         
             
@@ -148,7 +149,6 @@
     }
 </style>
 <script>
-    
     function validateUsername() {
     var username = document.getElementById("username").value.trim();
     var usernameError = document.getElementById("usernameError");
@@ -258,6 +258,10 @@ function validateLocation() {
     }
 
     
+    
+        
+
+    
 	function validatePhoneNumber() {
 		var phoneNumber = document.getElementById("phoneNumber").value.trim();
 		var phoneNumberError = document.getElementById("phoneNumberError");
@@ -276,23 +280,6 @@ function validateLocation() {
 			return true;
 		}
 	}
-
-    function validateImage() {
-    var imageInput = document.getElementById("logo_image");
-    var imageError = document.getElementById("imageError");
-    
-    if (imageInput.files.length === 0) {
-        imageError.textContent = "Please select an image for your logo.";
-        imageError.style.color = "red";
-        return false;
-    }
-
-    // You can add additional validation here if needed, such as checking the file size or type.
-
-    imageError.textContent = ""; // Clear the error message if the image is valid
-    return true;
-}
-
 
     function validatePassword() 
     {
@@ -358,10 +345,36 @@ function validateLocation() {
     }
 }
 
+// function validateFile() {
+//         var fileInput = document.getElementById('logo_image');
+//         var fileError = document.getElementById('logoImageError');
+//         var file = fileInput.files[0];
+
+//         if (!file) {
+//             fileError.textContent = 'Please select a file.';
+//             fileError.style.color = 'red';
+//             return false;
+//         }
+
+//         else if (file.type.split('/')[0] !== 'image') {
+//             fileError.textContent = 'Please select an image file.';
+//             fileError.style.color = 'red';
+//             return false;
+//         }
+//         else {
+//             fileError.textContent = '';
+//             return true;
+//         }
+
+        
+//     }
+
     function validateForm() {
       var isFormValid = true;
 
-      
+      if (!validateFile()) {
+            isFormValid = false;
+      }
 
       if (!validateUsername()) {
         isFormValid = false;
@@ -386,10 +399,6 @@ function validateLocation() {
         isFormValid = false;
       }
       if (!validateOwnername()) {
-        isFormValid = false;
-      }
-      
-      if (!validateImage()) {
         isFormValid = false;
       }
       

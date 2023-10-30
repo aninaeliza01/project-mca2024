@@ -1,11 +1,10 @@
 {% extends "userBase.html" %}
-{% block title %}userhome{% endblock %}
+{% block title %}profile{% endblock %}
 {% block content %}
 {% if messages %}
     {% for message in messages %}
         <div class="alert" role="alert">
             {{ message }}
-            <span aria-hidden="true">&times;</span>
         </div>
     {% endfor %}
 {% endif %}
@@ -35,8 +34,16 @@
         
         <label for="profile_picture">Change Profile Picture:</label>
         <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ user_details.username }}" oninput="validateUsername()">
+        <span id="usernameError" class="error"></span>
+
+        <label for="phone">Phone Number:</label>
+        <input type="text" id="phone" name="phone" value="{{ user_details.phone }}" oninput="validatePhoneNumber()">
+        <span id="phoneError" class="error"></span><br>
+
         
-        
+       
         <!-- <label for="address">Address:</label>
         <input type="text" id="address" name="address" value="{{ user_profile.address }}">
         
@@ -61,10 +68,54 @@
         <label for="dob">Date of Birth:</label>
         <input type="date" id="dob" name="dob" value="{{ user_profile.dob|date:'d-m-Y' }}"> -->
         
-        <input type="submit" value="Save">
+        <br><input type="submit" value="Save"> 
+        <!-- <button><a href="/changepassword">Change Password</a></button> -->
     </form>
 </div>
-
+<script>
+    function validateUsername() {
+        var usernameInput = document.getElementById("username");
+        var usernameValue = usernameInput.value.trim();
+        var usernameError = document.getElementById("usernameError");
+    
+        if (usernameValue === "") {
+            usernameError.textContent = "Username is required";
+            usernameError.style.color = "red";
+            usernameInput.classList.add("is-invalid");
+            return false;
+        }
+    
+        usernameError.textContent = "";
+        usernameInput.classList.remove("is-invalid");
+        return true;
+    }
+    
+    function validatePhoneNumber() {
+        var phoneInput = document.getElementById("phone");
+        var phoneValue = phoneInput.value.trim();
+        var phoneError = document.getElementById("phoneError");
+    
+        var phonePattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
+    
+        if (phoneValue === "") {
+            phoneError.textContent = "Phone number is required";
+            phoneError.style.color = "red";
+            phoneInput.classList.add("is-invalid");
+            return false;
+        }
+    
+        if (!phonePattern.test(phoneValue)) {
+            phoneError.textContent = "Invalid phone number format";
+            phoneError.style.color = "red";
+            phoneInput.classList.add("is-invalid");
+            return false;
+        }
+    
+        phoneError.textContent = "";
+        phoneInput.classList.remove("is-invalid");
+        return true;
+    }
+    </script>
 <style>
 /* Profile Header */
 .profile-header {

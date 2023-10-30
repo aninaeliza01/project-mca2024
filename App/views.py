@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .models import *
-from .forms import FuelForm
+
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate ,login as auth_login,logout
@@ -25,10 +25,17 @@ def index(request):
 @never_cache
 @login_required(login_url='login')
 def userhome(request):
-    pumps = FuelStation.objects.all() 
-    context = {'pumps': pumps}
+    users = CustomUser.objects.filter(is_active=True)
+    active_pumps = FuelStation.objects.filter(user__is_active=True)
+    context = {
+        'pumps': active_pumps,
+        'users':users 
+    }
     return render(request, 'userhome.html', context)
 
+
+@never_cache
+@login_required(login_url='login')
 def place_order(request, pump_id):
     fuel_types = Fuel.objects.all()
     pump = get_object_or_404(FuelStation, pk=pump_id)
@@ -40,6 +47,8 @@ def place_order(request, pump_id):
 
 
     return render(request, 'place_order.html', context)
+
+
 def userBase(request):
     return render(request,'userBase.html')
 
@@ -160,32 +169,35 @@ def login_user(request):
 
         
         
-            if request.method == 'POST':
-                username = request.POST["username"]
-                password = request.POST["password"]
-                if username and password:
-                    user = authenticate(request, username =username , password=password)
+    if request.method == 'POST':
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-                    if user is not None:
-                        auth_login(request, user)
-                        print(request.user.is_customer, "1")
-                        if user.is_customer:
-                            request.session["username"] = user.username  # Use single equal sign (=) here
-                            return redirect('/userhome')
-                        elif user.is_vendor:
-                            request.session["username"] = user.username
-                            return redirect('/pumphome')
-                        elif user.is_superuser:
-                            request.session["username"] = user.username
-                            return redirect('/adminhome')
-                    else:
-                          messages.success(request,("Invalid credentials."))
-                          return redirect('/login')
-                else:
-                     messages.success(request,("Please fill out all fields."))
-                     return redirect('/login')
+        if username and password:
+            user = authenticate(request, username=username, password=password)
 
-            return render(request, 'login.html')
+            if user is not None:
+                auth_login(request, user)
+                # print(request.user.is_customer, "1")
+                
+                if user.is_customer:
+                    request.session["username"] = user.username
+                    return redirect('/userhome')
+                elif user.is_vendor:
+                    request.session["username"] = user.username
+                    return redirect('/pumphome')
+                elif user.is_superuser:
+                    request.session["username"] = user.username
+                    return redirect('/adminhome')
+            else:
+                # Invalid credentials - user not authenticated
+                messages.error(request, "Invalid credentials.")
+                return redirect('/login')
+        else:
+            # Handle the case where username or password is missing
+            messages.error(request, "Please provide both username and password.")
+            return redirect('/login')
+    return render(request, 'login.html')
 
 @login_required(login_url='login')
 def logout_user(request):
@@ -193,37 +205,68 @@ def logout_user(request):
         logout(request)
     return redirect('/login')
 
+
+@never_cache
 @login_required(login_url='login')
 def customer_Profile(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-    profile = None  # Initialize profile with a default value
+    user_details = CustomUser.objects.get(id=request.user.id)
 
     if request.method == 'POST':
         # Update the user profile fields directly from the form data
         profile_picture = request.FILES.get('profile_picture')
         if profile_picture:
             user_profile.profile_picture = profile_picture
+            user_profile.save()
+            # messages.success(request, 'Profile picture updated successfully')
 
-        
+        username = request.POST.get('username')
+        phone = request.POST.get('phone')
+
+        user_details.username = username
+        user_details.phone = phone
+
         user_profile.address = request.POST.get('address')
-        user_profile.addressline1 = request.POST.get('addressline1')
-        user_profile.addressline2 = request.POST.get('addressline2')
-        user_profile.state = request.POST.get('state')
-        user_profile.city = request.POST.get('city')
-        user_profile.pin_code = request.POST.get('pin_code')
-        user_profile.gender = request.POST.get('gender')
-        user_profile.dob = request.POST.get('dob')
+        # Update other profile fields as needed
+
         user_profile.save()
+        user_details.save()
         messages.success(request, 'Profile updated successfully')
 
-    user_details = CustomUser.objects.filter(id=request.user.id).values('username', 'email', 'phone').first()
+    # The rest of your view logic
 
     context = {
         'user_profile': user_profile,
-        'user_details': user_details, # Assign the value of 'profile' here
+        'user_details': user_details,
     }
 
     return render(request, 'profile.html', context)
+
+from django.contrib.auth import update_session_auth_hash
+@never_cache
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_new_password = request.POST.get('confirm_new_password')
+
+        # Check if the current password is correct
+        if request.user.check_password(current_password):
+            if new_password == confirm_new_password:
+                # Update the user's password
+                request.user.set_password(new_password)
+                request.user.save()
+                
+                # Ensure the user stays logged in
+                update_session_auth_hash(request, request.user)
+                
+                messages.success(request, 'Password changed successfully')
+            else:
+                messages.error(request, 'New passwords do not match')
+        else:
+            messages.error(request, 'Incorrect current password')
+    
+    return render(request, 'changePassword.html',)
 
 @never_cache
 def register_pump(request):
@@ -234,6 +277,7 @@ def register_pump(request):
         password = request.POST.get('password', None)
         confirm_password = request.POST.get('cpassword', None)
         gstn=request.POST.get('gstNumber',None)
+        image = request.FILES.get('logo_image')
         user_type='VENDOR'
         # user_type = CustomUser.is_vendor
         if username and email and phone and password:
@@ -258,14 +302,44 @@ def register_pump(request):
                 userFuel.phone_number = phone
                 userFuel.gst_number = gstn
                 userFuel.location = LocationDetails.objects.get(pk=request.POST.get('location'))
-                userFuel.logo_image = request.FILES.get('logo_image')
+                userFuel.logo_image = image
+                
                 userFuel.save()
                 activateEmail(request, user)
                 return redirect('login') 
     locations = LocationDetails.objects.all()
     return render(request, 'registerPump.html', {'locations': locations})
 
-# @never_cache
+@never_cache
+@login_required(login_url='login')
+def fuel_station_profile(request):
+    fuel_station = get_object_or_404(FuelStation, user=request.user)
+    user_details = CustomUser.objects.get(id=request.user.id)
+    
+    if request.method == 'POST':
+        if 'logo_image' in request.FILES:
+            fuel_station.logo_image = request.FILES['logo_image']
+        
+        fuel_station.ownername = request.POST.get('ownername', '')
+        fuel_station.phone_number = request.POST.get('phone_number', '')
+        fuel_station.gst_number = request.POST.get('gst_number', '')
+        fuel_station.save()
+        
+        # Update username and phone in user details
+        user_details.username = request.POST.get('username', '')
+        user_details.phone = request.POST.get('phone_number', '')
+        user_details.gstn = request.POST.get('gst_number', '')
+        user_details.save()
+        
+        return redirect('/FuelProfile')  # Redirect to the profile page after saving
+    
+    context = {
+        'fuel_station': fuel_station,
+        'user_details': user_details,
+    }
+    return render(request, 'FuelProfile.html', context)
+
+
 # @login_required(login_url='login')
 # def userhome(request):
 #     if request.user.is_customer:
@@ -303,6 +377,8 @@ def adminuser(request):
        'users':users  
      }
     return render(request, 'adminUser.html',context)
+
+
 @never_cache
 @login_required(login_url='login')
 def block_unblock_user(request, user_id):
@@ -328,23 +404,6 @@ def adminpump(request):
      }  
     return render(request, 'adminPump.html',context)
 
-@never_cache
-@login_required(login_url='login')
-def fuel(request):
-    if request.user.is_staff:
-        if request.method == 'POST':
-            form = FuelForm(request.POST)
-            if form.is_valid():
-                form.save()
-                # Redirect to the admin dashboard page after successfully saving the data
-                return redirect('fuel')
-    fuels = Fuel.objects.all()
-    form = FuelForm()
-    context = {
-    'fuels': fuels,
-    'form': form, # Pass the user count to the template
-    }
-    return render(request, 'fuel.html',context)
 
 @never_cache
 @login_required(login_url='login')
@@ -359,28 +418,79 @@ def location(request):
 
 @never_cache
 @login_required(login_url='login')
+def update_location(request, location_id):
+    location = get_object_or_404(LocationDetails, pk=location_id)
+
+    if request.method == 'POST':
+        location.name = request.POST.get('name')
+        location.save()
+        return redirect('location')  # Redirect to the location list page
+
+    return render(request, 'location.html', {'locations': LocationDetails.objects.all()})
+
+@never_cache
+@login_required(login_url='login')
+def delete_location(request, location_id):
+    location = get_object_or_404(LocationDetails, pk=location_id)
+
+    if request.method == 'GET':
+        location.delete()
+        return redirect('location')  # Redirect to the location list page
+
+    return render(request, 'location.html', {'locations': LocationDetails.objects.all()})
+
+@never_cache
+@login_required(login_url='login')
 def adminhome(request):
-    if request.user.is_staff:
-        if request.method == 'POST':
-            form = FuelForm(request.POST)
-            if form.is_valid():
-                form.save()
-                # Redirect to the admin dashboard page after successfully saving the data
-                return redirect('/adminhome')
     
-    users = CustomUser.objects.all()
-    user_count = users.count()  # Calculate the count of users
+    customer_count = CustomUser.objects.filter(user_type='CUSTOMER').count()
+    pump_count = CustomUser.objects.filter(user_type='VENDOR').count()
+      # Calculate the count of users
 
     fuels = Fuel.objects.all()
-    form = FuelForm()
+    # form = FuelForm()
     context = {
-        'users': users,
-        'user_count': user_count, 
+        'customer_count': customer_count,
+        'pump_count': pump_count, 
         'fuels': fuels,
-        'form': form, # Pass the user count to the template
+        # 'form': form, # Pass the user count to the template
         
     }
     return render(request, 'ad.html',context)
+
+@never_cache
+@login_required(login_url='login')
+def fuel(request):
+    if request.user.is_staff:
+        if request.method == 'POST':
+            fueltype = request.POST.get('fueltype')
+            price = request.POST.get('price')
+
+            # Check if a record with the same fueltype already exists
+            existing_fuel = Fuel.objects.filter(fueltype=fueltype).first()
+
+            if existing_fuel:
+                # An existing record with the same fueltype was found
+                messages.error(request, 'Fuel with this fuel type already exists.')
+            else:
+                # Create a new record
+                new_fuel = Fuel(fueltype=fueltype, price=price)
+                new_fuel.save()
+                messages.success(request, 'Fuel added successfully.')
+
+            return redirect('fuel')
+        
+        if request.method == 'POST' and 'delete_fuel' in request.POST:
+            fuel_id = request.POST['fuel_id']
+            fuel = Fuel.objects.get(pk=fuel_id)
+            fuel.delete()
+            return redirect('fuel')
+        
+    fuels = Fuel.objects.all()
+    context = {
+        'fuels': fuels,
+    }
+    return render(request, 'fuel.html', context)
 
 @never_cache
 @login_required(login_url='login')
@@ -400,3 +510,31 @@ def update_fuel(request, fuel_id):
     return render(request, 'fuel.html', {'fuel': fuel})
 
 
+@never_cache
+@login_required(login_url='login')
+def delete_fuel(request, fuel_id):
+    fuel = get_object_or_404(Fuel, pk=fuel_id)
+
+    if request.method == 'GET':
+        # Delete the fuel object
+        fuel.delete()
+
+        return redirect('fuel')  # Redirect to the fuel records page after deleting
+
+    return render(request, 'fuel.html', {'fuel': fuel})
+
+
+import webbrowser
+
+def open_google_maps_with_nearby_fuel_bunks(request):
+    # Define the location (e.g., latitude and longitude) where you want to find nearby fuel bunks.
+    # You can replace these coordinates with your desired location.
+    location = "40.7128,-74.0060"
+    
+    # Create a Google Maps URL with the location and search query for fuel bunks.
+    maps_url = f"https://www.google.com/maps/search/fuel+bunk/@{location},15z/data=!3m1!4b1"
+    
+    # Open the Google Maps URL in the default web browser.
+    webbrowser.open(maps_url)
+
+    return render(request, 'map.html')
