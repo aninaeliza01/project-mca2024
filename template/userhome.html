@@ -1,52 +1,110 @@
 {% extends "userBase.html" %}
 {% block title %}userhome{% endblock %}
+
 {% block content %}
-{% if messages %}
+    {% if messages %}
         {% for message in messages %}
             <div class="alert" role="alert">
                 {{ message }}
-                
             </div>
         {% endfor %}
-{% endif %}
-<section class="pump_section layout_padding">
-    <div class="container">
-        <div class="heading_container">
-            <h2>
-                Find the Nearest Fuel Stations
-            </h2>
-            <p>
-                Discover the closest fuel stations and place your order now.
-            </p>
-        </div>
-        <div class="pump_container">
-            <!-- Replace this block with a loop through your pump data -->
-            {% for pump in pumps %}
-            
-            <div class="box">
-                <div class="img-box"> 
-                    {% if pump.logo_image %}
-                    <img src="{{ pump.logo_image.url }}" alt="{{ pump.station_name }}" width="150px" height="100px"> 
-                    {% else %}
-                    <p>Profile photo not available</p>
-                    {% endif %}
-                </div>
-                <div class="detail-box">
-                    <h5>
-                        {{ pump.station_name }}
-                    </h5>
-                    <p>
-                        Address: {{ pump.address }}
-                        <br>
-                        Location: {{ pump.location.name }}
-                    </p>
-                    <button><a href="{% url 'place_order' pump.id %}">Place Order</a></button>
+    {% endif %}
+    <section class="pump_section layout_padding">
+        <div class="container">
+            <div class="heading_container">
+                <h2>Find the Nearest Fuel Stations</h2>
+                <p>Discover the closest fuel stations and place your order now.</p>
+            </div>
+            <div class="pump_container">
+                <div class="row">
+                    {% for pump in pumps %}
+                        <div class="box">
+                            <div class="img-box"> 
+                                {% if pump.logo_image %}
+                                    <img src="{{ pump.logo_image.url }}" alt="{{ pump.station_name }}" width="150px" height="100px"> 
+                                {% else %}
+                                    <p>Profile photo not available</p>
+                                {% endif %}
+                            </div>
+                            <div class="detail-box">
+                                <h3>{{ pump.station_name }}</h3>
+                                <p>
+                                    <strong>Address:</strong> {{ pump.address }}<br>
+                                    <strong>Location:</strong> {{ pump.location.name }}
+                                </p>
+                                <button class="order-button">
+                                    <a href="{% url 'place_order' pump.id %}" class="order-link">Place Order</a>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
-            <!-- End loop -->
         </div>
-    </div>
-  </section>
+    </section>
+</div>
 
-{% endblock content %}
+<style>
+    /* Existing styles */
+
+    .heading_container h2 {
+        font-size: 36px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .heading_container p {
+        font-size: 18px;
+        color: #777;
+    }
+
+    .box {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        transition: transform 0.3s ease-in-out;
+        height: 100%;
+    }
+
+    .box:hover {
+        box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+
+    .detail-box {
+        padding: 15px 0;
+    }
+
+    .detail-box h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .detail-box p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .order-button {
+        padding: 10px 20px;
+        background-color: #f90;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        text-decoration: none;
+        text-align: center;
+        transition: background-color 0.3s;
+        display: inline-block;
+    }
+
+    .order-button:hover {
+        background-color: #e6801b;
+    }
+</style>
+
+{% endblock %}

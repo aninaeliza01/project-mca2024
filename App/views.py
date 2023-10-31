@@ -34,19 +34,7 @@ def userhome(request):
     return render(request, 'userhome.html', context)
 
 
-@never_cache
-@login_required(login_url='login')
-def place_order(request, pump_id):
-    fuel_types = Fuel.objects.all()
-    pump = get_object_or_404(FuelStation, pk=pump_id)
-    context = {
-        'fuel_types': fuel_types,
-        'pump': pump
-        # Include other context data you need
-    }
 
-
-    return render(request, 'place_order.html', context)
 
 
 def userBase(request):
@@ -288,7 +276,7 @@ def register_pump(request):
             elif password!=confirm_password:
                 messages.success(request,("Password's Don't Match, Enter correct Password"))
             else:
-                user = CustomUser(username=username, email=email, phone=phone,gstn=gstn,user_type=user_type)
+                user = CustomUser(username=username, email=email, phone=phone,user_type=user_type)
                 user.set_password(password)  # Set the password securely
                 user.is_active=False
                 user.is_vendor=True
@@ -320,7 +308,6 @@ def fuel_station_profile(request):
         if 'logo_image' in request.FILES:
             fuel_station.logo_image = request.FILES['logo_image']
         
-        fuel_station.ownername = request.POST.get('ownername', '')
         fuel_station.phone_number = request.POST.get('phone_number', '')
         fuel_station.gst_number = request.POST.get('gst_number', '')
         fuel_station.save()
@@ -328,7 +315,6 @@ def fuel_station_profile(request):
         # Update username and phone in user details
         user_details.username = request.POST.get('username', '')
         user_details.phone = request.POST.get('phone_number', '')
-        user_details.gstn = request.POST.get('gst_number', '')
         user_details.save()
         
         return redirect('/FuelProfile')  # Redirect to the profile page after saving
@@ -355,11 +341,127 @@ def fuel_station_profile(request):
 @never_cache
 @login_required(login_url='login')
 def pumphome(request):
-    if request.user.is_vendor == True:
-    # if request.user.is_authenticated:
-        return render(request,'pumphome.html')
-    return redirect('/login')
-    # return redirect('log')
+    if request.user.is_vendor:
+        # Retrieve the FuelStation instance associated with the user
+        fuel_station = request.user.fuelstation  # Assuming this is the attribute that holds the FuelStation reference for the user
+
+        if fuel_station:
+            # Fetch orders associated with this station
+            pump_orders = Order.objects.filter(station=fuel_station, is_ordered=True)
+
+            return render(request, 'pumphome.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
+
+
+from decimal import Decimal
+@never_cache
+@login_required(login_url='login')
+def place_order(request, pump_id):
+    if request.method == 'POST':
+        fuel_type_id = request.POST.get('fuel_type_id')
+        quantity = Decimal(request.POST.get('quantity', '0'))  # Convert quantity to Decimal
+        delivery_point = request.POST.get('delivery_point')
+        payment_method = request.POST['payment_method']
+
+        selected_fuel = get_object_or_404(Fuel, pk=fuel_type_id)
+        price_per_liter = selected_fuel.price
+
+        total_price = quantity * price_per_liter  # Calculate total price
+
+        # Assuming the user is logged in, replace this with your authentication logic
+        if request.user.is_authenticated:
+            customer = request.user
+        else:
+            # Handle unauthenticated user case as needed
+            customer = None
+
+        # Assuming 'station' is defined elsewhere or retrieved
+        station = get_object_or_404(FuelStation, pk=pump_id)
+
+        order = Order.objects.create(
+            customer=customer,
+            fuel_type=selected_fuel,
+            station=station,
+            quantity=quantity,
+            total_price=total_price,
+            delivery_address=delivery_point,
+            payment_method=payment_method,
+        )
+
+        # Redirect to a success page or any other appropriate URL after successful order placement
+        return redirect('ordersummary',order_id=order.id)  # Replace 'order_success' with your success URL name
+
+    # Render the order placement form
+    fuel_types = Fuel.objects.all()
+    pump = get_object_or_404(FuelStation, pk=pump_id)
+    context = {
+        'fuel_types': fuel_types,
+        'pump': pump
+        # Include other context data you need
+    }
+    return render(request, 'place_order.html', context)
+
+@never_cache
+@login_required(login_url='login')
+def order_summary(request, order_id):
+    order = Order.objects.get(pk=order_id)
+    if request.method == 'POST':
+        order.is_ordered = True
+        order.save()
+        fuel_station_email = order.station.email  # Assuming 'fuel_station' is the ForeignKey field
+
+        # Sending an email notification to the fuel station
+        send_mail(
+            'New Order Placed',
+            f'An order has been placed. Order details: {order.details}',  # Replace with actual order details
+            'aninaelizebeth2024a@mca.ajce.in',  # Your email
+            [fuel_station_email],  # Email of the fuel station
+            fail_silently=False,
+        )
+        messages.success(request, 'Order placed successfully!')
+        return redirect('customer_orders') 
+    return render(request, 'orderSummary.html', {'order': order})
+
+@never_cache
+@login_required(login_url='login')
+def delete_order(request, order_id):
+    if request.method == 'POST':
+        # Fetch the order and delete it
+        order = Order.objects.get(pk=order_id)
+        order.delete()
+        messages.success(request, 'Order deleted successfully!')
+        return redirect('customer_orders') 
+    return render(request, 'orderSummary.html')
+
+@never_cache
+@login_required(login_url='login')
+def customer_orders(request):
+    ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True)
+    not_ordered_orders = Order.objects.filter(customer=request.user, is_ordered=False)
+
+    context = {
+        'ordered_orders': ordered_orders,
+        'not_ordered_orders': not_ordered_orders,
+    }
+    return render(request, 'customerOrders.html', context)
+@never_cache
+@login_required(login_url='login')  
+def accept_order(request, order_id):
+    if request.method == 'POST':
+        order = Order.objects.get(pk=order_id)
+        order.is_accepted = True
+        order.is_ordered = True  # Assuming is_ordered means the order is confirmed or accepted
+        order.save()
+        return redirect('pumphome')  # Redirect to the pump home page after accepting the order
+
+@never_cache
+@login_required(login_url='login')
+def reject_order(request, order_id):
+    if request.method == 'POST':
+        order = Order.objects.get(pk=order_id)
+        order.is_accepted = False
+        order.is_ordered = False  # Set the order status as not accepted or rejected
+        order.save()
+        return redirect('pumphome') 
 
 
 
@@ -461,37 +563,39 @@ def adminhome(request):
 @never_cache
 @login_required(login_url='login')
 def fuel(request):
+    existing_fuel = None  # Define existing_fuel at the beginning of the function scope
+
     if request.user.is_staff:
         if request.method == 'POST':
             fueltype = request.POST.get('fueltype')
             price = request.POST.get('price')
-
-            # Check if a record with the same fueltype already exists
-            existing_fuel = Fuel.objects.filter(fueltype=fueltype).first()
-
-            if existing_fuel:
-                # An existing record with the same fueltype was found
-                messages.error(request, 'Fuel with this fuel type already exists.')
+            if not fueltype or not price:
+                messages.error(request, 'Please fill in all the fields.')
             else:
-                # Create a new record
-                new_fuel = Fuel(fueltype=fueltype, price=price)
-                new_fuel.save()
-                messages.success(request, 'Fuel added successfully.')
+                # Check if a record with the same fueltype already exists
+                existing_fuel = Fuel.objects.filter(fueltype=fueltype).first()
 
-            return redirect('fuel')
-        
-        if request.method == 'POST' and 'delete_fuel' in request.POST:
-            fuel_id = request.POST['fuel_id']
-            fuel = Fuel.objects.get(pk=fuel_id)
-            fuel.delete()
-            return redirect('fuel')
-        
+                if existing_fuel:
+                    # An existing record with the same fueltype was found
+                    messages.error(request, 'Fuel with this fuel type already exists.')
+                else:
+                    # Create a new record
+                    new_fuel = Fuel(fueltype=fueltype, price=price)
+                    new_fuel.save()
+                    messages.success(request, 'Fuel added successfully.')
+                return redirect('fuel')
+
+            if 'delete_fuel' in request.POST:
+                fuel_id = request.POST['fuel_id']
+                fuel = Fuel.objects.get(pk=fuel_id)
+                fuel.delete()
+                return redirect('fuel')
+
     fuels = Fuel.objects.all()
     context = {
         'fuels': fuels,
     }
     return render(request, 'fuel.html', context)
-
 @never_cache
 @login_required(login_url='login')
 def update_fuel(request, fuel_id):

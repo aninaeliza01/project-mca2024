@@ -7,6 +7,7 @@
     <table class="table table-striped table-sm">
         <thead>
             <tr>
+                <th>No.</th>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Phone Number</th>
@@ -18,6 +19,7 @@
             {% for user in users %}
             {% if user.is_vendor %}
             <tr>
+                <td></td>
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.phone }}</td>
@@ -41,4 +43,14 @@
         </tbody>
     </table>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let table = document.querySelector("table");
+        let rowCount = 1;
+        for (let i = 1; i < table.rows.length; i++) {
+            table.rows[i].cells[0].innerText = rowCount;
+            rowCount++;
+        }
+    });
+</script>
 {% endblock content %}

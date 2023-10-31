@@ -1,0 +1,81 @@
+{% extends "userBase.html" %}
+{% block title %}Customer Orders{% endblock %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert" role="alert">
+        {{ message }}
+    </div>
+{% endfor %}
+{% endif %}
+<div class="container">
+    <div class="order-section">
+        <h2>Ordered Orders</h2>
+        <ul class="order-list">
+            {% for order in ordered_orders %}
+                <li class="order-item">
+                    <div class="order-details">
+                        <p>Order ID: {{ order.id }}</p>
+                        <p>Fuel Station: {{ order.station }}</p>
+                        <p>Fuel Type: {{ order.fuel_type }}</p>
+                        <p>Total Price: {{ order.total_price }}</p>
+                        <p>Order Status: {% if order.is_accepted %}Accepted{% else %}Not Accepted{% endif %}</p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="order-section">
+        <h2>Not Ordered Orders</h2>
+        <ul class="order-list">
+            {% for order in not_ordered_orders %}
+                <li class="order-item">
+                    <div class="order-details">
+                        <p>Order ID: {{ order.id }}</p>
+                        <p>Fuel Station: {{ order.station }}</p>
+                        <p>Fuel Type: {{ order.fuel_type }}</p>
+                        <p>Total Price: {{ order.total_price }}</p>
+                        <!-- <p>Order Status: Not Accepted</p> -->
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<style>
+/* CSS Stylesheet */
+.container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+}
+
+.order-section {
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 5px;
+}
+
+.order-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.order-details p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+</style>
+{% endblock %}

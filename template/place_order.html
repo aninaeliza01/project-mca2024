@@ -2,53 +2,142 @@
 {% block title %}Place Order{% endblock %}
 {% block content %}
 {% if messages %}
-        {% for message in messages %}
-            <div class="alert" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
+    {% for message in messages %}
+        <div class="alert" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endif %}
 <div class="container">
     <div class="heading_container">
-        <h2>
-            Place an Order at {{ pump.station_name }}
-        </h2>
+        <h2>Place an Order at {{ pump.station_name }}</h2>
+        <p>Address: {{ pump.address }}</p>
+        <p>Location: {{ pump.location.name }}</p>
+        <!-- <p>Phone: {{ request.user.phone }}</p>
+        <p>Email: {{ request.user.email }}</p> -->
+        <!-- Order placement form -->
+        <form method="post" class="order-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="fuel_type">Fuel Type:</label>
+                <select name="fuel_type_id" id="fuel_type" class="select-field">
+                    <option value="">Select Fuel Type</option>
+                    {% for fuel in fuel_types %}
+                        <option value="{{ fuel.id }}" data-price="{{ fuel.price }}">{{ fuel.fueltype }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-<p>Address: {{ pump.address }}</p>
-<p>Location: {{ pump.location.name }}</p>
+            <div class="form-group">
+                <label for="selected_price">Price:</label>
+                <span id="selected_price" class="price-span"></span>
+            </div>
 
-<!-- Order placement form -->
-<form method="post">
-    {% csrf_token %}
-    
-    <!-- Select field for choosing the fuel type -->
-    <div class="form-group">
-        <label for="fuel_type">Fuel Type:</label>
-        <select name="fuel_type" id="fuel_type">
-            <option value="">Select Fuel Type</option>
-            {% for fuel in fuel_types %}
-                <option value="{{ fuel.fueltype }}">{{ fuel.fueltype }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    <!-- Input field for specifying the quantity -->
-    <div class="form-group">
-        <label for="quantity">Quantity (in liters):</label>
-        <input type="number" name="quantity" id="quantity" required>
-    </div>
-    
-    <!-- Input field for specifying the delivery point -->
-    <div class="form-group">
-        <label for="delivery_point">Delivery Point:</label>
-        <input type="text" name="delivery_point" id="delivery_point" required>
-    </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <select name="quantity" id="quantity" class="select-field">
+                    <option value="">Select Quantity</option>
+                    <option value="1">1 liter</option>
+                    <option value="2">2 liters</option>
+                    <option value="3">3 liters</option>
+                    <option value="4">4 liters</option>
+                </select>
+            </div>
 
-    <!-- Add more form fields as needed for other order details -->
-    
-    <!-- Add a submit button to place the order -->
-    <button type="submit">Place Order</button>
-</form>
+            <div class="form-group">
+                <label for="delivery_point">Delivery Point:</label>
+                <input type="text" name="delivery_point" id="delivery_point" class="text-field">
+            </div>
+            
+            <div class="form-group">
+                <label for="payment_method">Payment Method:</label>
+                <select name="payment_method" id="payment_method" class="select-field">
+                    <option value="">Select Payment Method</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="COD">COD</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+            </div>
+                        
+
+            <button type="submit" class="submit-button">Place Order</button>
+        </form>
+    </div>
 </div>
-</div>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .heading_container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .order-form {
+        /* margin-top: 20px; */
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .form-group {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-group label {
+        flex: 1;
+    }
+
+    .select-field,
+    .text-field {
+        flex: 2;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+
+    .submit-button {
+        padding: 12px 24px;
+        background-color: #f90;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        width: 100%;
+        display: block;
+    }
+
+    .submit-button:hover {
+        background-color: #e6801b;
+    }
+</style>
+
+<script>
+    document.getElementById('fuel_type').addEventListener('change', function() {
+        const selectedPrice = this.options[this.selectedIndex].getAttribute('data-price');
+        document.getElementById('selected_price').innerText = `${selectedPrice} per liter`;
+    });
+</script>
+
 {% endblock content %}

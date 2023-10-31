@@ -9,14 +9,14 @@
     {% endfor %}
 {% endif %}
 <h3 class="mb-3">Fuel</h3>
-<form method="POST" onsubmit="return validateForm()">
+<form method="POST" id="fuelForm">
     {% csrf_token %}
     <label for="id_fueltype">Fuel Type:</label>
     <input type="text" name="fueltype" id="id_fueltype">
     <span class="error" id="fueltypeError"></span><br>
 
     <label for="id_price">Price:</label>
-    <input type="number" name="price" id="id_price">
+    <input type="text" name="price" id="id_price">
     <span class="error" id="priceError"></span><br>
 
     <button type="submit">Add Fuel</button>
@@ -41,12 +41,12 @@
                     <td>{{ fuel.fueltype }}</td>
                     <td>
                         <input type="number" id="price_{{ fuel.id }}" name="price" value="{{ fuel.price }}">
-                        <span class="error" id="priceError_{{ fuel.id }}"></span><br>
+                        
                     </td>
                     <td>{{ fuel.profile_modified_at }}</td>
                     <td>
                         <button type="submit" class="btn btn-danger btn-sm" name="update_fuel" value="{{ fuel.id }}">Update</button>
-                        <a href="{% url 'delete_fuel' fuel.id %}" class="btn btn-danger">Delete</a>
+                        <!-- <a href="{% url 'delete_fuel' fuel.id %}" class="btn btn-danger">Delete</a> -->
                     </td>
                     <!-- Add more columns if needed -->
                 </form>
@@ -57,50 +57,65 @@
     
 </div>
 <script>
-    function validateForm() {
-        var fueltype = document.getElementById("id_fueltype").value;
-        var price = parseFloat(document.getElementById("id_price").value);
-
-        var fueltypePattern = /^[A-Za-z\s]+$/;
-        var fueltypeError = document.getElementById("fueltypeError");
-        var priceError = document.getElementById("priceError");
-
-        var priceFields = document.querySelectorAll('[id^="price_"]');
-        var priceErrors = document.querySelectorAll('[id^="priceError_"]');
-
-        for (var i = 0; i < priceFields.length; i++) {
-            var priceField = priceFields[i];
-            var priceError = priceErrors[i];
-            var price = parseFloat(priceField.value);
-
-            if (isNaN(price) || price <= 0) {
-                priceError.textContent = "Price must be a valid number greater than zero.";
-                priceError.style.color = "red";
-                return false;
-            } else {
-                priceError.textContent = "";
+     document.addEventListener("DOMContentLoaded", function() {
+    const inputField = document.getElementById('id_fueltype');
+    inputField.addEventListener('input', function(event) {
+      let enteredValue = event.data;
+      if (enteredValue && !/^[A-Za-z]+$/.test(enteredValue)) {
+        inputField.value = inputField.value.slice(0, -1);
+      }
+    });
+    
+});
+document.addEventListener("DOMContentLoaded", function() {
+        const inputField = document.getElementById('id_price');
+        inputField.addEventListener('input', function(event) {
+            let enteredValue = event.data;
+            
+            if (enteredValue && !/^[0-9.]*$/.test(enteredValue)) {
+                inputField.value = inputField.value.replace(/[^0-9.]/g, '');
             }
-        }
+        });
+    });
+ 
+        document.addEventListener("DOMContentLoaded", function() {
+            const fuelForm = document.getElementById('fuelForm');
+            const fuelTypeField = document.getElementById('id_fueltype');
+            const priceField = document.getElementById('id_price');
+            const priceError = document.getElementById('priceError');
 
-        if (!fueltype.match(fueltypePattern)) {
-            fueltypeError.textContent = "Fuel type should contain only letters and spaces.";
-            fueltypeError.style.color = "red";
-            return false;
-        } else {
-            fueltypeError.textContent = "";
-        }
+            fuelTypeField.addEventListener('input', function(event) {
+                let enteredValue = event.target.value;
+                if (enteredValue && !/^[A-Za-z]+$/.test(enteredValue)) {
+                    fuelTypeField.value = fuelTypeField.value.slice(0, -1);
+                }
+            });
 
-        if (isNaN(price) || price <= 0) {
-            priceError.textContent = "Price must be a valid number greater than zero.";
-            priceError.style.color = "red";
-            return false;
-        } else {
-            priceError.textContent = "";
-        }
-        
-        return true;
-    }
+            priceField.addEventListener('input', function(event) {
+                let enteredValue = event.target.value.trim();
+                if (enteredValue === "0") {
+                    priceError.innerText = "Price cannot be zero.";
+                    priceField.classList.add("error");
+                } else if (!/^(\d{1,4}(\.\d{1,2})?)?$/.test(enteredValue)) {
+                    priceError.innerText = "Please enter a valid price with at most 4 digits before the decimal.";
+                    priceField.classList.add("error");
+                } else {
+                    priceError.innerText = "";
+                    priceField.classList.remove("error");
+                }
+            });
+
+            fuelForm.addEventListener('submit', function(event) {
+                let enteredPrice = priceField.value.trim();
+                if (enteredPrice === "0" || !/^(\d{1,4}(\.\d{1,2})?)?$/.test(enteredPrice)) {
+                    event.preventDefault(); // Prevent form submission if price is invalid
+                }
+                // Additional form submission handling or AJAX call if needed
+            });
+        });
+
 </script>
+
 <style>
     .alert {
         background-color: #f2dede; /* Background color for alert */

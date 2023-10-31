@@ -1,0 +1,84 @@
+{% extends "userBase.html" %}
+{% block title %}Order Summary{% endblock %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert" role="alert">
+        {{ message }}
+    </div>
+{% endfor %}
+{% endif %}
+<div class="container">
+    <div class="order-summary">
+        <h2 class="summary-title">Order Summary</h2>
+        <div class="summary-details">
+            <p class="summary-item">Order ID: {{ order.id }}</p>
+            <p class="summary-item">Customer: {{ order.customer }}</p>
+            <p class="summary-item">Fuel Station: {{ order.station }}</p>
+            <p class="summary-item">Fuel Type: {{ order.fuel_type }}</p>
+            <p class="summary-item">Quantity: {{ order.quantity }} liters</p>
+            <p class="summary-item">Total Price: {{ order.total_price }}</p>
+            <p class="summary-item">Payment Method: {{ order.payment_method }}</p>
+            <!-- Add other order details you want to display -->
+        </div>
+        <form class="summary-action-form" method="post" action="{% url 'ordersummary' order.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="order_id" value="{{ order.id }}">
+            <button class="summary-action-button" type="submit">Place Order</button>
+        </form><br>
+        <form class="summary-action-form" method="post" action="{% url 'delete_order' order.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="order_id" value="{{ order.id }}">
+            <button class="summary-action-button" type="submit">Delete Order</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+.container {
+    margin: 20px;
+}
+
+.order-summary {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+.summary-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.summary-details {
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    margin: 5px 0;
+}
+
+.summary-action-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-action-button {
+    padding: 10px 20px;
+    background-color: #f90;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+</style>
+{% endblock %}

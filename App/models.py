@@ -23,8 +23,6 @@ class CustomUser(AbstractUser):
     is_vendor = models.BooleanField(default=False)
     is_deliveryteam = models.BooleanField(default=False)
 
-    gstn = models.CharField(max_length=15, blank=True, null=True ,unique=True)  # GSTN field
-    dln = models.CharField(max_length=15, blank=True, null=True ,unique=True)  # DL field
 
     REQUIRED_FIELDS = []
     def _str_(self):
@@ -94,3 +92,29 @@ class FuelStation(models.Model):
 
     def __str__(self):
         return self.station_name
+    
+
+class Order(models.Model):
+    PAYMENT_METHOD_CHOICES = (
+        ('Credit Card', 'Credit Card'),
+        ('Debit Card', 'Debit Card'),
+        ('COD', 'COD'),
+        ('PayPal', 'PayPal'),
+    )
+
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
+    fuel_type = models.ForeignKey(Fuel, on_delete=models.CASCADE)
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    order_date = models.DateTimeField(auto_now_add=True)
+    is_delivered = models.BooleanField(default=False)
+    is_accepted = models.BooleanField(default=False)
+    is_ordered = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
+    delivery_address = models.CharField(max_length=255)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True, default='COD')
+
+    def __str__(self):
+        return f"Order {self.id} by {self.customer.username} at {self.order_date}"
+

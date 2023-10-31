@@ -376,6 +376,10 @@ function validateLocation() {
             isFormValid = false;
       }
 
+      if (!validateGST()) {
+            isFormValid = false;
+      }
+
       if (!validateUsername()) {
         isFormValid = false;
       }

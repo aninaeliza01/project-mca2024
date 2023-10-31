@@ -106,11 +106,11 @@
     .nav-button {
         display: inline-block;
         padding: 10px 20px;
-        background-color:#FA9A50; /* Button background color */
-        color: #fff; /* Text color */
+         /* Button background color */
+        color: #FA9A50; /* Text color */
         text-decoration: none; /* Remove underline */
         border-radius: 5px; /* Rounded corners */
-        margin-left: 150px; /* Margin between buttons */
+        margin-left: 60px; /* Margin between buttons */
     }
 
     .nav-button:hover {
@@ -118,6 +118,7 @@
         /* Additional hover styles if needed */
     }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body class="sub_page">
@@ -133,18 +134,21 @@
           </a>
     
           <!-- Search Form -->
-          <a href="/userhome" class="nav-button">Home</a>
-          <a href="/userhome" class="nav-button">Orders</a>
+          <a href="/userhome" class="nav-button"><i class="fas fa-home"></i> Home</a>
+          <a href="/customer_orders" class="nav-button"><i class="fas fa-shopping-cart"></i> Orders</a>
+          <a href="/profile" class="nav-button"><i class="fas fa-user"></i> Profile</a>
+          <a href="/logout" class="nav-button" id="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+
           
           <div class="navbar-collapse" id="">
             <div class="user_option">
               {% if user.is_authenticated %}
             <li class="dropdown">
             <a href="#" class="dropbtn">Hi, {{ user.username }}</a>
-            <div class="dropdown-content">
+            <!-- <div class="dropdown-content">
               <a href="/profile">Profile</a>
               <a href="/logout" id="logout-link">LogOut</a>
-            </div>
+            </div> -->
           </li>
           {% else %}
           <li><a href="/login">Login</a></li>
@@ -180,7 +184,7 @@
       <!-- footer section -->
   <footer class="container-fluid footer_section">
     <p>
-      Copyright &copy; 2020 All Rights Reserved. Design by
+      Copyright &copy; 2023 All Rights Reserved. Design by
       HybridEnergy
     </p>
   </footer>

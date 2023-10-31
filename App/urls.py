@@ -16,8 +16,9 @@ urlpatterns = [
     path('changePassword/', views.change_password,name="changePassword"),
     path('accounts/profile/', views.userhome,name="userhome"),
     path('place_order/<int:pump_id>/', views.place_order, name='place_order'),
-    
-
+    path('ordersummary/<int:order_id>/', views.order_summary, name='ordersummary'),
+    path('delete_order/<int:order_id>/', views.delete_order, name='delete_order'),
+    path('customer_orders/', views.customer_orders, name='customer_orders'),
 
     path('adminhome/', views.adminhome,name="adminhome"),
     path('update_fuel/<int:fuel_id>/', views.update_fuel, name='update_fuel'),
@@ -44,8 +45,13 @@ urlpatterns = [
 
     path('base/', views.base),
     path('adminbase/', views.adminbase),
+
     path('pumphome/', views.pumphome,name="pumphome"),
+    path('accept_order/<int:order_id>/', views.accept_order, name='accept_order'),
+    path('reject_order/<int:order_id>/', views.reject_order, name='reject_order'),
     # path('pump/', views.pump,name="pump"),
+
+    
     path('userBase/', views.userBase,name="userBase"),
 
 
