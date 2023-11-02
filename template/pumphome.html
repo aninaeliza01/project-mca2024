@@ -1,102 +1,50 @@
 {% extends "base.html" %}
-{% block title %}userhome{% endblock %}
+{% block title %}Orders{% endblock %}
 {% block content %}
-<div class="order-list">
-    {% if messages %}
-    {% for message in messages %}
-        <div class="alert" role="alert">
-            {{ message }}
-        </div>
-    {% endfor %}
-    {% endif %}
-    {% if pump_orders %}
-        <table class="order-table">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Fuel Type</th>
-                    <th>Quantity</th>
-                    <th>Total Price</th>
-                    <th>Delivery Point</th>
-                    <th>Customer</th>
-                    <th>Order Date & Time</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in pump_orders %}
-                    <tr>
-                        <td>{{ order.id }}</td>
-                        <td>{{ order.fuel_type }}</td>
-                        <td>{{ order.quantity }}</td>
-                        <td>{{ order.total_price }}</td>
-                        <td>{{ order.delivery_address }}</td>
-                        <td>{{ order.customer }}</td>
-                        <td>{{ order.order_date|date:"Y-m-d H:i:s" }}</td>
-
-                        <td>
-                            <form method="post" action="{% url 'accept_order' order.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="order_id" value="{{ order.id }}">
-                                <button type="submit" class="accept-button">Accept</button>
-                            </form>
-                            <form method="post" action="{% url 'reject_order' order.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="order_id" value="{{ order.id }}">
-                                <button type="submit" class="reject-button">Reject</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No orders available for this pump.</p>
-    {% endif %}
+<div class="order-counts">
+    <div class="order-count">
+        <h2>Total Orders</h2>
+        <p>{{ total_order_count }}</p>
+    </div>
+    <div class="order-count">
+        <h2>Accepted Orders</h2>
+        <p>{{ accepted_order_count }}</p>
+    </div>
+    <div class="order-count">
+        <h2>Delivered Orders</h2>
+        <p>{{ delivered_order_count }}</p>
+    </div>
 </div>
-
 <style>
-/* CSS Stylesheet */
-.order-list {
-    margin: 20px;
-}
+    /* Style the container for order counts */
+    .order-counts {
+        display: flex;
+        justify-content: space-around;
+    }
 
-.order-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-    font-family: Arial, sans-serif;
-}
+    /* Style the individual count boxes */
+    .order-count {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        text-align: center;
+        flex: 1;
+    }
 
-.order-table th, .order-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
+    /* Style the heading within each count box */
+    .order-count h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #333;
+    }
 
-.order-table th {
-    background-color: #f2f2f2;
-    color: #333;
-}
-
-.accept-button, .reject-button {
-    padding: 6px 12px;
-    font-size: 14px;
-    margin: 3px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.accept-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-}
-
-.reject-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-}
+    /* Style the count number */
+    .order-count p {
+        margin: 10px 0;
+        font-size: 18px;
+    }
 </style>
+
 {% endblock content %}

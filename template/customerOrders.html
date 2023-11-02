@@ -1,81 +1,109 @@
 {% extends "userBase.html" %}
 {% block title %}Customer Orders{% endblock %}
 {% block content %}
-{% if messages %}
-{% for message in messages %}
-    <div class="alert" role="alert">
-        {{ message }}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container">
+        <div class="order-section">
+            <h2>Ordered Orders</h2>
+            <table class="order-table">
+                <thead>
+                    <tr class="order-table-header">
+                        <th>Order No</th>
+                        <th>Order ID</th>
+                        <th>Fuel Station</th>
+                        <th>Date & Time</th>
+                        <th>Fuel Type</th>
+                        <th>Total Price</th>
+                        <th>Order Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in ordered_orders %}
+                        <tr class="order-row {% cycle 'odd' 'even' %}">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.station }}</td>
+                            <td>{{ order.order_date }}</td>
+                            <td>{{ order.fuel_type }}</td>
+                            <td>{{ order.total_price }}</td>
+                            <td>
+                                <span class="order-status {% if order.is_accepted %}accepted{% elif order.is_rejected %}rejected{% else %}not-accepted{% endif %}">
+                                    {% if order.is_accepted %}
+                                        Accepted
+                                    {% elif order.is_rejected %}
+                                        Rejected
+                                    {% else %}
+                                        Not Accepted
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-{% endfor %}
-{% endif %}
-<div class="container">
-    <div class="order-section">
-        <h2>Ordered Orders</h2>
-        <ul class="order-list">
-            {% for order in ordered_orders %}
-                <li class="order-item">
-                    <div class="order-details">
-                        <p>Order ID: {{ order.id }}</p>
-                        <p>Fuel Station: {{ order.station }}</p>
-                        <p>Fuel Type: {{ order.fuel_type }}</p>
-                        <p>Total Price: {{ order.total_price }}</p>
-                        <p>Order Status: {% if order.is_accepted %}Accepted{% else %}Not Accepted{% endif %}</p>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="order-section">
-        <h2>Not Ordered Orders</h2>
-        <ul class="order-list">
-            {% for order in not_ordered_orders %}
-                <li class="order-item">
-                    <div class="order-details">
-                        <p>Order ID: {{ order.id }}</p>
-                        <p>Fuel Station: {{ order.station }}</p>
-                        <p>Fuel Type: {{ order.fuel_type }}</p>
-                        <p>Total Price: {{ order.total_price }}</p>
-                        <!-- <p>Order Status: Not Accepted</p> -->
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
 
-<style>
-/* CSS Stylesheet */
-.container {
-    display: flex;
-    justify-content: space-around;
-    margin: 20px;
-}
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
 
-.order-section {
-    width: 45%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-radius: 5px;
-}
+        .order-section {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-.order-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-.order-item {
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-}
+        .order-table-header {
+            background-color: #f3f3f3;
+        }
 
-.order-details p {
-    margin: 5px 0;
-    font-size: 16px;
-}
-</style>
+        .order-table th,
+        .order-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .order-table td:first-child {
+            width: 5%;
+        }
+
+        .order-status {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .order-status.accepted {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+
+        .order-status.rejected {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
+        .order-status.not-accepted {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+    </style>
 {% endblock %}

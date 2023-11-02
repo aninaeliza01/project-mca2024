@@ -1,0 +1,90 @@
+{% extends "userBase.html" %}
+{% block title %}Customer Orders{% endblock %}
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="order-section">
+        <h2>Your Unordered Requests</h2>
+        <ul class="order-list">
+            {% for order in not_ordered_orders %}
+                <li class="order-item">
+                    <div class="order-box">
+                        <p><strong>Order #{{ forloop.counter }}:</strong>
+                            <p>Order ID:{{ order.id }}</p> 
+                        <p>Fuel Station: {{ order.station }}</p>
+                        <p>Fuel Type: {{ order.fuel_type }}</p>
+                        <p>Total Price: {{ order.total_price }}</p>
+                        <!-- <p>Order Status: Not Accepted</p> -->
+                        <div class="summary-actions">
+                            <form class="summary-action-form" method="post" action="{% url 'ordersummary' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="order_id" value="{{ order.id }}">
+                                <button class="summary-action-button" type="submit">Place Order</button>
+                            </form>
+                            <form class="summary-action-form" method="post" action="{% url 'delete_order' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="order_id" value="{{ order.id }}">
+                                <button class="summary-action-button cancel" type="submit">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: #f8d7da; /* Default background color */
+            color: #721c24; /* Default text color */
+        }
+        .order-section {
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        .order-box {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .summary-action-form {
+            margin-bottom: 10px;
+        }
+
+        .summary-action-button {
+            background-color: #f0c14b;
+            color: #111;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .summary-action-button.cancel {
+            background-color: #ff9900;
+        }
+
+        .summary-action-button:hover {
+            background-color: #d3a900;
+        }
+    </style>
+{% endblock %}

@@ -1,6 +1,13 @@
 {% extends "adminbase.html" %}
 {% block title %}adminhome{% endblock %}
 {% block content %}
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 <!-- Vendor -->
 <h3 class="mb-3">Pump</h3>
 <div class="table-responsive">
@@ -53,4 +60,14 @@
         }
     });
 </script>
+<style>
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color: #f8d7da; /* Default background color */
+        color: #721c24; /* Default text color */
+    }
+</style>
 {% endblock content %}

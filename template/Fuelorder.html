@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<div class="order-list">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if pump_orders %}
+        <div class="table-wrapper">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Fuel Type</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Delivery Point</th>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Order Date & Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in pump_orders %}
+                        <tr>
+                            <td></td>
+                            <td>{{ order.fuel_type }}</td>
+                            <td>{{ order.quantity }}Liters</td>
+                            <td>{{ order.total_price }}</td>
+                            <td>{{ order.delivery_address }}</td>
+                            <td>{{ order.customer }}</td>
+                            <td>{{ order.customer.email }}</td>
+                            <td>{{ order.customer.phone }}</td>
+                            <td>{{ order.order_date|date:"M d, Y H:i A" }}</td>
+                            <td>
+                                {% if order.is_accepted %}
+                                    <span class="status accepted">Accepted</span>
+                                {% elif order.is_rejected %}
+                                    <span class="status not accepted">Rejected</span>
+                                {% else %}
+                                    <form method="post" action="{% url 'accept_order' order.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                                        <button type="submit" class="action-button accept">Accept</button>
+                                    </form>
+                                    <form method="post" action="{% url 'reject_order' order.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                                        <button type="submit" class="action-button reject">Reject</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No orders available for this pump.</p>
+    {% endif %}
+</div>
+
+<style>
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color: #f8d7da; /* Default background color */
+        color: #721c24; /* Default text color */
+    }
+    /* CSS Stylesheet */
+    .order-list {
+        margin: 20px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid #3498db;
+        font-family: 'Arial', sans-serif;
+        background-color: #f9f9f9;
+        border-radius: 15px;
+    }
+
+    .order-table th,
+    .order-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .order-table th {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .action-button {
+        padding: 8px 18px;
+        font-size: 14px;
+        margin: 5px 10px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .accept {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .reject {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .accepted {
+        background-color: #2ecc71;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .status {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: white;
+        width: 90px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .accepted {
+        background-color: #2ecc71;
+    }
+
+    .rejected {
+        background-color: #e74c3c;
+    }
+
+    .status.accepted {
+        background-color: #2ecc71;
+    }
+
+    .status.rejected {
+        background-color: #e74c3c;
+    }
+
+    /* Additional Style for Hover Effect */
+    .action-button:hover {
+        opacity: 0.8;
+    }
+
+    /* Styling for Odd Rows */
+    .order-table tbody tr:nth-child(odd) {
+        background-color: #f2f2f2;
+    }
+</style>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let table = document.querySelector("table");
+        let rowCount = 1;
+        for (let i = 1; i < table.rows.length; i++) {
+            table.rows[i].cells[0].innerText = rowCount;
+            rowCount++;
+        }
+    });
+</script>
+{% endblock content %}

@@ -2,6 +2,14 @@
 {% block title %}Fuel Station Profile{% endblock %}
 {% block content %}
     <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: #f8d7da; /* Default background color */
+            color: #721c24; /* Default text color */
+        }
         /* Add styles for the profile */
         .profile-container {
             max-width: 800px;
@@ -62,6 +70,33 @@
         .update-button:hover {
             background-color: #217dbb;
         }
+        .change-password-section {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+
+    .change-password-button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+
+    .change-password-button:hover {
+        background-color: #217dbb;
+    }
+        
     </style>
  {% if messages %}
  {% for message in messages %}
@@ -91,97 +126,79 @@
         <p><strong>GST Number:</strong> <span id="gst_number" contenteditable>{{ fuel_station.gst_number }}</span></p>
     </div>
  <!-- Your profile content -->
- <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
-     {% csrf_token %}
-     <p><strong>Change Profile Picture:</strong></p>
-     <input class="edit-input" type="file" name="logo_image" id="logo_image" accept="image/*">
-     <!-- User Name input -->
-     <p><strong>User Name:</strong></p>
-     <input class="edit-input" type="text" id="username" name="username" value="{{ user_details.username }}" oninput="validateUsername()">
-     <span id="usernameError" style="color: red;"></span>
-     <!-- Phone Number input -->
-     <p><strong>Phone Number:</strong></p>
-     <input class="edit-input" type="text" name="phone_number" value="{{ fuel_station.phone_number }}" oninput="validatePhoneNumber()">
-     <span id="phoneNumberError" style="color: red;"></span>
-     <!-- GST Number input -->
-     <p><strong>GST Number:</strong></p>
-     <input class="edit-input" type="text" name="gst_number" value="{{ fuel_station.gst_number }}" oninput="validateGST()">
-     <span id="gstNumberError" style="color: red;"></span><br>
-     <!-- Update button -->
-     <button class="update-button" type="submit">Update Profile</button>
- </form>
+ <form method="post" enctype="multipart/form-data" id="profileForm" onsubmit="return validateForm(event)">
+    {% csrf_token %}
+    <!-- Input for username -->
+    <p><strong>User Name:</strong></p>
+    <input class="edit-input" type="text" id="usernameInput" name="username" value="{{ user_details.username }}" oninput="validateUsername()">
+    <span id="usernameError" style="color: red;"></span>
+    <!-- Input for phone number -->
+    <p><strong>Phone Number:</strong></p>
+    <input class="edit-input" type="text" id="phoneNumberInput" name="phone_number" value="{{ fuel_station.phone_number }}" oninput="validatePhoneNumber()">
+    <span id="phoneNumberError" style="color: red;"></span>
+    <!-- Input for GST number -->
+    <p><strong>GST Number:</strong></p>
+    <input class="edit-input" type="text" id="gstNumberInput" name="gst_number" value="{{ fuel_station.gst_number }}" oninput="validateGST()">
+    <span id="gstNumberError" style="color: red;"></span><br>
+    <!-- Update button -->
+    <button class="update-button" type="submit">Update Profile</button>
+    <button class="update-button"><a href="/changePassword">Change Password</a></button>
+</form>
 </div>
 <script>
- function validateUsername() {
-    var username = document.getElementById("username").value.trim();
+function validateUsername() {
+    var username = document.getElementById("usernameInput").value.trim();
     var usernameError = document.getElementById("usernameError");
-
     if (username === "") {
-    usernameError.textContent = "User Name is required";
-    return false;
+        usernameError.textContent = "User Name is required";
+        return false;
     }
-
     usernameError.textContent = "";
     return true;
 }
 
 function validatePhoneNumber() {
-    var phoneNumber = document.getElementsByName("phone_number")[0].value.trim();
+    var phoneNumber = document.getElementById("phoneNumberInput").value.trim();
     var phoneNumberError = document.getElementById("phoneNumberError");
     var phoneNumberPattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
-
     if (phoneNumber === "") {
         phoneNumberError.textContent = "Phone number is required";
         return false;
     }
-
     if (!phoneNumberPattern.test(phoneNumber)) {
         phoneNumberError.textContent = "Invalid phone number format";
         return false;
     }
-
     phoneNumberError.textContent = "";
     return true;
 }
 
- function validateGST() {
-    
-    var gstNumber = document.getElementsByName("gst_number")[0].value.trim();
+function validateGST() {
+    var gstNumber = document.getElementById("gstNumberInput").value.trim();
     var gstNumberError = document.getElementById("gstNumberError");
     var gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[A-Z]{1}[A-Z]{1}$/;
-
     if (gstNumber === "") {
         gstNumberError.textContent = "GST number is required";
         return false;
     }
-
     if (!gstPattern.test(gstNumber)) {
         gstNumberError.textContent = "Invalid GST number format";
         return false;
     }
-
     gstNumberError.textContent = "";
     return true;
-}// Validation for GST Number
- 
+}
 
- function validateForm() {
-     var isFormValid = true;
-
-     // Validation for all fields
-     if (!validateUsername()) {
-         isFormValid = false;
-     }
-
-     if (!validatePhoneNumber()) {
-         isFormValid = false;
-     }
-
-     if (!validateGST()) {
-         isFormValid = false;
-     }
-
-     return isFormValid; // The form will only submit if this function returns true
- }
+function validateForm(event) {
+    var isUsernameValid = validateUsername();
+    var isPhoneNumberValid = validatePhoneNumber();
+    var isGSTValid = validateGST();
+    if (isUsernameValid && isPhoneNumberValid && isGSTValid) {
+        return true; // Allow form submission if all validations pass
+    } else {
+        event.preventDefault(); // Prevent form submission if any validation fails
+        return false;
+    }
+}
 </script>
 {% endblock %}

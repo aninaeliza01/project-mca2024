@@ -146,8 +146,8 @@ def activateEmail(request, user):
 
 @never_cache
 def login_user(request):
-            # # if request.user.is_authenticated:
-            # #     return redirect('/')
+    if request.user.is_authenticated:
+        return redirect('/')
             # if 'username' in request.session:
             #     return redirect('/userhome')
             # elif 'username' in request.session:
@@ -249,6 +249,7 @@ def change_password(request):
                 update_session_auth_hash(request, request.user)
                 
                 messages.success(request, 'Password changed successfully')
+                return redirect('logout')
             else:
                 messages.error(request, 'New passwords do not match')
         else:
@@ -300,6 +301,77 @@ def register_pump(request):
 
 @never_cache
 @login_required(login_url='login')
+def pumphome(request):
+    if request.user.is_vendor:
+        fuel_station = request.user.fuelstation
+
+        if fuel_station:
+            pump_orders = Order.objects.filter(station=fuel_station, is_ordered=True)
+
+            total_order_count = pump_orders.count()
+            accepted_order_count = pump_orders.filter(is_accepted=True).count()
+            delivered_order_count = pump_orders.filter(is_delivered=True).count()
+
+            return render(request, 'pumphome.html', {
+                'pump_orders': pump_orders,
+                'fuel_station': fuel_station,
+                'total_order_count': total_order_count,
+                'accepted_order_count': accepted_order_count,
+                'delivered_order_count': delivered_order_count
+            })
+
+@never_cache
+@login_required(login_url='login')        
+def order(request):
+    if request.user.is_vendor:
+        # Retrieve the FuelStation instance associated with the user
+        fuel_station = request.user.fuelstation  # Assuming this is the attribute that holds the FuelStation reference for the user
+
+        if fuel_station:
+            # Fetch orders associated with this station
+            pump_orders = Order.objects.filter(station=fuel_station, is_ordered=True)
+
+            return render(request, 'Fuelorder.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
+        
+@never_cache
+@login_required(login_url='login')  
+def accept_order(request, order_id):
+    if request.method == 'POST':
+        order = Order.objects.get(pk=order_id)
+        order.is_accepted = True
+        order.is_ordered = True  # Assuming is_ordered means the order is confirmed or accepted
+        order.save()
+        station_email=order.station.email
+        customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
+        send_mail(
+            'Order Accepted',
+            'Your order has been accepted. Thank you!',
+            [station_email],  # Replace with your email
+            [customer_email],  # Email of the customer
+            fail_silently=False,
+        )
+        return redirect('orders')  # Redirect to the pump home page after accepting the order
+
+@never_cache
+@login_required(login_url='login')
+def reject_order(request, order_id):
+    if request.method == 'POST':
+        order = Order.objects.get(pk=order_id)
+        order.is_rejected = True  # Set the order status as not accepted or rejected
+        order.save()
+        customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
+        send_mail(
+            'Order Rejected',
+            'Your order has been Rejected. Thank you!',
+            'aninaelizebeth2024a@mca.ajce.in',  # Replace with your email
+            [customer_email],  # Email of the customer
+            fail_silently=False,
+        )
+        return redirect('orders')
+
+
+@never_cache
+@login_required(login_url='login')
 def fuel_station_profile(request):
     fuel_station = get_object_or_404(FuelStation, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
@@ -338,19 +410,6 @@ def fuel_station_profile(request):
 #         return render(request,'userhome.html',context)
 #     return redirect('/login')
     # return redirect('log')
-@never_cache
-@login_required(login_url='login')
-def pumphome(request):
-    if request.user.is_vendor:
-        # Retrieve the FuelStation instance associated with the user
-        fuel_station = request.user.fuelstation  # Assuming this is the attribute that holds the FuelStation reference for the user
-
-        if fuel_station:
-            # Fetch orders associated with this station
-            pump_orders = Order.objects.filter(station=fuel_station, is_ordered=True)
-
-            return render(request, 'pumphome.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
-
 
 from decimal import Decimal
 @never_cache
@@ -412,7 +471,7 @@ def order_summary(request, order_id):
         # Sending an email notification to the fuel station
         send_mail(
             'New Order Placed',
-            f'An order has been placed. Order details: {order.details}',  # Replace with actual order details
+            f'An order has been placed for Fuel Station: {order.station.station_name} at {order.order_date}. Quantity: {order.quantity}, Payment Method: {order.payment_method}, Delivery Address: {order.delivery_address}',
             'aninaelizebeth2024a@mca.ajce.in',  # Your email
             [fuel_station_email],  # Email of the fuel station
             fail_silently=False,
@@ -443,26 +502,16 @@ def customer_orders(request):
         'not_ordered_orders': not_ordered_orders,
     }
     return render(request, 'customerOrders.html', context)
-@never_cache
-@login_required(login_url='login')  
-def accept_order(request, order_id):
-    if request.method == 'POST':
-        order = Order.objects.get(pk=order_id)
-        order.is_accepted = True
-        order.is_ordered = True  # Assuming is_ordered means the order is confirmed or accepted
-        order.save()
-        return redirect('pumphome')  # Redirect to the pump home page after accepting the order
-
+ 
 @never_cache
 @login_required(login_url='login')
-def reject_order(request, order_id):
-    if request.method == 'POST':
-        order = Order.objects.get(pk=order_id)
-        order.is_accepted = False
-        order.is_ordered = False  # Set the order status as not accepted or rejected
-        order.save()
-        return redirect('pumphome') 
+def customer_unorders(request):
+    not_ordered_orders = Order.objects.filter(customer=request.user, is_ordered=False)
 
+    context = {
+        'not_ordered_orders': not_ordered_orders,
+    }
+    return render(request, 'customerUnorder.html', context)
 
 
 def base(request):
@@ -495,7 +544,7 @@ def block_unblock_user(request, user_id):
     else:
         user.is_active = True  # Unblock the user
     user.save()
-    return redirect('/adminuser') 
+    return redirect('adminpump') 
 
 @never_cache
 @login_required(login_url='login')

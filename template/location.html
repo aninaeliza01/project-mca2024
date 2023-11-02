@@ -3,6 +3,14 @@
 {% block content %}
   
 <style>
+  .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color: #f8d7da; /* Default background color */
+        color: #721c24; /* Default text color */
+    }
   /* Style the form container */
   form.form1 {
     max-width: 400px;
@@ -42,7 +50,13 @@
     background-color: #0056b3;
   }
 </style>
-
+{% if messages %}
+            {% for message in messages %}
+                <div class="alert" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 <div class="container">
   <!-- Add Location Form -->
   <h3 class="mb-3">Add Location</h3>

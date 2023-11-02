@@ -18,21 +18,21 @@
             <div class="pump_container">
                 <div class="row">
                     {% for pump in pumps %}
-                        <div class="box">
-                            <div class="img-box"> 
+                        <div class="amazon-order-box">
+                            <div class="amazon-img-box"> 
                                 {% if pump.logo_image %}
                                     <img src="{{ pump.logo_image.url }}" alt="{{ pump.station_name }}" width="150px" height="100px"> 
                                 {% else %}
-                                    <p>Profile photo not available</p>
+                                    <p class="amazon-no-image-text">Profile photo not available</p>
                                 {% endif %}
                             </div>
-                            <div class="detail-box">
+                            <div class="amazon-detail-box">
                                 <h3>{{ pump.station_name }}</h3>
-                                <p>
+                                <p class="amazon-address-info">
                                     <strong>Address:</strong> {{ pump.address }}<br>
                                     <strong>Location:</strong> {{ pump.location.name }}
                                 </p>
-                                <button class="order-button">
+                                <button class="amazon-order-button">
                                     <a href="{% url 'place_order' pump.id %}" class="order-link">Place Order</a>
                                 </button>
                             </div>
@@ -40,71 +40,74 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
-    </section>
-</div>
-
-<style>
-    /* Existing styles */
-
-    .heading_container h2 {
-        font-size: 36px;
-        color: #333;
-        margin-bottom: 20px;
-    }
-
-    .heading_container p {
-        font-size: 18px;
-        color: #777;
-    }
-
-    .box {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 20px;
-        transition: transform 0.3s ease-in-out;
-        height: 100%;
-    }
-
-    .box:hover {
-        box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
-        transform: translateY(-5px);
-    }
-
-    .detail-box {
-        padding: 15px 0;
-    }
-
-    .detail-box h3 {
-        font-size: 24px;
-        margin-bottom: 10px;
-        color: #333;
-    }
-
-    .detail-box p {
-        font-size: 16px;
-        color: #555;
-        margin-bottom: 10px;
-    }
-
-    .order-button {
-        padding: 10px 20px;
-        background-color: #f90;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 18px;
-        text-decoration: none;
-        text-align: center;
-        transition: background-color 0.3s;
-        display: inline-block;
-    }
-
-    .order-button:hover {
-        background-color: #e6801b;
-    }
-</style>
+            </div>
+            
+            <style>
+                /* Updated styles for Amazon-like design */
+            
+                .amazon-order-box {
+                    background: #fff;
+                    border: 1px solid #ddd;
+                    border-radius: 10px;
+                    padding: 20px;
+                    transition: transform 0.3s ease-in-out;
+                    height: 100%;
+                    margin: 15px;
+                }
+            
+                .amazon-order-box:hover {
+                    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+                    transform: translateY(-5px);
+                }
+            
+                .amazon-img-box {
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+            
+                .amazon-no-image-text {
+                    font-size: 14px;
+                    color: #f00;
+                }
+            
+                .amazon-detail-box {
+                    padding: 15px 0;
+                }
+            
+                .amazon-detail-box h3 {
+                    font-size: 24px;
+                    margin-bottom: 10px;
+                    color: #333;
+                }
+            
+                .amazon-address-info {
+                    font-size: 16px;
+                    color: #555;
+                    margin-bottom: 10px;
+                }
+            
+                .amazon-order-button {
+                    padding: 10px 20px;
+                    background-color: #ff9900;
+                    color: #fff;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 18px;
+                    text-align: center;
+                    transition: background-color 0.3s;
+                    display: inline-block;
+                }
+            
+                .amazon-order-button:hover {
+                    background-color: #cc7a00;
+                }
+            
+                .order-link {
+                    text-decoration: none;
+                    color: #fff;
+                }
+            </style>
+            
 
 {% endblock %}

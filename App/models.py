@@ -111,6 +111,7 @@ class Order(models.Model):
     is_delivered = models.BooleanField(default=False)
     is_accepted = models.BooleanField(default=False)
     is_ordered = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
     delivery_address = models.CharField(max_length=255)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True, default='COD')
