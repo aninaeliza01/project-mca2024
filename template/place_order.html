@@ -134,6 +134,40 @@
 </style>
 
 <script>
+    document.querySelector('.order-form').addEventListener('submit', function(event) {
+        // Prevent the form from submitting by default
+        event.preventDefault();
+
+        // Get the form inputs
+        const fuelType = document.getElementById('fuel_type');
+        const selectedPrice = document.getElementById('selected_price');
+        const quantity = document.getElementById('quantity');
+        const deliveryPoint = document.getElementById('delivery_point');
+        const paymentMethod = document.getElementById('payment_method');
+
+        // Validation flag
+        let isValid = true;
+
+        // Validation functions
+        function validateField(field, errorMessage) {
+            if (field.value.trim() === '') {
+                isValid = false;
+                alert(errorMessage);
+            }
+        }
+
+        // Perform validation for each field
+        validateField(fuelType, 'Please select a fuel type');
+        validateField(quantity, 'Please select a quantity');
+        validateField(deliveryPoint, 'Please enter a delivery point');
+        validateField(paymentMethod, 'Please select a payment method');
+
+        // If all fields are valid, submit the form
+        if (isValid) {
+            this.submit(); // Submit the form
+        }
+    });
+
     document.getElementById('fuel_type').addEventListener('change', function() {
         const selectedPrice = this.options[this.selectedIndex].getAttribute('data-price');
         document.getElementById('selected_price').innerText = `${selectedPrice} per liter`;

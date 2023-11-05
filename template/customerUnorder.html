@@ -1,90 +1,116 @@
 {% extends "userBase.html" %}
-{% block title %}Customer Orders{% endblock %}
+{% block title %}Your Orders - Amazon{% endblock %}
 {% block content %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    <div class="order-section">
-        <h2>Your Unordered Requests</h2>
-        <ul class="order-list">
-            {% for order in not_ordered_orders %}
-                <li class="order-item">
-                    <div class="order-box">
-                        <p><strong>Order #{{ forloop.counter }}:</strong>
-                            <p>Order ID:{{ order.id }}</p> 
-                        <p>Fuel Station: {{ order.station }}</p>
-                        <p>Fuel Type: {{ order.fuel_type }}</p>
-                        <p>Total Price: {{ order.total_price }}</p>
-                        <!-- <p>Order Status: Not Accepted</p> -->
-                        <div class="summary-actions">
-                            <form class="summary-action-form" method="post" action="{% url 'ordersummary' order.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="order_id" value="{{ order.id }}">
-                                <button class="summary-action-button" type="submit">Place Order</button>
-                            </form>
-                            <form class="summary-action-form" method="post" action="{% url 'delete_order' order.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="order_id" value="{{ order.id }}">
-                                <button class="summary-action-button cancel" type="submit">Cancel</button>
-                            </form>
-                        </div>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="order-history">
+        <h1>Your Unordered Requests</h1>
+        <div class="order-container">
+            <table class="order-table">
+                <thead>
+                    <tr class="order-table-header">
+                        <th>No#</th>
+                        <th>Order ID</th>
+                        <th>Fuel Station</th>
+                        <th>Ship To</th>
+                        <th>Fuel Type</th>
+                        <th>Total</th>
+                        <th>Order Date</th>
+                        
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in not_ordered_orders %}
+                        <tr class="order-row">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.station }}</td>
+                            <td>{{ order.delivery_address }}</td>
+                            <td>{{ order.fuel_type }}</td>
+                            <td>{{ order.total_price }}</td>
+                            <td>{{ order.order_date }}</td>
+                            <td>
+                                <div class="order-actions">
+                                    <form class="order-action-form" method="post" action="{% url 'place_order' order.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                                        <button class="order-action-button" type="submit">Place Order</button>
+                                    </form>
+                                    <form class="order-action-form" method="post" action="{% url 'delete_order' order.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                                        <button class="order-action-button cancel" type="submit">Cancel</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            background-color: #f8d7da; /* Default background color */
-            color: #721c24; /* Default text color */
+        /* Retain previous styles */
+        /* ... */
+
+        .order-container {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
-        .order-section {
-            width: 60%;
+
+        .order-history {
+            width: 90%;
             margin: 0 auto;
         }
 
-        .order-box {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .summary-actions {
+        .order-table-header {
+            background-color: #f9f9f9;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .order-row:nth-child(even) {
+            background-color: #f7f7f7;
+        }
+
+        .order-actions {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
+            align-items: center;
         }
 
-        .summary-action-form {
-            margin-bottom: 10px;
-        }
-
-        .summary-action-button {
-            background-color: #f0c14b;
-            color: #111;
+        .order-action-button {
+            background-color: #f90;
+            color: #fff;
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .summary-action-button.cancel {
-            background-color: #ff9900;
+        .order-action-button.cancel {
+            background-color: #f00;
         }
 
-        .summary-action-button:hover {
-            background-color: #d3a900;
+        .order-action-button:hover {
+            background-color: #e28900;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .order-table-header th {
+            font-weight: bold;
         }
     </style>
 {% endblock %}

@@ -112,10 +112,22 @@ class Order(models.Model):
     is_accepted = models.BooleanField(default=False)
     is_ordered = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
-    is_paid = models.BooleanField(default=False)
+    cancel= models.BooleanField(default=True)
     delivery_address = models.CharField(max_length=255)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True, default='COD')
 
     def __str__(self):
         return f"Order {self.id} by {self.customer.username} at {self.order_date}"
 
+class Payment(models.Model):
+    is_paid = models.BooleanField(default=False)
+    razor_pay_order_id=models.CharField(max_length=100, blank=True, null=True)
+    razor_pay_payment_id=models.CharField(max_length=100, blank=True, null=True)
+    razor_pay_payment_signature=models.CharField(max_length=100, blank=True, null=True)
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a customer
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Store the payment amount
+    payment_date = models.DateTimeField(auto_now_add=True)  # Date and time of the payment
+    # Add other fields as per your requirements, like payment status, transaction ID, etc.
+    
+    def __str__(self):
+        return f"Payment of {self.amount} by {self.customer.username} on {self.payment_date}"

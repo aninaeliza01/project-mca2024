@@ -1,0 +1,118 @@
+{% extends "adminbase.html" %}
+{% block title %}Pump{% endblock %}
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+<div class="container">
+    <div class="order-section">
+        <h2>Orders List</h2>
+        <table class="order-table">
+            <thead>
+                <tr class="order-table-header">
+                    <th>#No</th>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Fuel Station</th>
+                    <th>Date & Time</th>
+                    <th>Fuel Type</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in ordered_orders %}
+                    <tr class="order-row {% cycle 'odd' 'even' %}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.customer.username }}</td>
+                        <td>{{ order.station }}</td>
+                        <td>{{ order.order_date }}</td>
+                        <td>{{ order.fuel_type }}</td>
+                        <td>{{ order.total_price }}</td>
+                        <td>
+                            <span class="order-status {% if order.is_accepted %}accepted{% elif order.is_rejected %}rejected{% else %}not-accepted{% endif %}">
+                                {% if order.is_accepted %}
+                                    Accepted
+                                {% elif order.is_rejected %}
+                                    Rejected
+                                {% else %}
+                                    Not Accepted
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .container {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .order-section {
+        margin-top: 20px;
+        
+        border-radius: 8px;
+        padding: 20px;
+        background-color:  #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .order-table-header {
+        background-color: #f8f8f8;
+        font-weight: bold;
+    }
+
+    .order-table th,
+    .order-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 14px;
+    }
+
+    .order-table td:first-child {
+        width: 5%;
+    }
+
+    .order-row:hover {
+        background-color: #f0f0f0;
+    }
+
+    .order-status {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .order-status.accepted {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
+    .order-status.rejected {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+
+    .order-status.not-accepted {
+        background-color: #FFF3CD;
+        color: #856404;
+    }
+</style>
+{% endblock content %}

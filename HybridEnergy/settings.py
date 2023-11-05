@@ -46,10 +46,15 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 ]
 
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 SITE_ID = 2
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
 MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -210,3 +215,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+
+razor_pay_key_id='rzp_test_z8K4I90GdqQLdV'
+key_secret='eXLlGvh3xWgHBaPIX2uIlveV'

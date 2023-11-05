@@ -154,6 +154,30 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000; /* Ensure the header is above other content */
+        }
+
+        /* Adjust the main content padding to accommodate the fixed header */
+        main {
+            padding-top: 100px; /* Adjust the value to leave space for the fixed header */
+        }
+
+        /* Fix the footer at the bottom of the page */
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Additional styling for the main content if needed */
+        body {
+            padding-top: 120px; /* Add space for both header and some additional padding */
+            padding-bottom: 60px; /* Add space for the footer */
+        }
     </style>
     <title>Fuel Delivery System</title>
 </head>

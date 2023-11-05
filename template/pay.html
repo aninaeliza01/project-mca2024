@@ -1,0 +1,47 @@
+{% extends "userBase.html" %}
+{% block title %}Place Order{% endblock %}
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+<button id="rzp-button1">Pay with Razorpay</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "rzp_test_z8K4I90GdqQLdV", // Enter the Key ID generated from the Dashboard
+    "amount": "50000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Acme Corp",
+    "description": "Test Transaction",
+    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAMAAAAOusbgAAAApVBMVEX///8HJlQAIlIAAEYAJFOip7UAH1AAGE4ACkkAFEv19/kAG04AHU8AEEswlP/O09xodo/s7vEAAD7k5+u0usa6wMsAAEHV2eB/iZ5cq/9ibodXZIEiOWQdM15xfJN3gpgsQGlLW3vDyNGpzP/s9f6Jv/+11v/l8P9tsv8Zjv/C3P80mf/b6v+cyf5Rpv/M4/49SGuMl6sUL19CUXCsr7cAADIAADjC6hL7AAAERklEQVRoge2W2XajOBCGtaANIWMMNoTFBuIsniQdMOm8/6NNSXLmnD7Tnps57tzou4lNifpLf5XkIBQIBAKBQCAQCAQCgUAgEAgEAoHAdY4P8bfoPp4evkP26Xl1+usbdO9fVquX4x+XfX1eAXfwKU89ZfYHZOO3F6u7eoPPBxU5zn1180k7/lidXn6A8DvUMHFspDSKELq+tfDbaXXnvIbPpcGCAVUXReLWW75bPWZHMPsZPjNKOvdwKyPi23xVPv41Ev/u+X/Vfnw+ftTvp9XqHr40iTq4p4XkE/wZ675t8qKuZ4TWF2oGgXwe2naabeKsqdc5m84M1XWdb4euq3OXIz/056nIm7rOWF3vXRE+lSdfNh9v4PQr5GiJGu2zbOEU8h+MEMYsg6IVyn8qQGu9KcAZbIzUXA7gSrHT/SC1TFMqpjWlmqjemlUo+zKppVrASZ1Y4ZIoml/MmEViyjs4xXaDAkeza7E2C0J7w3lTLYJgvUXFMgzNgLE+Z2imnK/ngWNb3Vpjbtq+hUyYJOtqSdzjLSViqNYapnVGqcIGBONBG+Z108FEZHqFFtv7El6NDJVSJaLO0NaQ8xZW9yRqc9e7fM/VkqNR+sBExB7FbcT7IotLtHDSgl8ZjhQY1BFpO1EpLLcoh7wp5FfCn5VsJgJjcXgEpx/h+5BgQiIFQmAnmhLj+rHXuvZNaYxpwMWFKxeoExAuKTa+PfCm285EQHiWfHBNpVhlKJuIKdDIee+MLicTYYxp8QBOPyFbJWdluW1JAonLDSZu2XApIO+VsSNSCtK5wMIlQ0ySxZU1UuJ6izpCP8AHaotHzPDFTS143HK6dUsrCbI40umdvy+3glhP0UFwSAGvuJoz6WxCqdG+AKaSwU5KTqIktQfBz2mltPOxhOaV5Q5v3Bhfwgclqr2SlW9wz60wmZ4uLa6EbuzqWUewpYNInMOziTo7vBQ24hUugUqIBsUG75zTsH8w3mvU1uGdtwFvbNWMQkuTxZ/r3BmNRWVbbH8Sp0vvmIiiFIQjXKIYXrE6M43wGMdZFsMIRl0KAUlEicYdNj4bXDktrJ8lNiXa7jC0AY1dhKmzYWeVSr/hwlhdTMevFissXPGjxkmBCuhx1HdQKqSAHeBz23VdwlApiQ0obTtWKe4nD1ZwgftOkE8wJoc6Rd9Kgr07eYLdIXPUO2n5PL6cTu6+3NDOTUdJ5QYWNVQZ2jEqP3O03sBKaoGqGZfwS6KG1B4p+unzwezvaziKsrsMlVFUzxPduDAcPd1cdNEH86D7+/t3u1HGCn/K4KFN+nE4sDyHGwX2w76wbUoZRJw5MTxxEx73MMYxq6ricjON1YGV/4RhbsVtfuLtGF/PnLdcFjfRtce5vx6thdrfRhduMVVdDcKVMN3of6lMyJ/jteBIqbwa/L/Cl7H7LcXX1AYCgUAgEAgEAoFAIBAIBAKBQCDwL/4GtjxRZRlZJx0AAAAASUVORK5CYII=",
+    "order_id": "{{ payment.id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature)
+    },
+    
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
+{% endblock content %}

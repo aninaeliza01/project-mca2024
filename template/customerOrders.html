@@ -10,24 +10,24 @@
     {% endif %}
     <div class="container">
         <div class="order-section">
-            <h2>Ordered Orders</h2>
+            <h2>Orders List</h2>
             <table class="order-table">
                 <thead>
                     <tr class="order-table-header">
-                        <th>Order No</th>
+                        <th>#No</th>
                         <th>Order ID</th>
                         <th>Fuel Station</th>
                         <th>Date & Time</th>
                         <th>Fuel Type</th>
                         <th>Total Price</th>
-                        <th>Order Status</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in ordered_orders %}
                         <tr class="order-row {% cycle 'odd' 'even' %}">
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ order.id }}</td>
+                            <td>{{ order.id }}</td>                          
                             <td>{{ order.station }}</td>
                             <td>{{ order.order_date }}</td>
                             <td>{{ order.fuel_type }}</td>
@@ -36,6 +36,15 @@
                                 <span class="order-status {% if order.is_accepted %}accepted{% elif order.is_rejected %}rejected{% else %}not-accepted{% endif %}">
                                     {% if order.is_accepted %}
                                         Accepted
+                                        {% if not order.is_paid %} <!-- Check if the order is not paid -->
+                                            <form action="{% url 'pay' %}" method="post"> <!-- Assuming you use POST method for payment -->
+                                                {% csrf_token %}
+                                                <input type="hidden" name="order_id" value="{{ order.id }}"> <!-- Pass the order ID to the payment function -->
+                                                <button type="submit">Pay</button>
+                                            </form>
+                                        {% else %}
+                                            Paid
+                                        {% endif %}
                                     {% elif order.is_rejected %}
                                         Rejected
                                     {% else %}
@@ -52,17 +61,17 @@
 
     <style>
         .container {
-            width: 80%;
+            width: 90%;
             margin: 0 auto;
         }
 
         .order-section {
             margin-top: 20px;
-            border: 1px solid #ddd;
+            
             border-radius: 8px;
             padding: 20px;
-            background-color: #f9f9f9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color:  #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .order-table {
@@ -71,24 +80,31 @@
         }
 
         .order-table-header {
-            background-color: #f3f3f3;
+            background-color: #f8f8f8;
+            font-weight: bold;
         }
 
         .order-table th,
         .order-table td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
         }
 
         .order-table td:first-child {
             width: 5%;
         }
 
+        .order-row:hover {
+            background-color: #f0f0f0;
+        }
+
         .order-status {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 4px;
             font-weight: bold;
+            display: inline-block;
         }
 
         .order-status.accepted {

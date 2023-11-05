@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import *
 from .models import *
 
 from django.contrib.auth.decorators import login_required
@@ -148,15 +148,14 @@ def activateEmail(request, user):
 def login_user(request):
     if request.user.is_authenticated:
         return redirect('/')
-            # if 'username' in request.session:
-            #     return redirect('/userhome')
-            # elif 'username' in request.session:
-            #     return redirect('/pumphome')
-            # elif 'username' in request.session:
-            #     return redirect('/adminhome')
+        # Example redirection based on session (commented out)
+        # if 'username' in request.session:
+        #     return redirect('/userhome')
+        # elif 'username' in request.session:
+        #     return redirect('/pumphome')
+        # elif 'username' in request.session:
+        #     return redirect('/adminhome')
 
-        
-        
     if request.method == 'POST':
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -166,8 +165,7 @@ def login_user(request):
 
             if user is not None:
                 auth_login(request, user)
-                # print(request.user.is_customer, "1")
-                
+
                 if user.is_customer:
                     request.session["username"] = user.username
                     return redirect('/userhome')
@@ -185,7 +183,9 @@ def login_user(request):
             # Handle the case where username or password is missing
             messages.error(request, "Please provide both username and password.")
             return redirect('/login')
+    
     return render(request, 'login.html')
+
 
 @login_required(login_url='login')
 def logout_user(request):
@@ -486,8 +486,9 @@ def delete_order(request, order_id):
     if request.method == 'POST':
         # Fetch the order and delete it
         order = Order.objects.get(pk=order_id)
-        order.delete()
-        messages.success(request, 'Order deleted successfully!')
+        order.is_active=False
+        order.save()
+        messages.success(request, 'Order canceled successfully!')
         return redirect('customer_orders') 
     return render(request, 'orderSummary.html')
 
@@ -495,11 +496,9 @@ def delete_order(request, order_id):
 @login_required(login_url='login')
 def customer_orders(request):
     ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True)
-    not_ordered_orders = Order.objects.filter(customer=request.user, is_ordered=False)
-
+    orders = list(reversed( ordered_orders))
     context = {
-        'ordered_orders': ordered_orders,
-        'not_ordered_orders': not_ordered_orders,
+        'ordered_orders': orders,
     }
     return render(request, 'customerOrders.html', context)
  
@@ -507,9 +506,9 @@ def customer_orders(request):
 @login_required(login_url='login')
 def customer_unorders(request):
     not_ordered_orders = Order.objects.filter(customer=request.user, is_ordered=False)
-
+    orders = list(reversed( not_ordered_orders))
     context = {
-        'not_ordered_orders': not_ordered_orders,
+        'not_ordered_orders': orders,
     }
     return render(request, 'customerUnorder.html', context)
 
@@ -546,6 +545,16 @@ def block_unblock_user(request, user_id):
     user.save()
     return redirect('adminpump') 
 
+
+@never_cache
+@login_required(login_url='login')
+def adminorder(request):  
+    ordered_orders = Order.objects.filter(is_ordered=True)
+    orders = list(reversed( ordered_orders))
+    context = {
+        'ordered_orders': orders,
+    }
+    return render(request, 'adminorder.html',context)
 @never_cache
 @login_required(login_url='login')
 def adminpump(request):  
@@ -598,12 +607,12 @@ def adminhome(request):
     pump_count = CustomUser.objects.filter(user_type='VENDOR').count()
       # Calculate the count of users
 
-    fuels = Fuel.objects.all()
+    order = Order.objects.all().count()
     # form = FuelForm()
     context = {
         'customer_count': customer_count,
         'pump_count': pump_count, 
-        'fuels': fuels,
+        'order': order,
         # 'form': form, # Pass the user count to the template
         
     }
@@ -676,6 +685,34 @@ def delete_fuel(request, fuel_id):
 
     return render(request, 'fuel.html', {'fuel': fuel})
 
+
+
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+def pay(request):
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        client = razorpay.Client(auth=("rzp_test_z8K4I90GdqQLdV", "eXLlGvh3xWgHBaPIX2uIlveV"))
+
+        order_amount = 500  # Example amount
+        data = {
+            "amount": order_amount,
+            "currency": "INR",
+            "receipt": f"order_rcptid_{order_id}"  # Use order ID to generate a unique receipt ID
+        }
+        payment = client.order.create(data=data)
+        Payment.razor_pay_order_id=payment['id']
+
+        # Render the payment page with the payment details
+        return render(request, 'pay.html', {'payment': payment})
+    return HttpResponse("Invalid request")
+
+@csrf_exempt
+def success(request):
+    Payment.is_paid=True
+    Payment.save()
+    messages.success(request, 'Payment successfully Done.')
+    return render(request, 'customerOrders.html')
 
 import webbrowser
 

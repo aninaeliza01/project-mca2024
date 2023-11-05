@@ -20,6 +20,7 @@ urlpatterns = [
     path('delete_order/<int:order_id>/', views.delete_order, name='delete_order'),
     path('customer_orders/', views.customer_orders, name='customer_orders'),
     path('customer_unorders/', views.customer_unorders, name='customer_unorders'),
+    path('pay/', views.pay,name='pay'),
 
     path('adminhome/', views.adminhome,name="adminhome"),
     path('update_fuel/<int:fuel_id>/', views.update_fuel, name='update_fuel'),
@@ -31,6 +32,7 @@ urlpatterns = [
     path('location/', views.location,name="location"),
     path('update_location/<int:location_id>/', views.update_location, name='update_location'),
     path('delete_location/<int:location_id>/', views.delete_location, name='delete_location'),
+    path('adminorder/', views.adminorder,name="adminorder"),
 
 
     path('reset_password/', auth_views.PasswordResetView.as_view(), name="reset_password"),
