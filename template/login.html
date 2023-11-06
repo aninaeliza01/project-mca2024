@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="{% static 'css/loginstyle.css'%}">
     <title>Login Form</title>
     <link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 </head>
 
 <body>
@@ -44,12 +46,12 @@
                     <input type="password" placeholder="PASSWORD" name="password">
                     <button id="logout-link">LOGIN</button>
                     <p class="forgot-password"><a href="{% url 'reset_password' %}">Forgot Password?</a></p>
-                    <p class="signup">Don't have an account? <span><a href="/registerPump">Signup for Pump</a></span></p>
+                    <p class="signup">Don't have an account? <span><a href="/registerUser">Signup for Customer</a>/<a href="/registerPump">Pump</a></span></p>
 
                     <div class="google"style="border: 2px solid  #FA9A50; padding: 10px; border-radius: 5px; text-align: center;">
                         <p>For Customers</p>
                         <button style="background-color:  #FA9A50;color: #ffffff; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">
-                            <a href="{% provider_login_url 'google' %}" style="text-decoration: none; color: #ffffff;">Sign in with Google</a>
+                            <a href="{% provider_login_url 'google' %}" style="text-decoration: none; color: #ffffff;"><i class="fab fa-google" style="margin-right: 5px;"></i>Sign in with Google</a>
                         </button>
                       </div>
                       

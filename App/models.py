@@ -120,6 +120,7 @@ class Order(models.Model):
         return f"Order {self.id} by {self.customer.username} at {self.order_date}"
 
 class Payment(models.Model):
+    order=models.ForeignKey(Order, on_delete=models.CASCADE)
     is_paid = models.BooleanField(default=False)
     razor_pay_order_id=models.CharField(max_length=100, blank=True, null=True)
     razor_pay_payment_id=models.CharField(max_length=100, blank=True, null=True)

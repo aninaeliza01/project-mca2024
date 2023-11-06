@@ -1,5 +1,5 @@
 {% extends "adminbase.html" %}
-{% block title %}Pump{% endblock %}
+{% block title %}Orders{% endblock %}
 {% block content %}
 {% if messages %}
     {% for message in messages %}
@@ -8,8 +8,16 @@
         </div>
     {% endfor %}
 {% endif %}
+
 <div class="container">
     <div class="order-section">
+        <div class="search-container">
+            <input type="text" id="searchInput" onkeyup="searchOrders()" placeholder="Search for orders...">
+            <button type="submit" id="searchButton">
+                <i class="fas fa-search">Search</i>
+            </button>
+        </div>
+        
         <h2>Orders List</h2>
         <table class="order-table">
             <thead>
@@ -51,8 +59,66 @@
         </table>
     </div>
 </div>
+<script>
+    function searchOrders() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementsByClassName("order-table")[0]; // Adjust this if you have multiple tables
+    
+        tr = table.getElementsByTagName("tr");
+    
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            tds = tr[i].getElementsByTagName("td");
+            let found = false;
+            for (j = 0; j < tds.length; j++) {
+                td = tds[j];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                    }
+                }
+            }
+            if (found) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha384-DfXdzP0HDNQY2LambXvT6TW91jNpLXb8fF0JjqxSL6R9iV4VMTdFI6h2I3zUvUjD" crossorigin="anonymous">
 
 <style>
+      .search-container {
+        display: flex;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    #searchInput {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    #searchButton {
+        padding: 10px 15px;
+        background: #f90;
+        color: #fff;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+    }
+
+    #searchButton i {
+        font-size: 18px;
+    }
     .container {
         width: 90%;
         margin: 0 auto;

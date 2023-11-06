@@ -12,6 +12,7 @@ urlpatterns = [
     path('logout/', views.logout_user,name="logout"),
 
     path('userhome/', views.userhome,name="userhome"),
+    path('registerUser/', views.register_user,name="registerUser"),
     path('profile/', views.customer_Profile,name="profile"),
     path('changePassword/', views.change_password,name="changePassword"),
     path('accounts/profile/', views.userhome,name="userhome"),
@@ -53,6 +54,7 @@ urlpatterns = [
     path('orders/', views.order,name="orders"),
     path('accept_order/<int:order_id>/', views.accept_order, name='accept_order'),
     path('reject_order/<int:order_id>/', views.reject_order, name='reject_order'),
+    path('fuelDelivery',views.delivery,name="fuelDelivery"),
     # path('pump/', views.pump,name="pump"),
 
     

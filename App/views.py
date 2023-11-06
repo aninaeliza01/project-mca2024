@@ -91,58 +91,49 @@ def activateEmail(request, user):
                 the received activation link to confirm and complete the registration. Note: Check your spam folder.')
     else:
         messages.error(request, f'Problem sending email to {to_email}, check if you typed it correctly.')
-# @never_cache
-# def register_user(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username', None)
-#         email = request.POST.get('email', None)
-#         phone = request.POST.get('phoneNumber', None)
-#         password = request.POST.get('password', None)
-#         confirm_password = request.POST.get('cpassword', None)
+
+@never_cache
+def register_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', None)
+        email = request.POST.get('email', None)
+        phone = request.POST.get('phoneNumber', None)
+        password = request.POST.get('password', None)
+        confirm_password = request.POST.get('cpassword', None)
        
-#         user_type = 'CUSTOMER'
+        user_type = 'CUSTOMER'
 
-#         # Validate the email
-#         # try:
-#         #     validate_email(email)
-#         # except ValidationError:
-#         #     messages.error(request, "Invalid email address.")
-#         #     return render(request, 'registerUser.html')
+        # Validate the email
+        # try:
+        #     validate_email(email)
+        # except ValidationError:
+        #     messages.error(request, "Invalid email address.")
+        #     return render(request, 'registerUser.html')
 
-#         if username and email and password:
-#             if CustomUser.objects.filter(email=email).exists():
-#                 messages.success(request, "Email is already registered.")
-#                 return redirect('registerUser')
-#             elif CustomUser.objects.filter(username=username).exists():
-#                 messages.success(request, "Username is already registered.")
-#                 return redirect('registerUser')
-#             elif password != confirm_password:
-#                 messages.success(request, "Passwords don't match. Please enter correct passwords.")
-#                 return redirect('registerUser')
-#             else:
-#                 user = CustomUser(username=username, email=email, user_type=user_type,phone=phone)
-#                 user.set_password(password)  # Set the password securely
-#                 user.is_active = False
-#                 user.is_customer = True
-#                 user.user_type = user_type
-#                 user.save()
-#                 user_profile = UserProfile(user=user)
-#                 user_profile.save()
-#                 activateEmail(request, user)
-#                 userFuel = FuelStation(user=user)
-#                 userFuel.station_name = request.POST.get('station_name')
-#                 userFuel.ownername = request.POST.get('ownername')
-#                 userFuel.address = request.POST.get('address')
-#                 userFuel.email = email
-#                 userFuel.phone_number = phone
-#                 userFuel.gst_number = gstn
-#                 userFuel.logo_image = request.FILES.get('logo_image')
-#                 userFuel.location = LocationDetails.objects.get(pk=request.POST.get('location'))
-#                 userFuel.save()
+        if username and email and password:
+            if CustomUser.objects.filter(email=email).exists():
+                messages.success(request, "Email is already registered.")
+                return redirect('registerUser')
+            elif CustomUser.objects.filter(username=username).exists():
+                messages.success(request, "Username is already registered.")
+                return redirect('registerUser')
+            elif password != confirm_password:
+                messages.success(request, "Passwords don't match. Please enter correct passwords.")
+                return redirect('registerUser')
+            else:
+                user = CustomUser(username=username, email=email, user_type=user_type,phone=phone)
+                user.set_password(password)  # Set the password securely
+                user.is_active = False
+                user.is_customer = True
+                user.user_type = user_type
+                user.save()
+                user_profile = UserProfile(user=user)
+                user_profile.save()
+                activateEmail(request, user)
 
-#                 return redirect('login')
+                return redirect('login')
 
-#     return render(request, 'registerUser.html')
+    return render(request, 'registerUser.html')
 
 @never_cache
 def login_user(request):
@@ -329,7 +320,8 @@ def order(request):
 
         if fuel_station:
             # Fetch orders associated with this station
-            pump_orders = Order.objects.filter(station=fuel_station, is_ordered=True)
+            pump_order = Order.objects.filter(station=fuel_station, is_ordered=True)
+            pump_orders = list(reversed( pump_order))
 
             return render(request, 'Fuelorder.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
         
@@ -345,6 +337,7 @@ def accept_order(request, order_id):
         customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
         send_mail(
             'Order Accepted',
+            'Make the Payment',
             'Your order has been accepted. Thank you!',
             [station_email],  # Replace with your email
             [customer_email],  # Email of the customer
@@ -369,6 +362,17 @@ def reject_order(request, order_id):
         )
         return redirect('orders')
 
+@never_cache
+@login_required(login_url='login')
+def delivery(request):
+    fuel_station = request.user.fuelstation  # Assuming this is the attribute that holds the FuelStation reference for the user
+
+    if fuel_station:
+        # Fetch orders associated with this station
+        pump_order = Order.objects.filter(station=fuel_station, is_ordered=True,is_accepted=True)
+        pump_orders = list(reversed( pump_order))
+
+        return render(request, 'FuelDelivery.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
 
 @never_cache
 @login_required(login_url='login')
@@ -471,7 +475,7 @@ def order_summary(request, order_id):
         # Sending an email notification to the fuel station
         send_mail(
             'New Order Placed',
-            f'An order has been placed for Fuel Station: {order.station.station_name} at {order.order_date}. Quantity: {order.quantity}, Payment Method: {order.payment_method}, Delivery Address: {order.delivery_address}',
+            f'An order has been placed for Fuel Station: {order.station.station_name} at {order.order_date}. Quantity: {order.quantity}, Payment Method: {order.payment_method}, Delivery Address: {order.delivery_address},We will reply to the order within a maximum of 2 hours.',
             'aninaelizebeth2024a@mca.ajce.in',  # Your email
             [fuel_station_email],  # Email of the fuel station
             fail_silently=False,
@@ -559,8 +563,10 @@ def adminorder(request):
 @login_required(login_url='login')
 def adminpump(request):  
     users = CustomUser.objects.all()
+    pump=FuelStation.objects.all()
     context = {
-       'users':users  
+       'users':users,
+       'pump':pump,  
      }  
     return render(request, 'adminPump.html',context)
 
@@ -570,7 +576,16 @@ def adminpump(request):
 def location(request):
     if request.method == "POST":
         name = request.POST.get("name")
-        LocationDetails.objects.create(name=name)
+        existing_location = LocationDetails.objects.filter(name=name).first()
+        
+        if existing_location:
+            # Location already exists, set an error message
+            messages.success(request, 'This location already exists.!')
+            return redirect('location') 
+           
+        else:
+            LocationDetails.objects.create(name=name)
+        
     
     locations = LocationDetails.objects.all()
     

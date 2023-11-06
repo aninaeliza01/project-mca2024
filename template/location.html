@@ -69,6 +69,7 @@
 
   <div class="container">
     <h3>Locations</h3>
+    <!-- <input type="text" id="searchInput" onkeyup="searchUsers()" placeholder="Search for users..." class="amazon-style-input"><br> -->
     <table class="table table-striped">
       <thead>
         <tr>
@@ -101,25 +102,54 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const inputField = document.getElementById('name');
+   function searchUsers() {
+    // Declare variables
+    let input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById('searchInput');
+    filter = input.value.toUpperCase();
+    table = document.querySelector('.table-striped');
+    tr = table.getElementsByTagName('tr');
+    // Loop through all table rows and hide those that don't match the search query
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName('td')[0];// Column index where you want to perform the search
+
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = '';
+        } else {
+          tr[i].style.display = 'none';
+        }
+      }
+    }
+  }
+ 
+
+  function isValidLocationName(name) {
+    return /^[A-Z][a-z]*$/.test(name);
+  }
+
+  function applyInputValidation(inputField) {
     inputField.addEventListener('input', function(event) {
-      let enteredValue = event.data;
-      if (enteredValue && !/^[A-Za-z]+$/.test(enteredValue)) {
-        inputField.value = inputField.value.slice(0, -1);
+      let enteredValue = event.target.value;
+      if (!isValidLocationName(enteredValue)) {
+        inputField.setCustomValidity("Location name should start with an uppercase letter followed by lowercase letters only.");
+      } else {
+        inputField.setCustomValidity("");
       }
     });
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const inputField = document.getElementById('name');
+    applyInputValidation(inputField);
 
     {% for location in locations %}
       const updateInputField_{{ location.id }} = document.getElementById('update-location-name-{{ location.id }}');
-      updateInputField_{{ location.id }}.addEventListener('input', function() {
-        const currentValue = updateInputField_{{ location.id }}.value;
-        if (!/^[A-Za-z]+$/.test(currentValue)) {
-          updateInputField_{{ location.id }}.value = currentValue.slice(0, -1);
-        }
-      });
+      applyInputValidation(updateInputField_{{ location.id }});
     {% endfor %}
   });
 </script>
+
 
 {% endblock content %}

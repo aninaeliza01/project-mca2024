@@ -2,6 +2,7 @@
 {% block title %}adminhome{% endblock %}
 {% block content %}
 <h3>Customer</h3>
+<input type="text" id="searchInput" onkeyup="searchUsers()" placeholder="Search for users..." class="amazon-style-input"><br>
     <div class="table-responsive">
         <table class="table table-striped table-sm">
             <thead>
@@ -11,7 +12,7 @@
                     <th>Email</th>
                     <th>Phone Number</th>
                     <th>Status</th>
-                    <!-- <th>Action</th> -->
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,22 +30,80 @@
                             Blocked
                         {% endif %}
                     </td>
-                    <!-- <td>
+                    <td>
                         {% if user.is_active %}
                             <a href="{% url 'block_unblock_user' user.id %}" class="btn btn-danger">Block</a>
                         {% else %}
                             <a href="{% url 'block_unblock_user' user.id %}" class="btn btn-success">Unblock</a>
                         {% endif %}
-                    </td> -->
+                    </td>
                 </tr>
                 {% endif %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    <style>
+       .amazon-style-input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 300px;
+            background: #fff;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .amazon-style-input:focus {
+            outline: none;
+            border-color: #ff9900;
+        }
+
+    </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let table = document.querySelector("table");
+            let rowCount = 1;
+            for (let i = 1; i < table.rows.length; i++) {
+                table.rows[i].cells[0].innerText = rowCount;
+                rowCount++;
+            }
+        });
+    </script>
+    <script>
+        function searchUsers() {
+            // Declare variables
+            let input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.querySelector(".table"); // Assuming there's only one table
+
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 1; i < tr.length; i++) {
+                let found = false;
+                td = tr[i].getElementsByTagName("td");
+                for (let j = 0; j < td.length; j++) {
+                    let cell = td[j];
+                    if (cell) {
+                        txtValue = cell.textContent || cell.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (found) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let table = document.querySelector(".table");
             let rowCount = 1;
             for (let i = 1; i < table.rows.length; i++) {
                 table.rows[i].cells[0].innerText = rowCount;
