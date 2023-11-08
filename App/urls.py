@@ -21,8 +21,8 @@ urlpatterns = [
     path('delete_order/<int:order_id>/', views.delete_order, name='delete_order'),
     path('customer_orders/', views.customer_orders, name='customer_orders'),
     path('customer_unorders/', views.customer_unorders, name='customer_unorders'),
-    path('pay/', views.pay,name='pay'),
-
+    path('pay/<int:order_id>/', views.pay, name='pay'),
+    
     path('adminhome/', views.adminhome,name="adminhome"),
     path('update_fuel/<int:fuel_id>/', views.update_fuel, name='update_fuel'),
     path('delete_fuel/<int:fuel_id>/', views.delete_fuel, name='delete_fuel'),

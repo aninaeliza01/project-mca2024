@@ -14,6 +14,14 @@
             <div class="heading_container">
                 <h2>Find the Nearest Fuel Stations</h2>
                 <p>Discover the closest fuel stations and place your order now.</p>
+                <div class="search-container">
+                    <!-- Updated search input to include a dropdown -->
+                    <div class="dropdown">
+                        <input type="text" id="locationInput" placeholder="Enter Location" onclick="showSearchHistory()">
+                        <div class="dropdown-content" id="searchHistoryDropdown"></div>
+                    </div>
+                    <button onclick="searchByLocation()"><i class="fa fa-search"></i></button>
+                </div>
             </div>
             <div class="pump_container">
                 <div class="row">
@@ -43,6 +51,78 @@
             </div>
             
             <style>
+                .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        #locationInput {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .dropdown-content.active {
+            display: block;
+        }
+
+        .dropdown-content p {
+            padding: 10px;
+            margin: 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content p:hover {
+            background-color: #e9e9e9;
+        }
+                /* Search Input and Button Styling */
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #locationInput {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #cc7a00;
+        }
+
+        button i {
+            font-size: 18px;
+        }
                 /* Updated styles for Amazon-like design */
             
                 .amazon-order-box {
@@ -116,6 +196,84 @@
                     color: #721c24; /* Default text color */
                 }
             </style>
-            
+<script>
+    function searchByLocation() {
+    var input = document.getElementById('locationInput');
+    var filter = input.value.trim(); // Trim whitespace
+    if (filter) {
+        addToSearchHistory(filter);
 
+        var pumps = document.getElementsByClassName('amazon-order-box');
+
+        for (var i = 0; i < pumps.length; i++) {
+            var pump = pumps[i];
+            var location = pump.querySelector('.amazon-address-info');
+            var txtValue = location.textContent || location.innerText;
+
+            if (txtValue.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+                pump.style.display = '';
+            } else {
+                pump.style.display = 'none';
+            }
+        }
+    } else {
+        alert('Please enter a search term.');
+    }
+}
+
+function showSearchHistory() {
+    var searchDropdown = document.getElementById('searchHistoryDropdown');
+    searchDropdown.classList.toggle('active');
+    displaySearchHistoryDropdown();
+}
+
+function addToSearchHistory(term) {
+    var searchHistory = localStorage.getItem('searchHistory');
+    var history = [];
+
+    if (searchHistory) {
+        history = JSON.parse(searchHistory);
+
+        // Check if the term is already in the history and remove it
+        var index = history.indexOf(term);
+        if (index !== -1) {
+            history.splice(index, 1);
+        }
+    }
+
+    history.push(term);
+
+    // Ensure only the latest 6 unique searches are stored
+    if (history.length > 6) {
+        history.shift(); // Remove the oldest entry
+    }
+
+    localStorage.setItem('searchHistory', JSON.stringify(history));
+    displaySearchHistoryDropdown();
+}
+
+function displaySearchHistoryDropdown() {
+    var searchHistory = localStorage.getItem('searchHistory');
+    var dropdownContent = document.getElementById('searchHistoryDropdown');
+    dropdownContent.innerHTML = '';
+
+    if (searchHistory) {
+        var history = JSON.parse(searchHistory);
+        history.forEach(function (term) {
+            dropdownContent.innerHTML += '<p onclick="fillSearch(\'' + term + '\')">' + term + '</p>';
+        });
+    }
+}
+
+function fillSearch(term) {
+    var locationInput = document.getElementById('locationInput');
+    locationInput.value = term;
+    var searchDropdown = document.getElementById('searchHistoryDropdown');
+    searchDropdown.classList.remove('active');
+}
+
+// Display search history on page load
+displaySearchHistoryDropdown();
+
+</script>
 {% endblock %}

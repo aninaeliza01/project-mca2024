@@ -105,7 +105,6 @@
                    
                         </div>
                         
-
                         <div class="input-box">
                             <span class="details">Logo Image</span>
                             <input type="file" name="logo_image" id="logo_image" accept="image/*">
@@ -157,18 +156,18 @@
     }
 </style>
 <script>
-    function validateUsername() {
+function validateUsername() {
     var username = document.getElementById("username").value.trim();
     var usernameError = document.getElementById("usernameError");
     var usernamePattern = /^[A-Za-z0-9_]{3,20}$/; // Allow letters, numbers, and underscores; length between 3 and 20 characters
 
     if (username === "") {
         usernameError.textContent = "Please enter your username.";
-		usernameError.style.color = "red"; // Set error message color to red
+        usernameError.style.color = "red"; // Set error message color to red
         return false;
     } else if (!usernamePattern.test(username)) {
         usernameError.textContent = "Username must be between 3 and 20 characters and can only contain letters, numbers, and underscores.";
-		usernameError.style.color = "red"; // Set error message color to red
+        usernameError.style.color = "red"; // Set error message color to red
         return false;
     } else {
         usernameError.textContent = "";
@@ -245,88 +244,77 @@ function validateLocation() {
 }
 
 
-    function validateEmail() {
-        var email = document.getElementById("email").value.trim();
-        var emailError = document.getElementById("emailError");
-        var emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/; // Check if email starts with a letter
-        var validEmailPattern = /\S+@\S+\.\S+/;
+function validateEmail() {
+    var email = document.getElementById("email").value.trim();
+    var emailError = document.getElementById("emailError");
+    var emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/; // Check if email starts with a letter
+    var validEmailPattern = /\S+@\S+\.\S+/;
 
-        if (email === "") {
-            emailError.textContent = "Please enter your Email.";
-			emailError.style.color = "red"; // Set error message color to red
-            return false;
-        } else if (!emailPattern.test(email) || !validEmailPattern.test(email)) {
-            emailError.textContent = "Please enter a valid Email address.";
-			emailError.style.color = "red"; // Set error message color to red
-            return false;
-        } else {
-            emailError.textContent = "";
-            return true;
-        }
+    if (email === "") {
+        emailError.textContent = "Please enter your Email.";
+        emailError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!emailPattern.test(email) || !validEmailPattern.test(email)) {
+        emailError.textContent = "Please enter a valid Email address.";
+        emailError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        emailError.textContent = "";
+        return true;
     }
+}
+
+
 
     
-    
-        
 
-    
-	function validatePhoneNumber() {
-		var phoneNumber = document.getElementById("phoneNumber").value.trim();
-		var phoneNumberError = document.getElementById("phoneNumberError");
-		var phoneNumberPattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
 
-		if (phoneNumber === "") {
-			phoneNumberError.textContent = "Please enter your phone number.";
-			phoneNumberError.style.color = "red"; // Set error message color to red
-			return false;
-		} else if (!phoneNumberPattern.test(phoneNumber)) {
-			phoneNumberError.textContent = "Invalid phone number. It should start with 6, 7, 8, or 9 and have 10 digits.";
-			phoneNumberError.style.color = "red"; // Set error message color to red
-			return false;
-		} else {
-			phoneNumberError.textContent = "";
-			return true;
-		}
-	}
+function validatePhoneNumber() {
+    var phoneNumber = document.getElementById("phoneNumber").value.trim();
+    var phoneNumberError = document.getElementById("phoneNumberError");
+    var phoneNumberPattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
 
-    function validatePassword() 
-    {
-        var password = document.getElementById("password").value;
-        var cpassword = document.getElementById("cpassword").value;
-        var passwordError = document.getElementById("passwordError");
-        var cpasswordError = document.getElementById("cpasswordError");
-        var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
-         {
-    //             passwordInput.classList.add('is-invalid');
-    //             passwordInput.classList.remove('is-valid');
-    //             passValidation.style.display = 'block';
-    //             return false;
-        if (password === "") {
-            passwordError.textContent = "Please enter a Password.";
-			passwordError.style.color = "red"; // Set error message color to red
-            return false;
-        } else if (password.length < 8) {
-            passwordError.textContent = "Password must be at least 8 characters.";
-			passwordError.style.color = "red"; // Set error message color to red
-            return false;
-        }
-        else if(!passwordPattern.test(password)){
-                passwordError.textContent = "*Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
-			    passwordError.style.color = "red"; // Set error message color to red
-                return false;
-        } 
-        else
-        {
-            passwordError.textContent = "";
-        }
+    if (phoneNumber === "") {
+        phoneNumberError.textContent = "Please enter your phone number.";
+        phoneNumberError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!phoneNumberPattern.test(phoneNumber)) {
+        phoneNumberError.textContent = "Invalid phone number. It should start with 6, 7, 8, or 9 and have 10 digits.";
+        phoneNumberError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        phoneNumberError.textContent = "";
+        return true;
+    }
+}
+    function validatePassword() {
+    var password = document.getElementById("password").value;
+    var cpassword = document.getElementById("cpassword").value;
+    var passwordError = document.getElementById("passwordError");
+    var cpasswordError = document.getElementById("cpasswordError");
+    var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+[\]{}|;:'",.<>?/~`]).{8,}$/;
 
+    if (password === "") {
+        passwordError.textContent = "Please enter a Password.";
+        passwordError.style.color = "red";
+        return false;
+    } else if (password.length < 8) {
+        passwordError.textContent = "Password must be at least 8 characters.";
+        passwordError.style.color = "red";
+        return false;
+    } else if (!passwordPattern.test(password)) {
+        passwordError.textContent = "*Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+        passwordError.style.color = "red";
+        return false;
+    } else {
+        passwordError.textContent = "";
         if (cpassword === "") {
             cpasswordError.textContent = "Please confirm your password.";
-			cpasswordError.style.color = "red"; // Set error message color to red
+            cpasswordError.style.color = "red";
             return false;
         } else if (password !== cpassword) {
             cpasswordError.textContent = "Passwords do not match.";
-			cpasswordError.style.color = "red"; // Set error message color to red
+            cpasswordError.style.color = "red";
             return false;
         } else {
             cpasswordError.textContent = "";
@@ -334,7 +322,8 @@ function validateLocation() {
         }
     }
 }
-    function validateGST() {
+
+function validateGST() {
     var gstNumber = document.getElementById("gstNumber").value.trim();
     var gstNumberError = document.getElementById("gstNumberError");
     var gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[A-Z]{1}[A-Z]{1}$/;
@@ -353,69 +342,64 @@ function validateLocation() {
     }
 }
 
-// function validateFile() {
-//         var fileInput = document.getElementById('logo_image');
-//         var fileError = document.getElementById('logoImageError');
-//         var file = fileInput.files[0];
+function validateFile() {
+        var fileInput = document.getElementById('logo_image');
+        var fileError = document.getElementById('logoImageError');
+        var file = fileInput.files[0];
 
-//         if (!file) {
-//             fileError.textContent = 'Please select a file.';
-//             fileError.style.color = 'red';
-//             return false;
-//         }
+        if (!file) {
+            fileError.textContent = 'Please select a file.';
+            fileError.style.color = 'red';
+            return false;
+        } else {
+            fileError.textContent = '';
+            return true;
+        }
+    }
 
-//         else if (file.type.split('/')[0] !== 'image') {
-//             fileError.textContent = 'Please select an image file.';
-//             fileError.style.color = 'red';
-//             return false;
-//         }
-//         else {
-//             fileError.textContent = '';
-//             return true;
-//         }
+function validateForm() {
+    var isFormValid = true;
 
-        
-//     }
-
-    function validateForm() {
-      var isFormValid = true;
-
-      if (!validateFile()) {
-            isFormValid = false;
-      }
-
-      if (!validateGST()) {
-            isFormValid = false;
-      }
-
-      if (!validateUsername()) {
-        isFormValid = false;
-      }
-
-      if (!validateEmail()) {
-        isFormValid = false;
-      }
-
-      if (!validatePhoneNumber()) {
-        isFormValid = false;
-      }
-      if (!validateAddress()) {
+    if (!validateGST()) {
         isFormValid = false;
     }
 
-    if (!validateLocation()) {
+    if (!validateUsername()) {
         isFormValid = false;
     }
 
-      if (!validatePassword()) {
+    if (!validateEmail()) {
         isFormValid = false;
-      }
-      if (!validateOwnername()) {
-        isFormValid = false;
-      }
-      
-
-      return isFormValid;
     }
+
+    if (!validatePhoneNumber()) {
+        isFormValid = false;
+    }
+
+    if (!validateAddress()) {
+        isFormValid = false;
+    }
+
+    // if (!validateLocation()) {
+    //     isFormValid = false;
+    // }
+
+    if (!validatePassword()) {
+        isFormValid = false;
+    }
+
+    if (!validateOwnername()) {
+        isFormValid = false;
+    }
+
+    if (!validateFile()) {
+        isFormValid = false;
+    }
+    if (isFormValid) {
+        return true; // Form will be submitted
+    } else {
+        return false; // Prevent form submission
+    }
+}
 </script>
 </html>

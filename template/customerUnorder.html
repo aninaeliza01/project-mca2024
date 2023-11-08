@@ -2,8 +2,11 @@
 {% block title %}Your Orders - Amazon{% endblock %}
 {% block content %}
     <div class="order-history">
-        <h1>Your Unordered Requests</h1>
+        <h1>Your Unordered Requests</h1>       
         <div class="order-container">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for Fuel Station..." onkeyup="searchFuelStations()">
+            </div>            
             <table class="order-table">
                 <thead>
                     <tr class="order-table-header">
@@ -43,6 +46,10 @@
                                 </div>
                             </td>
                         </tr>
+                        {% empty %}
+                        <tr>
+                        <td colspan="2">No Orders available.</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -50,6 +57,20 @@
     </div>
 
     <style>
+        
+    .search-container {
+        margin-bottom: 20px;
+    }
+
+    #searchInput {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+
         /* Retain previous styles */
         /* ... */
 
@@ -113,4 +134,26 @@
             font-weight: bold;
         }
     </style>
+<script>
+    function searchFuelStations() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.querySelector(".order-table");
+        tr = table.getElementsByTagName("tr");
+    
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2]; // Change the index if the fuel station column is in a different position
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+    </script>
+    
 {% endblock %}

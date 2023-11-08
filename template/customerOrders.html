@@ -11,6 +11,9 @@
     <div class="container">
         <div class="order-section">
             <h2>Orders List</h2>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for Order ID..." onkeyup="searchOrders()">
+            </div>
             <table class="order-table">
                 <thead>
                     <tr class="order-table-header">
@@ -34,16 +37,17 @@
                             <td>{{ order.total_price }}</td>
                             <td>
                                 <span class="order-status {% if order.is_accepted %}accepted{% elif order.is_rejected %}rejected{% else %}not-accepted{% endif %}">
+
                                     {% if order.is_accepted %}
                                         Accepted
-                                        {% if not order.is_paid %} <!-- Check if the order is not paid -->
-                                            <form action="{% url 'pay' %}" method="post"> <!-- Assuming you use POST method for payment -->
+                                        {% if order.is_paid %}
+                                            <p>Paid</p>
+                                        {% else %}
+                                            <form action="{% url 'pay' order.id %}" method="post"> <!-- Assuming you use POST method for payment -->
                                                 {% csrf_token %}
                                                 <input type="hidden" name="order_id" value="{{ order.id }}"> <!-- Pass the order ID to the payment function -->
                                                 <button type="submit">Pay</button>
                                             </form>
-                                        {% else %}
-                                            Paid
                                         {% endif %}
                                     {% elif order.is_rejected %}
                                         Rejected
@@ -53,6 +57,10 @@
                                 </span>
                             </td>
                         </tr>
+                        {% empty %}
+                        <tr>
+                        <td colspan="2">No Orders available.</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -60,6 +68,18 @@
     </div>
 
     <style>
+       .search-container {
+        margin-bottom: 20px;
+    }
+
+    #searchInput {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
         .alert {
             padding: 15px;
             margin-bottom: 20px;
@@ -130,4 +150,27 @@
             color: #856404;
         }
     </style>
+    <script>
+        function searchOrders() {
+            let input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById('searchInput');
+            filter = input.value.toUpperCase();
+            table = document.querySelector('.order-table');
+            tr = table.getElementsByTagName('tr');
+    
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName('td')[1]; // Column index where Order ID is located
+    
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    </script>   
+    
 {% endblock %}

@@ -337,9 +337,9 @@ def accept_order(request, order_id):
         customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
         send_mail(
             'Order Accepted',
-            'Make the Payment',
-            'Your order has been accepted. Thank you!',
-            [station_email],  # Replace with your email
+            
+            'Your order has been accepted. Make Payment. Thank you!',
+            station_email,  # Replace with your email
             [customer_email],  # Email of the customer
             fail_silently=False,
         )
@@ -475,7 +475,7 @@ def order_summary(request, order_id):
         # Sending an email notification to the fuel station
         send_mail(
             'New Order Placed',
-            f'An order has been placed for Fuel Station: {order.station.station_name} at {order.order_date}. Quantity: {order.quantity}, Payment Method: {order.payment_method}, Delivery Address: {order.delivery_address},We will reply to the order within a maximum of 2 hours.',
+            f'An order has been placed for Fuel Station: {order.station.station_name} at {order.order_date}. Quantity: {order.quantity}, Payment Method: {order.payment_method}, Delivery Address: {order.delivery_address}',
             'aninaelizebeth2024a@mca.ajce.in',  # Your email
             [fuel_station_email],  # Email of the fuel station
             fail_silently=False,
@@ -500,10 +500,22 @@ def delete_order(request, order_id):
 @login_required(login_url='login')
 def customer_orders(request):
     ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True)
-    orders = list(reversed( ordered_orders))
+    orders = list(reversed(ordered_orders))
+
+    # Fetch payment details for the filtered ordered orders
+    payment_details = Payment.objects.filter(order__in=ordered_orders)
+    
+    # Create a dictionary to map payments to their respective orders
+    order_payment_mapping = {payment.order_id: payment for payment in payment_details}
+
+    # Add a flag 'is_paid' to each order indicating if it's paid or not
+    for order in orders:
+        order.is_paid = order.id in order_payment_mapping
+    
     context = {
         'ordered_orders': orders,
     }
+
     return render(request, 'customerOrders.html', context)
  
 @never_cache
@@ -704,22 +716,33 @@ def delete_fuel(request, fuel_id):
 
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
-def pay(request):
+@never_cache
+@login_required(login_url='login')
+def pay(request,order_id):
     if request.method == 'POST':
-        order_id = request.POST.get('order_id')
+        order = get_object_or_404(Order, pk=order_id)
         client = razorpay.Client(auth=("rzp_test_z8K4I90GdqQLdV", "eXLlGvh3xWgHBaPIX2uIlveV"))
 
-        order_amount = 500  # Example amount
+        order_amount = int(order.total_price* 100)  # Example amount
         data = {
             "amount": order_amount,
             "currency": "INR",
             "receipt": f"order_rcptid_{order_id}"  # Use order ID to generate a unique receipt ID
         }
         payment = client.order.create(data=data)
-        Payment.razor_pay_order_id=payment['id']
+        new_payment = Payment(
+                order=order,
+                razor_pay_order_id=payment['id'],
+                is_paid=True,
+                amount=order_amount,
+                customer=request.user  # Assuming the user is authenticated and initiating the payment
+            )
+        new_payment.save()
+
 
         # Render the payment page with the payment details
-        return render(request, 'pay.html', {'payment': payment})
+        return render(request, 'pay.html', {'payment': payment, 'order': order})
+   
     return HttpResponse("Invalid request")
 
 @csrf_exempt
