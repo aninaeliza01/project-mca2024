@@ -38,11 +38,37 @@
                                 <h3>{{ pump.station_name }}</h3>
                                 <p class="amazon-address-info">
                                     <strong>Address:</strong> {{ pump.address }}<br>
-                                    <strong>Location:</strong> {{ pump.location.name }}
+                                    <strong>Location:</strong> {{ pump.location.name }}<br>
+                                    
+                                        {% for fuel in pump.fuels.all %}
+                                            <strong>{{ fuel.fueltype }}</strong> - {{ fuel.price }} per Liter
+                                        {% endfor %}<br>
+
+                                        
+                                        <strong>Rating:</strong>
+                                        {% if pump.avg_rating is not None %}
+                                            {% for i in '★★★★★' %}
+                                                {% if pump.avg_rating >= i %}
+                                                    <span class="star">&#9733;</span>
+                                                {% elif pump.avg_rating > i|add:"-0.5" %}
+                                                    <span class="star">&#9734;&#9733;</span>
+                                                {% else %}
+                                                    <span class="star">&#9734;</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                                                              
+
+                                    
                                 </p>
                                 <button class="amazon-order-button">
                                     <a href="{% url 'place_order' pump.id %}" class="order-link">Place Order</a>
                                 </button>
+                                <!-- Some template where you want to include the link -->
+                                <button><a href="{% url 'fuel_station_detail' pump.id %}" class="order-link">Details</a></button>
+
                             </div>
                         </div>
                     {% endfor %}
@@ -51,6 +77,17 @@
             </div>
             
             <style>
+.star-rating {
+    font-size: 18px;
+    color: #ffc107; /* Set the star color */
+}
+
+.star {
+    display: inline-block;
+    margin-right: 2px; /* Adjust the spacing between stars */
+}
+
+
                 .dropdown {
             position: relative;
             display: inline-block;

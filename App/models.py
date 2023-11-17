@@ -56,15 +56,6 @@ class UserProfile(models.Model):
         return self.user.username
     
     
-
-class Fuel(models.Model):
-    fueltype = models.CharField(max_length=255,unique=True)  # Define the field for fuel type
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # Define the field for price
-    profile_modified_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.fueltype
-    
 class LocationDetails(models.Model):
     name = models.CharField(max_length=255,unique=True)  # Define the field for fuel type
     def __str__(self):
@@ -93,6 +84,15 @@ class FuelStation(models.Model):
     def __str__(self):
         return self.station_name
     
+class Fuel(models.Model):
+    fueltype = models.CharField(max_length=255)  
+    price = models.DecimalField(max_digits=10, decimal_places=2)  
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE, blank=True, null=True, related_name='fuels')
+    profile_modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.fueltype  
+
 
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = (
@@ -103,7 +103,7 @@ class Order(models.Model):
     )
 
     customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
-    fuel_type = models.ForeignKey(Fuel, on_delete=models.CASCADE)
+    fuel_type = models.ForeignKey(Fuel, on_delete=models.CASCADE, blank=True, null=True)
     station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -112,7 +112,7 @@ class Order(models.Model):
     is_accepted = models.BooleanField(default=False)
     is_ordered = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
-    cancel= models.BooleanField(default=True)
+    is_active= models.BooleanField(default=True)
     delivery_address = models.CharField(max_length=255)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True, default='COD')
 
@@ -132,3 +132,10 @@ class Payment(models.Model):
     
     def __str__(self):
         return f"Payment of {self.amount} by {self.customer.username} on {self.payment_date}"
+    
+class Rating(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
+    value = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)

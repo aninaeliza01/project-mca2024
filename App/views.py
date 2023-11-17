@@ -22,19 +22,45 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
+from django.db.models import Avg
 @never_cache
 @login_required(login_url='login')
 def userhome(request):
     users = CustomUser.objects.filter(is_active=True)
     active_pumps = FuelStation.objects.filter(user__is_active=True)
+    
+    # Annotate each FuelStation with its average rating
+    active_pumps = active_pumps.annotate(avg_rating=Avg('rating__value'))
+    
+    # Precompute the half value
+    for pump in active_pumps:
+        pump.avg_rating_half = pump.avg_rating + 0.5 if pump.avg_rating is not None else None
+    
     context = {
         'pumps': active_pumps,
-        'users':users 
+        'users': users,
     }
     return render(request, 'userhome.html', context)
 
 
 
+
+
+
+@never_cache
+@login_required(login_url='login')
+def fuel_station_detail(request, station_id):
+    station = get_object_or_404(FuelStation, pk=station_id)
+    fuels = Fuel.objects.filter(station=station)
+    ratings = Rating.objects.filter(station=station)
+
+    context = {
+        'station': station,
+        'fuels': fuels,
+        'ratings': ratings,
+    }
+
+    return render(request, 'fuel_station_detail.html', context)
 
 
 def userBase(request):
@@ -322,6 +348,24 @@ def order(request):
             # Fetch orders associated with this station
             pump_order = Order.objects.filter(station=fuel_station, is_ordered=True)
             pump_orders = list(reversed( pump_order))
+            
+            items_per_page = 10
+            paginator = Paginator(pump_orders, items_per_page)
+
+            # Get the current page number from the request's GET parameters
+            page = request.GET.get('page')
+
+            try:
+                # Get the orders for the current page
+                pump_orders = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver the first page
+                pump_orders = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g., 9999), deliver the last page
+                pump_orders = paginator.page(paginator.num_pages)
+
+
 
             return render(request, 'Fuelorder.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
         
@@ -371,6 +415,16 @@ def delivery(request):
         # Fetch orders associated with this station
         pump_order = Order.objects.filter(station=fuel_station, is_ordered=True,is_accepted=True)
         pump_orders = list(reversed( pump_order))
+        payment_details = Payment.objects.filter(order__in=pump_order)
+    
+    # Create a dictionary to map payments to their respective orders
+        order_payment_mapping = {payment.order_id: payment for payment in payment_details}
+
+        # Add a flag 'is_paid' to each order indicating if it's paid or not
+        for order in pump_order:
+            order.is_paid = order.id in order_payment_mapping
+        
+       
 
         return render(request, 'FuelDelivery.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
 
@@ -423,7 +477,7 @@ def place_order(request, pump_id):
         fuel_type_id = request.POST.get('fuel_type_id')
         quantity = Decimal(request.POST.get('quantity', '0'))  # Convert quantity to Decimal
         delivery_point = request.POST.get('delivery_point')
-        payment_method = request.POST['payment_method']
+        payment_method = request.POST.get('payment_method')
 
         selected_fuel = get_object_or_404(Fuel, pk=fuel_type_id)
         price_per_liter = selected_fuel.price
@@ -454,7 +508,7 @@ def place_order(request, pump_id):
         return redirect('ordersummary',order_id=order.id)  # Replace 'order_success' with your success URL name
 
     # Render the order placement form
-    fuel_types = Fuel.objects.all()
+    fuel_types = Fuel.objects.filter(station=pump_id)
     pump = get_object_or_404(FuelStation, pk=pump_id)
     context = {
         'fuel_types': fuel_types,
@@ -493,7 +547,7 @@ def delete_order(request, order_id):
         order.is_active=False
         order.save()
         messages.success(request, 'Order canceled successfully!')
-        return redirect('customer_orders') 
+        return redirect('customer_unorders') 
     return render(request, 'orderSummary.html')
 
 @never_cache
@@ -511,18 +565,83 @@ def customer_orders(request):
     # Add a flag 'is_paid' to each order indicating if it's paid or not
     for order in orders:
         order.is_paid = order.id in order_payment_mapping
+
+    items_per_page = 10
+    paginator = Paginator(orders, items_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the orders for the current page
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page
+        orders = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver the last page
+        orders = paginator.page(paginator.num_pages)
+
     
     context = {
         'ordered_orders': orders,
+        
     }
 
     return render(request, 'customerOrders.html', context)
- 
+
+@never_cache
+@login_required(login_url='login')
+def rate_station(request, station_id):
+    if request.method == 'POST':
+        user = request.user
+        station = FuelStation.objects.get(pk=station_id)
+        value = int(request.POST['rating'])
+        comment = request.POST.get('comment', '')
+
+        rating, created = Rating.objects.get_or_create(user=user, station=station, defaults={'value': value, 'comment': comment})
+
+        if not created:
+            rating.value = value
+            rating.comment = comment
+            rating.save()
+
+        return redirect('station_detail', station_id=station_id)
+    else:
+        return redirect('home')
+    
+
+@never_cache
+@login_required(login_url='login')
+def station_detail(request, station_id):
+    station = FuelStation.objects.get(pk=station_id)
+    ratings = Rating.objects.filter(station=station)
+
+    return render(request, 'station_detail.html', {'station': station, 'ratings': ratings})
+
+
+
 @never_cache
 @login_required(login_url='login')
 def customer_unorders(request):
     not_ordered_orders = Order.objects.filter(customer=request.user, is_ordered=False)
     orders = list(reversed( not_ordered_orders))
+    items_per_page = 10
+    paginator = Paginator(orders, items_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the orders for the current page
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page
+        orders = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver the last page
+        orders = paginator.page(paginator.num_pages)
+
     context = {
         'not_ordered_orders': orders,
     }
@@ -535,10 +654,27 @@ def base(request):
 def adminbase(request):
     return render(request, 'adminBase.html')
 
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @never_cache
 @login_required(login_url='login')
 def adminuser(request):
     users = CustomUser.objects.all()
+    items_per_page = 10
+    paginator = Paginator(users, items_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the users for the current page
+        users = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page
+        users = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver the last page
+        users = paginator.page(paginator.num_pages)
     context = {
        'users':users  
      }
@@ -552,7 +688,7 @@ def block_unblock_user(request, user_id):
     if user.is_active:
         user.is_active = False  # Block the user
         subject = 'Account Blocked'
-        message = 'Your account has been blocked by the admin.'
+        message = 'Your account has been blocked by the admin.Hybrid Energy'
         from_email = 'aninaelizebeth2024a@mca.ajce.in'  # Use your admin's email address
         recipient_list = [user.email]
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
@@ -567,15 +703,49 @@ def block_unblock_user(request, user_id):
 def adminorder(request):  
     ordered_orders = Order.objects.filter(is_ordered=True)
     orders = list(reversed( ordered_orders))
+    items_per_page = 10
+    paginator = Paginator(orders, items_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the orders for the current page
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page
+        orders = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver the last page
+        orders = paginator.page(paginator.num_pages)
+
     context = {
         'ordered_orders': orders,
     }
     return render(request, 'adminorder.html',context)
+
+from django.db.models import Count
 @never_cache
 @login_required(login_url='login')
 def adminpump(request):  
     users = CustomUser.objects.all()
-    pump=FuelStation.objects.all()
+    pump = FuelStation.objects.annotate(total_orders=Count('order')).all()
+    items_per_page = 10
+    paginator = Paginator(users, items_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the users for the current page
+        users = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page
+        users = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver the last page
+        users = paginator.page(paginator.num_pages)
+
     context = {
        'users':users,
        'pump':pump,  
@@ -600,6 +770,21 @@ def location(request):
         
     
     locations = LocationDetails.objects.all()
+    items_per_page = 5  
+    paginator = Paginator(locations, items_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the locations for the current page
+        locations = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page
+        locations = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver the last page
+        locations = paginator.page(paginator.num_pages)
     
     return render(request, "location.html", {"locations": locations})
 
@@ -645,42 +830,62 @@ def adminhome(request):
     }
     return render(request, 'ad.html',context)
 
+
+from django.db.models import Count, Avg
+@never_cache
+@login_required(login_url='login')
+def ratings_by_station(request):
+    # Retrieve ratings grouped by stations
+    ratings_by_station = Rating.objects.values('station').annotate(
+        total_ratings=Count('id'), 
+        average_rating=Avg('value')
+    )
+
+    station_ratings = []
+    for rating_info in ratings_by_station:
+        station_id = rating_info['station']
+        total_ratings = rating_info['total_ratings']
+        average_rating = rating_info['average_rating']
+
+        station = FuelStation.objects.get(pk=station_id)
+        station_ratings.append({
+            'station': station,
+            'total_ratings': total_ratings,
+            'average_rating': average_rating,
+        })
+
+    return render(request, 'ratings_by_station.html', {'station_ratings': station_ratings})
 @never_cache
 @login_required(login_url='login')
 def fuel(request):
-    existing_fuel = None  # Define existing_fuel at the beginning of the function scope
+    existing_fuel = None
 
-    if request.user.is_staff:
+    if request.user.is_vendor:
+        station_id = request.user.id
+        station = FuelStation.objects.get(user=station_id)
         if request.method == 'POST':
             fueltype = request.POST.get('fueltype')
             price = request.POST.get('price')
-            if not fueltype or not price:
-                messages.error(request, 'Please fill in all the fields.')
+
+            existing_fuel = Fuel.objects.filter(fueltype=fueltype, station=station).first()
+
+            if existing_fuel:
+                messages.error(request, "A fuel of the same type already exists for this station.")
+                return redirect('fuel')
             else:
-                # Check if a record with the same fueltype already exists
-                existing_fuel = Fuel.objects.filter(fueltype=fueltype).first()
+                fuel = Fuel.objects.create(
+                    fueltype=fueltype,
+                    price=price,
+                    station=station
+                )
 
-                if existing_fuel:
-                    # An existing record with the same fueltype was found
-                    messages.error(request, 'Fuel with this fuel type already exists.')
-                else:
-                    # Create a new record
-                    new_fuel = Fuel(fueltype=fueltype, price=price)
-                    new_fuel.save()
-                    messages.success(request, 'Fuel added successfully.')
-                return redirect('fuel')
+        fuels = Fuel.objects.filter(station=station)
+        context = {
+            'fuels': fuels,
+        }
+        return render(request, 'fuel.html', context)
 
-            if 'delete_fuel' in request.POST:
-                fuel_id = request.POST['fuel_id']
-                fuel = Fuel.objects.get(pk=fuel_id)
-                fuel.delete()
-                return redirect('fuel')
 
-    fuels = Fuel.objects.all()
-    context = {
-        'fuels': fuels,
-    }
-    return render(request, 'fuel.html', context)
 @never_cache
 @login_required(login_url='login')
 def update_fuel(request, fuel_id):
@@ -733,7 +938,7 @@ def pay(request,order_id):
         new_payment = Payment(
                 order=order,
                 razor_pay_order_id=payment['id'],
-                is_paid=True,
+                # is_paid=True,
                 amount=order_amount,
                 customer=request.user  # Assuming the user is authenticated and initiating the payment
             )
@@ -766,3 +971,5 @@ def open_google_maps_with_nearby_fuel_bunks(request):
     webbrowser.open(maps_url)
 
     return render(request, 'map.html')
+
+

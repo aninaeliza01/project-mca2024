@@ -1,6 +1,13 @@
 {% extends "userBase.html" %}
 {% block title %}Your Orders - Amazon{% endblock %}
 {% block content %}
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+{% endif %}
     <div class="order-history">
         <h1>Your Unordered Requests</h1>       
         <div class="order-container">
@@ -17,12 +24,14 @@
                         <th>Fuel Type</th>
                         <th>Total</th>
                         <th>Order Date</th>
+                        <th>Payment_method</th>
                         
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in not_ordered_orders %}
+                    {% if order.is_active %}
                         <tr class="order-row">
                             <td>{{ forloop.counter }}</td>
                             <td>{{ order.id }}</td>
@@ -31,13 +40,15 @@
                             <td>{{ order.fuel_type }}</td>
                             <td>{{ order.total_price }}</td>
                             <td>{{ order.order_date }}</td>
+                            <td>{{ order.payment_method}}</td>
                             <td>
                                 <div class="order-actions">
-                                    <form class="order-action-form" method="post" action="{% url 'place_order' order.id %}">
+                                    <form class="order-action-form" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" name="order_id" value="{{ order.id }}">
-                                        <button class="order-action-button" type="submit">Place Order</button>
-                                    </form>
+                                        <button class="order-action-button place" type="submit">Place Order</button>
+                                    </form><br>
+                                    
                                     <form class="order-action-form" method="post" action="{% url 'delete_order' order.id %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="order_id" value="{{ order.id }}">
@@ -46,17 +57,44 @@
                                 </div>
                             </td>
                         </tr>
+                        {% endif %}
                         {% empty %}
                         <tr>
                         <td colspan="2">No Orders available.</td>
                         </tr>
+                        
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if orders.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ orders.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+                </span>
+        
+                {% if orders.has_next %}
+                    <a href="?page={{ orders.next_page_number }}">next</a>
+                    <a href="?page={{ orders.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
     </div>
 
     <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: #f8d7da; /* Default background color */
+            color: #721c24; /* Default text color */
+        }
         
     .search-container {
         margin-bottom: 20px;

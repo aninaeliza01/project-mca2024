@@ -39,7 +39,12 @@
                             <td>{{ order.customer.email }}</td>
                             <td>{{ order.customer.phone }}</td>
                             <td>{{ order.order_date|date:"M d, Y H:i A" }}</td>
-                            <td>Not Paid</td>
+                            <td>{% if order.is_paid %}
+                                    <p>Paid</p>
+                                {% else %}
+                                    <p>Not Paid</p>
+                                {% endif %}
+                                </td>
                             <td>
                                 {% if order.is_accepted %}
                                     <span class="status accepted">Accepted</span>

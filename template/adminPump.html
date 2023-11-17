@@ -20,12 +20,13 @@
                 <th>Fuel Station</th>
                 <th>Email</th>
                 <th>Phone Number</th>
+                <th>Total Orders</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for user in users %}
+    {% for user in users %}
     {% if user.is_vendor %}
         <tr>
             <td></td>
@@ -37,6 +38,7 @@
             </td>
             <td>{{ user.email }}</td>
             <td>{{ user.phone }}</td>
+            <td></td>
             <td>
                 {% if user.is_active %}
                     Active
@@ -59,6 +61,23 @@
             
         </tbody>
     </table>
+    <div class="pagination">
+        <span class="step-links">
+            {% if users.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ users.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ users.number }} of {{ users.paginator.num_pages }}.
+            </span>
+    
+            {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}">next</a>
+                <a href="?page={{ users.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {

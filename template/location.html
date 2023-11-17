@@ -99,6 +99,23 @@
       </tbody>
     </table>
   </div>
+  <div class="pagination">
+    <span class="step-links">
+        {% if locations.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ locations.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ locations.number }} of {{ locations.paginator.num_pages }}.
+        </span>
+
+        {% if locations.has_next %}
+            <a href="?page={{ locations.next_page_number }}">next</a>
+            <a href="?page={{ locations.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
 </div>
 
 <script>

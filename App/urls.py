@@ -22,7 +22,11 @@ urlpatterns = [
     path('customer_orders/', views.customer_orders, name='customer_orders'),
     path('customer_unorders/', views.customer_unorders, name='customer_unorders'),
     path('pay/<int:order_id>/', views.pay, name='pay'),
-    
+
+    path('rate_station/<int:station_id>/', views.rate_station, name='rate_station'),
+    path('station_detail/<int:station_id>/', views.station_detail, name='station_detail'),
+    path('fuel-station/<int:station_id>/', views.fuel_station_detail, name='fuel_station_detail'),
+
     path('adminhome/', views.adminhome,name="adminhome"),
     path('update_fuel/<int:fuel_id>/', views.update_fuel, name='update_fuel'),
     path('delete_fuel/<int:fuel_id>/', views.delete_fuel, name='delete_fuel'),
@@ -34,6 +38,7 @@ urlpatterns = [
     path('update_location/<int:location_id>/', views.update_location, name='update_location'),
     path('delete_location/<int:location_id>/', views.delete_location, name='delete_location'),
     path('adminorder/', views.adminorder,name="adminorder"),
+    path('adminratings/', views.ratings_by_station, name='adminratings/'),
 
 
     path('reset_password/', auth_views.PasswordResetView.as_view(), name="reset_password"),

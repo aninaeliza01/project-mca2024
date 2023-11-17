@@ -1,0 +1,70 @@
+{% extends "adminbase.html" %}
+{% block title %}Ratings by Station{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h1>Feedback By  Users</h1>
+    <div class="stations">
+        {% for station_rating in station_ratings %}
+        <div class="station-card">
+            <h2>{{ station_rating.station.station_name }}</h2>
+            <p>Total Ratings: {{ station_rating.total_ratings }}</p>
+            <p>Average Rating: {{ station_rating.average_rating }}</p>
+            <div class="ratings">
+                {% for rating in station_rating.station.rating_set.all %}
+                <div class="rating">
+                    <p>User: {{ rating.user.username }}</p>
+                    <p>Comment: {{ rating.comment }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Your CSS Styles Here */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 80%;
+        margin: auto;
+    }
+
+    .stations {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .station-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .station-card h2 {
+        margin-top: 0;
+    }
+
+    .ratings {
+        margin-top: 10px;
+    }
+
+    .rating {
+        border: 1px solid #ccc;
+        padding: 5px;
+        margin-top: 5px;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+</style>
+
+{% endblock content %}

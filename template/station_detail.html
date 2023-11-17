@@ -1,0 +1,131 @@
+<!-- station_detail.html -->
+
+{% extends 'userBase.html' %}
+
+{% block content %}
+  <div class="station-details">
+    <h1>{{ station.station_name }}</h1>
+    <p class="address">{{ station.address }}</p>
+
+    <div class="rating-section">
+      <h2>Rate this station</h2>
+      <form method="post" action="{% url 'rate_station' station.id %}">
+        {% csrf_token %}
+        <div class="rating-inputs">
+          <label for="rating">Rating:</label>
+          <select name="rating" class="rating-dropdown">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <div class="comment-inputs">
+          <label for="comment">Comment:</label>
+          <textarea name="comment" class="comment-textarea"></textarea>
+        </div>
+        <input type="submit" value="Rate" class="rate-button">
+      </form>
+    </div>
+
+    <div class="ratings-section">
+      <h2>Station Ratings</h2>
+      <ul class="ratings-list">
+        {% for rating in ratings %}
+          <li class="rating-item">
+            <div class="user-rating">
+              <span class="username">{{ rating.user.username }}</span> rated <span class="rating-value">{{ rating.value }}/5</span>
+            </div>
+            {% if rating.comment %}
+              <p class="comment">{{ rating.comment }}</p>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <style>
+    /* Add this to your stylesheet */
+
+.station-details {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.address {
+  font-size: 16px;
+  color: #555;
+}
+
+.rating-section,
+.ratings-section {
+  margin-top: 20px;
+}
+
+.rating-inputs,
+.comment-inputs {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.rating-dropdown,
+.comment-textarea,
+.rate-button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.rate-button {
+  background-color: #ff9900;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.ratings-list {
+  list-style: none;
+  padding: 0;
+}
+
+.rating-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.user-rating {
+  font-size: 18px;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.rating-value {
+  color: #ff9900;
+  font-weight: bold;
+}
+
+.comment {
+  margin-top: 10px;
+  color: #555;
+}
+
+  </style>
+{% endblock %}

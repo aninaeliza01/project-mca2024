@@ -1,0 +1,113 @@
+<!-- fuel_station_detail.html -->
+
+{% extends 'userBase.html' %}
+
+{% block content %}
+  <div class="fuel-station-details">
+    <div class="left-column">
+      {% if station.logo_image %}
+        <img src="{{ station.logo_image.url }}" alt="Fuel Station Logo" class="logo-image">
+      {% endif %}
+    </div>
+    <div class="right-column">
+      <h1 class="fuel-station-title">{{ station.station_name }}</h1>
+      <p class="owner-info">Owner: {{ station.ownername }} | Email: {{ station.email }} | Phone: {{ station.phone_number }} | GSTNO:{{ station.gst_number }}</p>
+      <p class="address-info">{{ station.address }}</p>
+
+      <h2 class="section-title">Fuels Available</h2>
+      <ul class="fuels-list">
+        {% for fuel in fuels %}
+          <li>{{ fuel.fueltype }} - ${{ fuel.price }}</li>
+        {% endfor %}
+      </ul>
+
+      <h2 class="section-title">Station Ratings</h2>
+      <ul class="ratings-list">
+        {% for rating in ratings %}
+          <li class="rating-item">
+            <strong class="username">{{ rating.user.username }}</strong> rated <span class="rating-value">{{ rating.value }}/5</span>
+            {% if rating.comment %}
+              <p class="comment">{{ rating.comment }}</p>
+            {% endif %}
+            <p class="rated-on">Rated on: {{ rating.created_at }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <style>
+    /* Add this to your CSS file */
+
+    .fuel-station-details {
+      display: flex;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .left-column {
+      flex: 1;
+      margin-right: 20px;
+    }
+
+    .right-column {
+      flex: 2;
+    }
+
+    .fuel-station-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .owner-info {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .address-info {
+      font-size: 16px;
+    }
+
+    .logo-image {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+
+    .fuels-list, .ratings-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .rating-item {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .username {
+      font-weight: bold;
+    }
+
+    .rating-value {
+      color: #ff9900;
+      font-weight: bold;
+    }
+
+    .comment {
+      margin-top: 10px;
+      color: #555;
+    }
+
+    .rated-on {
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+{% endblock %}
