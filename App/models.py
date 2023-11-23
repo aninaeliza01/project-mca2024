@@ -32,25 +32,8 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='media/profile_picture', blank=True, null=True)
-    address = models.CharField(max_length=50, blank=True, null=True)
-    addressline1 = models.CharField(max_length=50, blank=True, null=True)
-    addressline2 = models.CharField(max_length=50, blank=True, null=True)
-    state = models.CharField(max_length=50, blank=True, null=True)
-    city = models.CharField(max_length=50, blank=True, null=True)
-    pin_code = models.CharField(max_length=50, blank=True, null=True)
-    gender = models.CharField(max_length=50, blank=True, null=True)
-    dob = models.DateField(blank=True, null=True)
     profile_created_at = models.DateTimeField(auto_now_add=True)
     profile_modified_at = models.DateTimeField(auto_now=True)
-
-    def calculate_age(self):
-        today = date.today()
-        age = today.year - self.dob.year - ((today.month, today.day) < (self.dob.month, self.dob.day))
-        return age
-    age = property(calculate_age)
-
-    def get_gender_display(self):
-        return dict(self.GENDER_CHOICES).get(self.gender)
 
     def str(self):
         return self.user.username

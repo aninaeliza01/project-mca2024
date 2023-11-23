@@ -25,7 +25,9 @@
       <ul class="ratings-list">
         {% for rating in ratings %}
           <li class="rating-item">
-            <strong class="username">{{ rating.user.username }}</strong> rated <span class="rating-value">{{ rating.value }}/5</span>
+            <strong class="username">{{ rating.user.username }}</strong> rated 
+            <span class="rating-value">{{ rating.value }}/5</span>
+            <span class="stars"></span> <!-- This span will display the stars -->
             {% if rating.comment %}
               <p class="comment">{{ rating.comment }}</p>
             {% endif %}
@@ -35,8 +37,35 @@
       </ul>
     </div>
   </div>
-
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const ratingItems = document.querySelectorAll('.rating-item');
+  
+      ratingItems.forEach(item => {
+        const ratingValue = parseInt(item.querySelector('.rating-value').textContent);
+        const starsContainer = item.querySelector('.stars');
+  
+        // Create stars based on the rating value
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= ratingValue) {
+            stars += '&#9733; '; // Full star
+          } else {
+            stars += '&#9734; '; // Empty star
+          }
+        }
+  
+        starsContainer.innerHTML = stars;
+      });
+    });
+  </script>
   <style>
+    .stars {
+    display: inline-block;
+    font-size: 20px;
+    color: #FFD700; /* Adjust color as needed */
+    margin-left: 10px; /* Adjust spacing */
+  }
     /* Add this to your CSS file */
 
     .fuel-station-details {

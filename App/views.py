@@ -30,20 +30,13 @@ def userhome(request):
     active_pumps = FuelStation.objects.filter(user__is_active=True)
     
     # Annotate each FuelStation with its average rating
-    active_pumps = active_pumps.annotate(avg_rating=Avg('rating__value'))
-    
-    # Precompute the half value
-    for pump in active_pumps:
-        pump.avg_rating_half = pump.avg_rating + 0.5 if pump.avg_rating is not None else None
-    
+    pumps_with_avg_rating = active_pumps.annotate(avg_rating=Avg('rating__value'))
+
     context = {
-        'pumps': active_pumps,
+        'pumps': pumps_with_avg_rating,
         'users': users,
     }
     return render(request, 'userhome.html', context)
-
-
-
 
 
 
@@ -427,6 +420,18 @@ def delivery(request):
        
 
         return render(request, 'FuelDelivery.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
+    
+@never_cache
+@login_required(login_url='login')
+def station_ratings(request):
+    station = get_object_or_404(FuelStation, user=request.user)
+    ratings = Rating.objects.filter(station=station)
+
+    context = {
+        'station': station,
+        'ratings': ratings,
+    }
+    return render(request, 'Fuelratings.html', context)
 
 @never_cache
 @login_required(login_url='login')
@@ -553,21 +558,18 @@ def delete_order(request, order_id):
 @never_cache
 @login_required(login_url='login')
 def customer_orders(request):
-    ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True)
-    orders = list(reversed(ordered_orders))
-
-    # Fetch payment details for the filtered ordered orders
-    payment_details = Payment.objects.filter(order__in=ordered_orders)
+    # Fetch ordered orders sorted by order_date in descending order (most recent first)
+    ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True).order_by('-order_date')
     
-    # Create a dictionary to map payments to their respective orders
-    order_payment_mapping = {payment.order_id: payment for payment in payment_details}
-
+    # Fetch payment details for the filtered ordered orders
+    payment_details = Payment.objects.filter(order__in=ordered_orders).values_list('order_id', flat=True)
+    
     # Add a flag 'is_paid' to each order indicating if it's paid or not
-    for order in orders:
-        order.is_paid = order.id in order_payment_mapping
+    for order in ordered_orders:
+        order.is_paid = order.id in payment_details
 
     items_per_page = 10
-    paginator = Paginator(orders, items_per_page)
+    paginator = Paginator(ordered_orders, items_per_page)
 
     # Get the current page number from the request's GET parameters
     page = request.GET.get('page')
@@ -582,10 +584,8 @@ def customer_orders(request):
         # If page is out of range (e.g., 9999), deliver the last page
         orders = paginator.page(paginator.num_pages)
 
-    
     context = {
         'ordered_orders': orders,
-        
     }
 
     return render(request, 'customerOrders.html', context)
@@ -730,6 +730,9 @@ from django.db.models import Count
 def adminpump(request):  
     users = CustomUser.objects.all()
     pump = FuelStation.objects.annotate(total_orders=Count('order')).all()
+    # Total order count for each station
+    total_orders_per_station = FuelStation.objects.annotate(total_orders=Count('order')).values('station_name', 'total_orders')
+
     items_per_page = 10
     paginator = Paginator(users, items_per_page)
 
@@ -749,6 +752,7 @@ def adminpump(request):
     context = {
        'users':users,
        'pump':pump,  
+       'total_orders_per_station': total_orders_per_station,
      }  
     return render(request, 'adminPump.html',context)
 
@@ -921,6 +925,7 @@ def delete_fuel(request, fuel_id):
 
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
+from django.template.defaultfilters import floatformat
 @never_cache
 @login_required(login_url='login')
 def pay(request,order_id):
@@ -935,27 +940,45 @@ def pay(request,order_id):
             "receipt": f"order_rcptid_{order_id}"  # Use order ID to generate a unique receipt ID
         }
         payment = client.order.create(data=data)
-        new_payment = Payment(
-                order=order,
-                razor_pay_order_id=payment['id'],
-                # is_paid=True,
-                amount=order_amount,
-                customer=request.user  # Assuming the user is authenticated and initiating the payment
-            )
-        new_payment.save()
-
-
+        rupee_amount = floatformat(payment['amount'] / 100, 2)
         # Render the payment page with the payment details
-        return render(request, 'pay.html', {'payment': payment, 'order': order})
+        return render(request, 'pay.html', {'payment': payment, 'order': order, 'rupee_amount': rupee_amount})
    
     return HttpResponse("Invalid request")
 
 @csrf_exempt
-def success(request):
-    Payment.is_paid=True
-    Payment.save()
-    messages.success(request, 'Payment successfully Done.')
-    return render(request, 'customerOrders.html')
+def success(request, order_id):
+    print("Received payment_id:", order_id)
+    order = get_object_or_404(Order, pk=order_id)
+    client = razorpay.Client(auth=("rzp_test_z8K4I90GdqQLdV", "eXLlGvh3xWgHBaPIX2uIlveV"))
+
+    order_amount = int(order.total_price* 100)  # Example amount
+    data = {
+        "amount": order_amount,
+        "currency": "INR",
+        "receipt": f"order_rcptid_{order_id}"  # Use order ID to generate a unique receipt ID
+    }
+    payment = client.order.create(data=data)
+       
+    # Retrieve the payment instance you want to update
+    
+    payment = client.order.create(data=data)
+
+    # payment = get_object_or_404(Payment, order_id=order)
+    order_amount = int(order.total_price* 100) 
+    new_payment = Payment(
+            order=order,
+            razor_pay_order_id=payment['id'],
+            amount=order_amount,
+            is_paid = True,
+            customer=request.user  # Assuming the user is authenticated and initiating the payment
+        )
+    new_payment.save()
+
+    
+
+    messages.success(request, 'Payment successfully done.')
+    return redirect('customer_orders')
 
 import webbrowser
 

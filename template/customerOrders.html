@@ -38,26 +38,26 @@
                             <td>{{ order.total_price }}</td>
                             <td>
                                 <span class="order-status {% if order.is_accepted %}accepted{% elif order.is_rejected %}rejected{% else %}not-accepted{% endif %}">
-
                                     {% if order.is_accepted %}
-                                        Accepted
-                                        {% if order.is_paid %}
-                                            <p>Paid</p>
-                                        {% else %}
-                                            <form action="{% url 'pay' order.id %}" method="post"> <!-- Assuming you use POST method for payment -->
-                                                {% csrf_token %}
-                                                <input type="hidden" name="order_id" value="{{ order.id }}"> <!-- Pass the order ID to the payment function -->
-                                                <button type="submit">Pay</button>
-                                            </form>
-                                        {% endif %}
-                                    {% elif order.is_rejected %}
-                                        Rejected
+                                    Accepted
+                                    {% if order.payment_set.first.is_paid %}
+                                        <p>Paid</p>
                                     {% else %}
-                                        Not Accepted
+                                        <form action="{% url 'pay' order.id %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                                            <button type="submit" class="payment-btn">Pay</button>
+                                        </form>
                                     {% endif %}
+                                {% elif order.is_rejected %}
+                                    Rejected
+                                {% else %}
+                                    Not Accepted
+                                {% endif %}
+                                
                                 </span>
                             </td>
-                            <td><a href="{% url 'station_detail' order.station.id %}">rate</a></td>
+                            <td><a href="{% url 'station_detail' order.station.id %}" class="amazon-rating-btn">Rate</a></td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -66,27 +66,72 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-        <div class="pagination">
-            <span class="step-links">
-                {% if orders.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ orders.previous_page_number }}">previous</a>
-                {% endif %}
         
-                <span class="current">
-                    Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+
+            <div class="pagination">
+                <span class="step-links">
+                    {% if ordered_orders.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ ordered_orders.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="current">
+                        Page {{ ordered_orders.number }} of {{ ordered_orders.paginator.num_pages }}.
+                    </span>
+            
+                    {% if ordered_orders.has_next %}
+                        <a href="?page={{ ordered_orders.next_page_number }}">next</a>
+                        <a href="?page={{ ordered_orders.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
                 </span>
-        
-                {% if orders.has_next %}
-                    <a href="?page={{ orders.next_page_number }}">next</a>
-                    <a href="?page={{ orders.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
-    </div>
+            </div>
 
     <style>
+        /* Styles for the payment button */
+.payment-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  color: #fff;
+  background-color: #4CAF50; /* Green color, you can change this */
+  border: 1px solid #4CAF50; /* Same as background initially */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.payment-btn:hover {
+  background-color: #45a049; /* Darker green on hover */
+  border-color: #45a049; /* Darker border on hover */
+}
+
+.payment-btn:active {
+  transform: translateY(1px); /* Add a slight press-down effect */
+}
+
+        /* Styles for the Amazon-like rating button */
+.amazon-rating-btn {
+  display: inline-block;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  color: #fff;
+  background-color: #f0c14b; /* Amazon's button color */
+  border: 1px solid #a88734; /* Amazon's button border color */
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.amazon-rating-btn:hover {
+  background-color: #ddb347; /* Change color on hover */
+}
+
        .search-container {
         margin-bottom: 20px;
     }

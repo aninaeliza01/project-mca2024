@@ -22,6 +22,7 @@ urlpatterns = [
     path('customer_orders/', views.customer_orders, name='customer_orders'),
     path('customer_unorders/', views.customer_unorders, name='customer_unorders'),
     path('pay/<int:order_id>/', views.pay, name='pay'),
+    path('success/<int:order_id>/', views.success, name='success'),
 
     path('rate_station/<int:station_id>/', views.rate_station, name='rate_station'),
     path('station_detail/<int:station_id>/', views.station_detail, name='station_detail'),
@@ -60,6 +61,8 @@ urlpatterns = [
     path('accept_order/<int:order_id>/', views.accept_order, name='accept_order'),
     path('reject_order/<int:order_id>/', views.reject_order, name='reject_order'),
     path('fuelDelivery',views.delivery,name="fuelDelivery"),
+    path('station/', views.station_ratings, name='station_ratings'),
+
     # path('pump/', views.pump,name="pump"),
 
     

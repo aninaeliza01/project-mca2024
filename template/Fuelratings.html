@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+    <h1 class="rating-header">Ratings for {{ station.station_name }}</h1>
+    <ul class="rating-list">
+        {% for rating in ratings %}
+            <li class="rating-item">
+                <p class="user">User: {{ rating.user.username }}</p>
+                <p class="value">Rating Value: <span class="displayRating-{{ forloop.counter }}"></span></p>
+                <p class="comment">Comment: {{ rating.comment }}</p>
+                <p class="date">Date: {{ rating.created_at }}</p>
+                
+                <script>
+                    const displayRating{{ forloop.counter }} = document.querySelector('.displayRating-{{ forloop.counter }}');
+                    const ratingValue{{ forloop.counter }} = {{ rating.value }}; // Rating value for this iteration
+
+                    function displayStars(value, displayElement) {
+                        let stars = '';
+                        for (let i = 1; i <= 5; i++) {
+                            if (i <= value) {
+                                stars += '&#9733; '; // Full star
+                            } else {
+                                stars += '&#9734; '; // Empty star
+                            }
+                        }
+                        displayElement.innerHTML = stars;
+                    }
+
+                    displayStars(ratingValue{{ forloop.counter }}, displayRating{{ forloop.counter }});
+                </script>
+            </li>
+        {% empty %}
+            <li class="no-rating">No ratings available for this station.</li>
+        {% endfor %}
+    </ul>
+
+    <style>
+         /* Global styles */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Header style */
+    .rating-header {
+        color: #333;
+        text-align: center;
+        margin-top: 30px;
+        font-size: 28px;
+    }
+
+    /* Rating list styles */
+    .rating-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Individual rating item styles */
+    .rating-item {
+        border: 1px solid #ddd;
+        margin-bottom: 30px;
+        padding: 20px;
+        width: 60%;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .rating-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Styles for different elements inside the rating item */
+    .user {
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .value {
+        color: #FF9900;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .comment {
+        font-style: italic;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .date {
+        font-size: 12px;
+        color: #888;
+    }
+
+    /* Styles for 'No ratings available' message */
+    .no-rating {
+        color: #888;
+        font-style: italic;
+        text-align: center;
+        margin-top: 30px;
+    }
+    </style>
+{% endblock content %}

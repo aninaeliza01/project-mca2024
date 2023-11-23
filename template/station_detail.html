@@ -13,13 +13,14 @@
         {% csrf_token %}
         <div class="rating-inputs">
           <label for="rating">Rating:</label>
-          <select name="rating" class="rating-dropdown">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
+          <div class="stars" id="stars">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+          </div>
+          <input type="hidden" name="rating" id="rating-value" value="0">
         </div>
         <div class="comment-inputs">
           <label for="comment">Comment:</label>
@@ -45,8 +46,37 @@
       </ul>
     </div>
   </div>
-
+  <script>
+    const stars = document.querySelectorAll('.star');
+  
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const value = star.getAttribute('data-value');
+        document.getElementById('rating-value').value = value;
+  
+        // Highlight selected stars
+        stars.forEach(s => {
+          if (parseInt(s.getAttribute('data-value')) <= value) {
+            s.classList.add('selected');
+          } else {
+            s.classList.remove('selected');
+          }
+        });
+      });
+    });
+  </script>
   <style>
+      .stars {
+    font-size: 24px;
+  }
+  
+  .star {
+    cursor: pointer;
+  }
+
+  .star.selected {
+    color: gold; /* Change color as needed */
+  }
     /* Add this to your stylesheet */
 
 .station-details {

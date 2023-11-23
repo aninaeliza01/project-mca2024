@@ -43,7 +43,7 @@
                             <td>{{ order.payment_method}}</td>
                             <td>
                                 <div class="order-actions">
-                                    <form class="order-action-form" method="post">
+                                    <form class="order-action-form" action="{% url 'ordersummary' order.id %}" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" name="order_id" value="{{ order.id }}">
                                         <button class="order-action-button place" type="submit">Place Order</button>
@@ -69,18 +69,18 @@
         </div>
         <div class="pagination">
             <span class="step-links">
-                {% if orders.has_previous %}
+                {% if not_ordered_orders.has_previous %}
                     <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ orders.previous_page_number }}">previous</a>
+                    <a href="?page={{ not_ordered_orders.previous_page_number }}">previous</a>
                 {% endif %}
         
                 <span class="current">
-                    Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+                    Page {{ not_ordered_orders.number }} of {{ not_ordered_orders.paginator.num_pages }}.
                 </span>
         
                 {% if orders.has_next %}
-                    <a href="?page={{ orders.next_page_number }}">next</a>
-                    <a href="?page={{ orders.paginator.num_pages }}">last &raquo;</a>
+                    <a href="?page={{ not_ordered_orders.next_page_number }}">next</a>
+                    <a href="?page={{ not_ordered_orders.paginator.num_pages }}">last &raquo;</a>
                 {% endif %}
             </span>
         </div>

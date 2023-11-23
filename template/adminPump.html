@@ -38,7 +38,15 @@
             </td>
             <td>{{ user.email }}</td>
             <td>{{ user.phone }}</td>
-            <td></td>
+            
+                <td>
+                    {% for order_info in total_orders_per_station %}
+                        {% if user.fuelstation and user.fuelstation.station_name == order_info.station_name %}
+                            {{ order_info.total_orders }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            
             <td>
                 {% if user.is_active %}
                     Active
