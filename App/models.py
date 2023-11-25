@@ -106,8 +106,6 @@ class Payment(models.Model):
     order=models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
     is_paid = models.BooleanField(default=False)
     razor_pay_order_id=models.CharField(max_length=100, blank=True, null=True)
-    razor_pay_payment_id=models.CharField(max_length=100, blank=True, null=True)
-    razor_pay_payment_signature=models.CharField(max_length=100, blank=True, null=True)
     customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a customer
     amount = models.DecimalField(max_digits=10, decimal_places=2)  # Store the payment amount
     payment_date = models.DateTimeField(auto_now_add=True)  # Date and time of the payment
