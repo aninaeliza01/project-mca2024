@@ -25,6 +25,7 @@
                         <th>Total Price</th>
                         <th>Status</th>
                         <th>Rate</th>
+                        <th>Receipt</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,7 +36,7 @@
                             <td>{{ order.station }}</td>
                             <td>{{ order.order_date }}</td>
                             <td>{{ order.fuel_type }}</td>
-                            <td>{{ order.total_price }}</td>
+                            <td>₹{{ order.total_price }}</td>
                             <td>
                                 <span class="order-status {% if order.is_accepted %}accepted{% elif order.is_rejected %}rejected{% else %}not-accepted{% endif %}">
                                     {% if order.is_accepted %}
@@ -58,6 +59,12 @@
                                 </span>
                             </td>
                             <td><a href="{% url 'station_detail' order.station.id %}" class="amazon-rating-btn">Rate</a></td>
+                            
+                                    {% if order.payment_set.first.is_paid %}
+                            <td style="text-align: center; vertical-align: middle;"><a href="{% url 'download_receipt' order.id %}" target="_blank"><i class="fas fa-download"></i></a>
+                            </td>
+                            {% endif %}
+                            
                         </tr>
                         {% empty %}
                         <tr>

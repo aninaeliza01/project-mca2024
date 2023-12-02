@@ -107,6 +107,7 @@ class Payment(models.Model):
     is_paid = models.BooleanField(default=False)
     razor_pay_order_id=models.CharField(max_length=100, blank=True, null=True)
     customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a customer
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE, blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)  # Store the payment amount
     payment_date = models.DateTimeField(auto_now_add=True)  # Date and time of the payment
     # Add other fields as per your requirements, like payment status, transaction ID, etc.

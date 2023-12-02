@@ -950,6 +950,10 @@ def pay(request,order_id):
 def success(request, order_id):
     print("Received payment_id:", order_id)
     order = get_object_or_404(Order, pk=order_id)
+    station_id = order.station_id
+    
+    # Fetch the FuelStation instance associated with the station_id
+    station = get_object_or_404(FuelStation, pk=station_id)
     client = razorpay.Client(auth=("rzp_test_z8K4I90GdqQLdV", "eXLlGvh3xWgHBaPIX2uIlveV"))
 
     order_amount = int(order.total_price* 100)  # Example amount
@@ -971,6 +975,7 @@ def success(request, order_id):
             razor_pay_order_id=payment['id'],
             amount=order_amount,
             is_paid = True,
+            station=station,
             customer=request.user  # Assuming the user is authenticated and initiating the payment
         )
     new_payment.save()
@@ -979,6 +984,82 @@ def success(request, order_id):
 
     messages.success(request, 'Payment successfully done.')
     return redirect('customer_orders')
+
+
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import ParagraphStyle
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from .models import Order, Payment
+
+def generate_receipt_pdf(order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    payment = get_object_or_404(Payment, order=order)
+
+    buffer = BytesIO()
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(buffer, pagesize=letter, title="HybridEnergy")
+
+    # Title
+    title_style = ParagraphStyle(
+        name='TitleText',
+        alignment=1,
+        fontSize=20
+    )
+    title_text = Paragraph("Receipt for HybridEnergy", title_style)
+
+    # Define receipt details
+    receipt_details = [
+        ["Order ID", f"{order_id}"],
+        ["Customer", f"{order.customer.username}"],
+        ["Fuel Station", f"{order.station.station_name}"],
+        ["Fuel Type", f"{order.fuel_type.fueltype}"],
+        ["Quantity", f"{order.quantity} Liter"],
+        ["Total Price", f"{order.total_price}"],
+        ["Payment Method", f"{order.payment_method}"],
+        ["Payment ID", f"{payment.id}"],
+        ["Amount Paid", f"{payment.amount}"],
+        ["Payment Date", f"{payment.payment_date}"],
+    ]
+
+    # Create a table with receipt details
+    receipt_table = Table(receipt_details, colWidths=[150, 200])
+    receipt_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+    ]))
+
+    # Build PDF document with the title and table
+    elements = [title_text, Spacer(1, 20), receipt_table]
+
+    pdf.build(elements)
+
+    buffer.seek(0)
+    return buffer
+
+
+
+def receipt(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    receipt_pdf = generate_receipt_pdf(order_id)
+
+    # Return the PDF as a downloadable response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="receipt_{order_id}.pdf"'
+    response.write(receipt_pdf.getvalue())
+
+    return response
+
+
+
 
 import webbrowser
 

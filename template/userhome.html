@@ -43,7 +43,7 @@
                                         {% for fuel in pump.fuels.all %}
                                         <p style="margin-bottom: 5px; color: #333; font-weight: bold;">
                                             <strong>{{ fuel.fueltype }}</strong> -
-                                            <span style="color: #555;"> {{ fuel.price }} per Liter<br>
+                                            <span style="color: #555;"> ₹{{ fuel.price }} per Liter<br>
                                         
                                         {% endfor %}<br>
 
@@ -58,7 +58,7 @@
                                     
                                 </p>
                                 <button class="amazon-order-button">
-                                    <a href="{% url 'place_order' pump.id %}" class="order-link">Place Order</a>
+                                    <a href="{% url 'place_order' pump.id %}" id="placeorder"class="order-link">Place Order</a>
                                 </button>
                                 <!-- Some template where you want to include the link -->
                                 <button><a href="{% url 'fuel_station_detail' pump.id %}" class="order-link">Details</a></button>
