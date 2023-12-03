@@ -372,10 +372,24 @@ def accept_order(request, order_id):
         order.save()
         station_email=order.station.email
         customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
+        email_subject = 'Order Accepted'
+        email_body = '''
+        Dear Customer,
+
+        We are pleased to inform you that your order has been accepted. Thank you for choosing Hybrid Energy.
+
+        To proceed further, kindly make the payment as soon as possible. Should you encounter any difficulties or require assistance with the payment process, feel free to reach out to us. Our team is here to assist you.
+
+        Thank you for your trust in Hybrid Energy. We look forward to delivering an exceptional service and ensuring a seamless experience for you.
+
+        Best Regards,
+        Hybrid Energy Team
+        '''
+
+        # Send the email
         send_mail(
-            'Order Accepted',
-            
-            'Your order has been accepted. Make Payment. Thank you!',
+            email_subject,
+            email_body,
             station_email,  # Replace with your email
             [customer_email],  # Email of the customer
             fail_silently=False,
@@ -390,10 +404,26 @@ def reject_order(request, order_id):
         order.is_rejected = True  # Set the order status as not accepted or rejected
         order.save()
         customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
+        station_email=order.station.email
+        email_subject = 'Regarding Your Recent Order'
+
+        email_body = '''
+        Dear Customer,
+
+        We regret to inform you that your recent order has been rejected. We apologize for any inconvenience caused.
+
+        Should you require further details or wish to discuss this matter, please don't hesitate to contact us. Our team is readily available to assist you and provide any necessary clarification.
+
+        Thank you for considering Hybrid Energy. We value your patronage and hope to serve you better in the future.
+
+        Best Regards,
+        Hybrid Energy Team
+        '''
+        # Send the email
         send_mail(
-            'Order Rejected',
-            'Your order has been Rejected. Thank you!',
-            'aninaelizebeth2024a@mca.ajce.in',  # Replace with your email
+            email_subject,
+            email_body,
+            station_email,  # Replace with your email
             [customer_email],  # Email of the customer
             fail_silently=False,
         )
@@ -420,7 +450,38 @@ def delivery(request):
        
 
         return render(request, 'FuelDelivery.html', {'pump_orders': pump_orders, 'fuel_station': fuel_station})
+
+def mark_delivered(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
     
+    if not order.is_delivered:
+        order.is_delivered = True
+        order.save()
+        customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
+        email_subject = 'Your Order Has Been Successfully Delivered'
+        email_body = '''
+        Dear Customer,
+
+        We are thrilled to inform you that your recent order has been successfully delivered. Thank you for choosing Hybrid Energy as your trusted fuel provider.
+
+        Your satisfaction is paramount to us, and we hope that our service has exceeded your expectations. Should you have any further inquiries or require assistance, please do not hesitate to reach out to us.
+
+        We appreciate your patronage and look forward to serving you again. Fuel your journey with confidence!
+
+        Best Regards,
+        Hybrid Energy Team
+        '''
+        send_mail(
+            email_subject,
+            email_body,
+            'aninaelizebeth2024a@mca.ajce.in',  # Replace with your email
+            [customer_email],  # Email of the customer
+            fail_silently=False,
+        )
+    
+    # Redirect to the same page or wherever appropriate after marking as delivered
+    return redirect('fuelDelivery')
+
 @never_cache
 @login_required(login_url='login')
 def station_ratings(request):

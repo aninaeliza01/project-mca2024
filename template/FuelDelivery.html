@@ -24,11 +24,13 @@
                         <th>Phone</th>
                         <th>Order Date & Time</th>
                         <th>Payment Status</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in pump_orders %}
+                    {% if order.is_paid %}
                         <tr>
                             <td></td>
                             <td>{{ order.fuel_type }}</td>
@@ -63,7 +65,17 @@
                                     </form>
                                 {% endif %}
                             </td>
+                            <td>{% if not order.is_delivered %}
+                                <form method="post" action="{% url 'mark_delivered' order.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="order_id" value="{{ order.id }}">
+                                    <button type="submit" class="action-button deliver">Mark Delivered</button>
+                                </form>
+                            {% else %}
+                            <p class="delivered-message">Delivered</p>
+                            {% endif %}</td>
                         </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
@@ -71,9 +83,34 @@
     {% else %}
         <p>No orders available for this pump.</p>
     {% endif %}
+    
 </div>
 
 <style>
+    /* Button Style */
+.action-button.deliver {
+    padding: 8px 18px;
+    font-size: 14px;
+    margin: 5px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    transition: all 0.3s ease;
+    background-color: #3498db;
+    color: white;
+}
+
+.action-button.deliver:hover {
+    opacity: 0.8;
+}
+
+/* Delivered Message Style */
+.delivered-message {
+    font-weight: bold;
+    color: #27ae60;
+    margin: 0;
+}
+
     .alert {
         padding: 15px;
         margin-bottom: 20px;

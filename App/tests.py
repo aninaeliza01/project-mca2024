@@ -18,19 +18,19 @@
 #         username_input = self.driver.find_element(By.NAME, 'username')
 #         password_input = self.driver.find_element(By.NAME, 'password')
 #         login_button = self.driver.find_element(By.ID, 'logout-link')
+#         print('Clicked Login Button')
 
 #         username_input.send_keys('amil')
 #         password_input.send_keys('Amil@123')
 #         login_button.click()
 
-#         # Wait for the page to load after login (replace this with appropriate page load condition)
-#         WebDriverWait(self.driver, 10).until(EC.url_to_be('http://127.0.0.1:8000/userhome/'))
+#         # Wait for the page to load after login
+#         WebDriverWait(self.driver, 10).until(EC.url_contains('userhome'))
+#         print("Successfully Redirected to Home Page")
 
-#         # Perform assertions to verify successful login
-#         # expected_content = 'Text or Element on Successful Login Page'
-#         # assert expected_content in self.driver.page_source, f"Expected content '{expected_content}' not found after login"
 
-##|||||||||addfuel||||||########
+
+# #|||||||||addfuel||||||########
 
 # from django.test import TestCase
 # from selenium import webdriver
@@ -66,6 +66,7 @@
 #         add_fuel_button = self.driver.find_element(By.XPATH, "//button[contains(text(),'Add Fuel')]")
 #         add_fuel_button.click()
 #         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//table//tr/td[contains(text(),'Diesel')]")))
+#         print("Fuel Successfully Added")
 
     
 #     def test_login_and_add_fuel(self):
@@ -73,7 +74,7 @@
 #         self.add_fuel()
 
 
-# ##|||||||||||place order |||||||#####
+# # ##|||||||||||place order |||||||#####
 # import unittest
 # from selenium import webdriver
 # from selenium.webdriver.common.by import By
@@ -94,11 +95,11 @@
 #         username = self.driver.find_element(By.NAME, 'username')
 #         password = self.driver.find_element(By.NAME, 'password')
 #         username.send_keys("godwin")
-#         password.send_keys("Godwin@123")
+#         password.send_keys("Godwi@123")
 #         self.driver.find_element(By.ID, "logout-link").click()
 #         self.driver.implicitly_wait(5)
 
-#         self.assertIn("userhome", self.driver.current_url)
+#         WebDriverWait(self.driver, 10).until(EC.url_contains('userhome'))
 
 #         # Scroll to the 'Place Order' button
 #         place_order_button = self.driver.find_element(By.ID, "placeorder")
@@ -134,6 +135,7 @@
 
 #         # Assert if the order was placed successfully or if the user was redirected to a success page
 #         self.assertIn("ordersummary", self.driver.current_url)  # Update with your success URL
+#         print("Successfully Placed order")
 
 #     def tearDown(self):
 #         self.driver.quit()
@@ -141,18 +143,19 @@
 # if __name__ == "__main__":
 #     unittest.main()
 
-#####||||| DELETE ORDER|||||||||||||###########
-
+# ####||||| DELETE ORDER|||||||||||||###########
 # import unittest
 # from selenium import webdriver
 # from selenium.webdriver.common.by import By
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support.ui import Select
+# from selenium.webdriver.support import expected_conditions as EC
 
-# class PlaceOrderAfterLoginTest(unittest.TestCase):
+# class UserInterfaceTests(unittest.TestCase):
 #     def setUp(self):
 #         self.driver = webdriver.Chrome()
-#         self.base_url = "http://localhost:8000"  # Replace this with your base URL
-#         self.driver.maximize_window()
-#         self.driver.implicitly_wait(10)
+#         self.base_url = "http://localhost:8000"
+#         self.driver.implicitly_wait(50)
 
 #     def test_login_and_place_order(self):
 #         self.driver.get(self.base_url + '/login')
@@ -161,18 +164,29 @@
 #         username = self.driver.find_element(By.NAME, 'username')
 #         password = self.driver.find_element(By.NAME, 'password')
 #         username.send_keys("godwin")
-#         password.send_keys("Godwin@123")
+#         password.send_keys("Godwi@123")
 #         self.driver.find_element(By.ID, "logout-link").click()
 #         self.driver.implicitly_wait(5)
-       
+
+#         WebDriverWait(self.driver, 10).until(EC.url_contains('userhome'))
+
+
 #         self.driver.get(self.base_url + '/customer_unorders')  # Update with your actual orders page URL
 
-#         # Find and click the 'Place Order' button
-#         place_order_button = self.driver.find_element(By.CLASS_NAME, 'order-action-form')
-#         place_order_button.click()
+#         # Find the 'Place Order' button
+#         place_order_button = None
+#         try:
+#             place_order_button = self.driver.find_element(By.CLASS_NAME, 'order-action-button.cancel')
+#         except:
+#             pass
 
-        
-#         self.assertIn("customer_orders", self.driver.current_url)
+#         # Click the 'Place Order' button if found
+#         if place_order_button:
+#             place_order_button.click()
+#             print("Deleted Order Successfully")
+            
+#         else:
+#             self.fail("Failed to find or click the 'Place Order' button")
 
 #     def tearDown(self):
 #         self.driver.quit()

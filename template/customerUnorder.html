@@ -43,7 +43,7 @@
                             <td>{{ order.payment_method}}</td>
                             <td>
                                 <div class="order-actions">
-                                    <form class="order-action-form" action="{% url 'ordersummary' order.id %}" method="post">
+                                    <form class="order-action-form1" action="{% url 'ordersummary' order.id %}" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" name="order_id" value="{{ order.id }}">
                                         <button class="order-action-button place" type="submit">Place Order</button>

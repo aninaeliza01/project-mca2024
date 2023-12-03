@@ -26,6 +26,7 @@
                         <th>Status</th>
                         <th>Rate</th>
                         <th>Receipt</th>
+                        <th>Delivery Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,11 +61,22 @@
                             </td>
                             <td><a href="{% url 'station_detail' order.station.id %}" class="amazon-rating-btn">Rate</a></td>
                             
-                                    {% if order.payment_set.first.is_paid %}
-                            <td style="text-align: center; vertical-align: middle;"><a href="{% url 'download_receipt' order.id %}" target="_blank"><i class="fas fa-download"></i></a>
+                                    
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% if order.payment_set.first.is_paid %}
+                                <a href="{% url 'download_receipt' order.id %}" target="_blank"><i class="fas fa-download"></i></a>
+                                
+                                {% endif %}
+                                
                             </td>
-                            {% endif %}
-                            
+                           
+                            <td>
+                                {% if order.is_delivered %}
+                                <p>Delivered</p>
+                                {% else %}
+                                <p>Not Delivered Yet</p>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>

@@ -11,18 +11,14 @@
 {% endif %}
 
 <div class="details-container">
-    <h2>Order Details</h2>
+    <h2>Payment Information</h2>
     <p>Order ID: {{ order.id }}</p>
     <p>Total Price: {{ order.total_price }}</p>
     <p>Order Date: {{ order.order_date }}</p>
     <p>Delivery Address: {{ order.delivery_address }}</p>
     <!-- Include other relevant order details -->
     <p>Fuel Type: {{ order.fuel_type }}</p>
-    <p>Quantity: {{ order.quantity }}</p>
-</div>
-
-<div class="details-container">
-    <h2>Payment Information</h2>
+    <p>Quantity: {{ order.quantity }}</p>  
     <!-- Display payment details from the payment object -->
     <p>Payment ID: {{ payment.id }}</p>
     <p>Amount: ₹{{ rupee_amount }}</p>
