@@ -15,6 +15,7 @@
                 <thead>
                     <tr>
                         <th>No.</th>
+                        <th>O.ID</th>
                         <th>Fuel Type</th>
                         <th>Quantity</th>
                         <th>Total Price</th>
@@ -33,6 +34,7 @@
                     {% if order.is_paid %}
                         <tr>
                             <td></td>
+                            <td>{{ order.id }}</td>
                             <td>{{ order.fuel_type }}</td>
                             <td>{{ order.quantity }}Liters</td>
                             <td>{{ order.total_price }}</td>

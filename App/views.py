@@ -1072,18 +1072,17 @@ def generate_receipt_pdf(order_id):
         fontSize=20
     )
     title_text = Paragraph("Receipt for HybridEnergy", title_style)
-
-    # Define receipt details
+    
     receipt_details = [
         ["Order ID", f"{order_id}"],
         ["Customer", f"{order.customer.username}"],
         ["Fuel Station", f"{order.station.station_name}"],
         ["Fuel Type", f"{order.fuel_type.fueltype}"],
         ["Quantity", f"{order.quantity} Liter"],
-        ["Total Price", f"{order.total_price}"],
+        ["Total Price",  f"{ order.total_price} INR"],
         ["Payment Method", f"{order.payment_method}"],
         ["Payment ID", f"{payment.id}"],
-        ["Amount Paid", f"{payment.amount}"],
+        ["Amount Paid", f"{payment.amount / 100} INR"],
         ["Payment Date", f"{payment.payment_date}"],
     ]
 
