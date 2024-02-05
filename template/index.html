@@ -42,6 +42,7 @@
                   <ul class="registration-options">
                     <li><a href="registerUser/">Customer</a></li>
                     <li><a href="registerPump">Vendor</a></li>
+                    <li></li>
                     <!-- <li><a href="registerDeliveryTeam/">Delivery Team</a></li> -->
                     <!-- Add more registration options as needed -->
                   </ul>
@@ -115,13 +116,9 @@
     <div class="form_container">
       <form action="">
         <div class="form-row">
-              <div class="col-md-6">
-                <label for="parkingName">Pump Location</label>
-                <input type="text" class="form-control" placeholder="Search Pump">
-              </div>
-              <div class="btn-container">
-                <button type="submit">Search</button>
-              </div>
+          
+<!-- HTML code with the styled link -->
+<a href="registerDelivery" class="apply-link">Apply to Join Delivery Team</a>
         </div>
       </form>
     </div>
@@ -260,8 +257,7 @@
   </section>-->
   <footer class="container-fluid footer_section">
     <p>
-      Copyright &copy; 2020 All Rights Reserved. Design by
-      <a href="https://html.design/">Free Html Templates</a> Distributed by <a href="https://themewagon.com">ThemeWagon</a>
+      Copyright &copy; 2023 All Rights Reserved. Design by HybridEnergy
     </p>
   </footer>
   <script src="{% static 'js/jquery-3.4.1.min.js'%}"></script>
@@ -272,6 +268,21 @@
 <style>
 
 
+    /* CSS for styling the link */
+    .apply-link {
+        text-decoration: none; /* Remove underline */
+        color: #ffffff; /* Text color */
+        background-color: #ff0000; /* Background color */
+        padding: 10px 20px; /* Padding */
+        border-radius: 5px; /* Rounded corners */
+        display: inline-block; /* Display as inline-block */
+        transition: background-color 0.3s; /* Smooth transition for background color */
+    }
+
+    /* CSS for hover effect */
+    .apply-link:hover {
+        background-color: #b30000; /* Darker background color on hover */
+    }
 
 </style>
 </html>

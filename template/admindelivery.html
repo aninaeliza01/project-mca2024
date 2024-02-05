@@ -1,0 +1,36 @@
+{% extends "adminbase.html" %}
+{% block title %}Pump{% endblock %}
+{% block content %}
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <h1>Delivery Boys</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>SlNo.</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Status</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for delivery_boy in delivery_boys %}
+                <tr>
+                    <td>{{ delivery_boy.user.username }}</td>
+                    <td>{{ delivery_boy.user.email }}</td>
+                    <td>{{ delivery_boy.user.phone }}</td>
+                    <td>{{ delivery_boy.address }}</td>
+                    <td>{{ delivery_boy.vehno }}</td>
+                    <!-- Add more columns as needed -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

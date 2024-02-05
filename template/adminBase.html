@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css"> <!-- Create a separate CSS file for custom styling -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha384-DfXdzP0HDNQY2LambXvT6TW91jNpLXb8fF0JjqxSL6R9iV4VMTdFI6h2I3zUvUjD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <script>
         // JavaScript code as before
@@ -20,33 +21,58 @@
                 <h2 class="sidebar-heading">Admin Dashboard</h2>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/adminhome">Dashboard</a>
+                        <a class="nav-link active" href="/adminhome">
+                            <i class="fas fa-tachometer-alt"></i> <!-- Dashboard icon -->
+                            Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/adminuser">Customers</a>
+                        <a class="nav-link" href="/adminuser">
+                            <i class="fas fa-users"></i> <!-- Users icon -->
+                            Customers
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/adminpump">Pump</a>
-                    </li>
+                    
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="/fuel">Fuel</a>
                     </li> -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/location">Location</a>
+                        <a class="nav-link" href="/adminpump">
+                            <i class="fas fa-gas-pump"></i> <!-- Pump icon -->
+                            Pump
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/adminorder">Order</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/adminratings">Ratings_by_Users</a>
-                    </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="#">Settings</a>
-                    </li> -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout" id="logout-link">Logout</a>
+                        <a class="nav-link" href="/admindelivery">
+                            <i class="fas fa-truck"></i> <!-- Delivery icon -->
+                            Delivery Team
+                        </a>
                     </li>
                     
+                    <li class="nav-item">
+                        <a class="nav-link" href="/location">
+                            <i class="fas fa-map-marker-alt"></i> <!-- Location icon -->
+                            Location
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/adminorder">
+                            <i class="fas fa-shopping-cart"></i> <!-- Order icon -->
+                            Order
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/adminratings">
+                            <i class="fas fa-star"></i> <!-- Ratings icon -->
+                            Ratings by Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout" id="logout-link">
+                            <i class="fas fa-sign-out-alt"></i> <!-- Logout icon -->
+                            Logout
+                        </a>
+                    </li>
                 </ul>
             </nav>
 

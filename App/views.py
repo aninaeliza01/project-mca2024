@@ -305,6 +305,21 @@ def register_pump(request):
                 
                 userFuel.save()
                 activateEmail(request, user)
+                
+                # Get map details from the form
+                pump_lat = request.POST.get('pump_lat')
+                pump_lng = request.POST.get('pump_lng')
+                delivery_area_lat = request.POST.get('delivery_area_lat')
+                delivery_area_lng = request.POST.get('delivery_area_lng')
+
+                # Create and save MapLocation instance
+                map_location = Maploaction.objects.create(
+                    station=userFuel,
+                    pump_lat=pump_lat,
+                    pump_lng=pump_lng,
+                    delivery_area_lat=delivery_area_lat,
+                    delivery_area_lng=delivery_area_lng
+                )
                 return redirect('login') 
     locations = LocationDetails.objects.all()
     return render(request, 'registerPump.html', {'locations': locations})
@@ -499,7 +514,10 @@ def station_ratings(request):
 def fuel_station_profile(request):
     fuel_station = get_object_or_404(FuelStation, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
-    
+    try:
+        map_location = Maploaction.objects.get(station=fuel_station.id)
+    except Maploaction.DoesNotExist:
+        map_location = None
     if request.method == 'POST':
         if 'logo_image' in request.FILES:
             fuel_station.logo_image = request.FILES['logo_image']
@@ -512,12 +530,27 @@ def fuel_station_profile(request):
         user_details.username = request.POST.get('username', '')
         user_details.phone = request.POST.get('phone_number', '')
         user_details.save()
+
+        pump_lat = request.POST.get('pump_lat', None)
+        pump_lng = request.POST.get('pump_lng', None)
+        delivery_area_lat = request.POST.get('delivery_area_lat', None)
+        delivery_area_lng = request.POST.get('delivery_area_lng', None)
+
+        if map_location is None:
+            map_location = Maploaction(station=fuel_station)
         
+        map_location.pump_lat = pump_lat
+        map_location.pump_lng = pump_lng
+        map_location.delivery_area_lat = delivery_area_lat
+        map_location.delivery_area_lng = delivery_area_lng
+        map_location.save()
+
         return redirect('/FuelProfile')  # Redirect to the profile page after saving
     
     context = {
         'fuel_station': fuel_station,
         'user_details': user_details,
+        'map_location':map_location,
     }
     return render(request, 'FuelProfile.html', context)
 
@@ -576,9 +609,11 @@ def place_order(request, pump_id):
     # Render the order placement form
     fuel_types = Fuel.objects.filter(station=pump_id)
     pump = get_object_or_404(FuelStation, pk=pump_id)
+    map_location = get_object_or_404(Maploaction, station_id=pump_id)
     context = {
         'fuel_types': fuel_types,
-        'pump': pump
+        'pump': pump,
+        'map_location': map_location,
         # Include other context data you need
     }
     return render(request, 'place_order.html', context)
@@ -1119,8 +1154,58 @@ def receipt(request, order_id):
     return response
 
 
+#####DELIVERY TEAM##
 
+@never_cache
+@login_required(login_url='login')
+def deliveryhome(request):
+    return render(request, 'deliveryhome.html')
 
+@never_cache
+def register_delivery(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        name = request.POST.get('ownername')
+        email = request.POST.get('email')
+        phone = request.POST.get('phoneNumber')
+        address = request.POST.get('address')
+        location_id = request.POST.get('location')
+        vehicle_number = request.POST.get('vehicleNumber')
+        photo = request.FILES.get('photo')
+        driving_license = request.FILES.get('license')
+        user_type='DELIVERYTEAM'
+        # user_type = CustomUser.is_vendor
+        if username and email and phone:
+            if CustomUser.objects.filter(email=email).exists():
+                messages.success(request,("Email is already registered."))
+            elif CustomUser.objects.filter(username=username).exists():
+                messages.success(request,("Username is already registered."))
+            else:
+                user = CustomUser(username=username, email=email, phone=phone,user_type=user_type)
+                user.is_active=False
+                user.is_vendor=False
+                user.is_customer = False
+                user.is_deliveryteam = True
+                user.save()
+                delivery_team = DeliveryTeam.objects.create(
+                    user=user,
+                    name=name,
+                    address=address,
+                    location_id=location_id,
+                    vehno=vehicle_number,
+                    propic=photo,
+                    drivelic=driving_license
+                )
+
+                
+                return redirect('login') 
+    locations = LocationDetails.objects.all()
+    return render(request, 'registerDelivery.html', {'locations': locations})
+
+@never_cache
+@login_required(login_url='login')
+def admin_delivery(request):
+    return render(request, 'admindelivery.html')
 import webbrowser
 
 def open_google_maps_with_nearby_fuel_bunks(request):
@@ -1135,5 +1220,6 @@ def open_google_maps_with_nearby_fuel_bunks(request):
     webbrowser.open(maps_url)
 
     return render(request, 'map.html')
+
 
 

@@ -64,6 +64,7 @@
                                 <button><a href="{% url 'fuel_station_detail' pump.id %}" class="order-link">Details</a></button>
 
                             </div>
+                            
                         </div>
                     {% endfor %}
                 </div>
@@ -170,8 +171,13 @@ button i {
     font-size: 18px;
 }
         /* Updated styles for Amazon-like design */
-    
+        .row {
+    display: flex;
+    flex-wrap: wrap;
+}
         .amazon-order-box {
+            width: calc(33.33% - 20px); /* Adjust width as needed */
+            margin: 10px;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 10px;

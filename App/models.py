@@ -121,3 +121,23 @@ class Rating(models.Model):
     value = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Maploaction(models.Model):
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
+    pump_lat = models.DecimalField(max_digits=9, decimal_places=6)
+    pump_lng = models.DecimalField(max_digits=9, decimal_places=6)
+    delivery_area_lat = models.DecimalField(max_digits=9, decimal_places=6)
+    delivery_area_lng = models.DecimalField(max_digits=9, decimal_places=6)
+
+
+class DeliveryTeam(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    address = models.CharField(max_length=50, blank=True, null=True)
+    location= models.ForeignKey(LocationDetails,on_delete=models.CASCADE)
+    vehno = models.CharField(max_length=15,unique=True,)
+    propic = models.ImageField(upload_to='media/delivery_pic', blank=True, null=True)
+    drivelic = models.ImageField(upload_to='media/driving_license', blank=True, null=True)
+    is_accepted = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)

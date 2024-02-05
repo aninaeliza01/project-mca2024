@@ -1,0 +1,278 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Team Registration</title>
+    <link rel="stylesheet" href="{% static 'css/regstyles.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.2/dist/css/bootstrap.min.css">
+    <link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
+</head>
+<body>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container">
+        <div class="logo-title-container">
+            <img class="logo" src="{% static 'images/logo.png'%}" alt="Logo">
+            <h1 class="title">Hybrid Energy</h1>
+        </div>
+        <div class="content-container">
+            <div class="form-container">
+                <h2>Join Our Delivery Team </h2>
+                <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm();">
+                    {% csrf_token %}
+                    <div class="input-box">
+                        <span class="details">Username</span>
+                        <input type="text" name="username" id="username" placeholder="Enter username" oninput="validateUsername()">
+                        <span id="usernameError" class="error"></span>
+                    </div>
+                    <div class="input-box">
+                        <span class="details">Name</span>
+                        <input type="text" name="ownername" id="ownername" placeholder="Enter your Name" oninput="validateOwnername()">
+                        <span id="ownernameError" class="error"></span>                        
+                      </div>
+                    <div class="input-box">
+                        <span class="details">Email</span>
+                        <input type="text" name="email" id="email" placeholder="Enter your email" oninput="validateEmail()">
+                        <span id="emailError" class="error"></span>
+                    </div>
+                    
+                    <div class="input-box">
+                        <span class="details">Phone Number</span>
+                        <input type="text" name="phoneNumber" id="phoneNumber" placeholder="Enter your number" oninput="validatePhoneNumber()">
+                        <span id="phoneNumberError" class="error"></span>    
+                    </div>
+                      
+                    <div class="input-box">
+                        <span class="details">Address</span>
+                        <input type="text" name="address" id="address" placeholder="Enter your address" oninput="validateAddress()">
+                        <span id="addressError" class="error"></span>
+                    </div>
+                    <div class="input-box">
+                        <span class="details">Vehicle Number</span>
+                        <input type="text" name="vehicleNumber" id="vehicleNumber" placeholder="Enter vehicle number" oninput="validateVehicleNumber()">
+                        <span id="vehicleNumberError" class="error"></span>
+                    </div>
+                    <div class="input-box">
+                        <span class="details">Choose Delivery Area</span>
+                        <select name="location" id="location" onchange="validateLocation()">
+                            <option value="">Select a City</option>
+                            {% for location in locations %}
+                                <option value="{{ location.id }}">{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span id="locationError" class="error"></span>
+                    </div><br>
+                    <div class="form-group">
+                        <label for="photo">Photo:</label>
+                        <input type="file" id="photo" name="photo" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="license">Driving License:</label>
+                        <input type="file" id="license" name="license" accept="image/*" required>
+                    </div>
+                                                       
+                    <button id="saveLocationButton" type="submit">Create</button>
+                </form>
+                </div>
+            <div class="image-container">
+                <img class="background-image" src="{% static 'images/main.png'%}" alt="Background Image">
+            </div>
+        </div>
+    </div>
+</body>
+<style>
+    .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: #f8d7da; /* Default background color */
+            color: #721c24; /* Default text color */
+        }
+    /* Style for the select element */
+    select#location {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Style for the options in the dropdown */
+    select#location option {
+        font-size: 16px;
+        padding: 5px;
+    }
+    .input-box input[type="file"] {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+    }
+</style>
+<script>
+    function validateUsername() {
+        var username = document.getElementById("username").value.trim();
+        var usernameError = document.getElementById("usernameError");
+        var usernamePattern = /^[A-Za-z0-9_]{3,20}$/; // Allow letters, numbers, and underscores; length between 3 and 20 characters
+    
+        if (username === "") {
+            usernameError.textContent = "Please enter your username.";
+            usernameError.style.color = "red"; // Set error message color to red
+            return false;
+        } else if (!usernamePattern.test(username)) {
+            usernameError.textContent = "Username must be between 3 and 20 characters and can only contain letters, numbers, and underscores.";
+            usernameError.style.color = "red"; // Set error message color to red
+            return false;
+        } else {
+            usernameError.textContent = "";
+            return true;
+        }
+    }
+    function validateLocation() {
+    var location = document.getElementById("location");
+    var locationError = document.getElementById("locationError");
+
+    if (location.value === "") {
+        locationError.textContent = "Please select a valid location.";
+        locationError.style.color = "red";
+    } else {
+        locationError.textContent = ""; // Clear the error message
+    }
+}
+
+function validateOwnername() {
+    var ownername = document.getElementById("ownername").value.trim();
+    var ownernameError = document.getElementById("ownernameError");
+    var ownernamePattern = /^[A-Za-z\s]+$/; // Allow letters and spaces
+
+    if (ownername === "") {
+        ownernameError.textContent = "Please enter the owner's name.";
+        ownernameError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!ownernamePattern.test(ownername)) {
+        ownernameError.textContent = "Owner's name must contain letters and spaces only.";
+        ownernameError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        ownernameError.textContent = "";
+        return true;
+    }
+}
+function validateEmail() {
+    var email = document.getElementById("email").value.trim();
+    var emailError = document.getElementById("emailError");
+    var emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|[a-zA-Z0-9.-]+\.(com|in))$/; // Check if email starts with a letter
+    var validEmailPattern = /\S+@\S+\.\S+/;
+
+    if (email === "") {
+        emailError.textContent = "Please enter your Email.";
+        emailError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!emailPattern.test(email) || !validEmailPattern.test(email)) {
+        emailError.textContent = "Please enter a valid Email address.";
+        emailError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        emailError.textContent = "";
+        return true;
+    }
+}
+
+function validateVehicleNumber() {
+    var vehicleNumber = document.getElementById("vehicleNumber").value;
+    var pattern = /^[A-Z]{2}[0-9]{2}[A-Z]{1}[0-9]{4}$/;
+    if (!pattern.test(vehicleNumber)) {
+        document.getElementById("vehicleNumberError").innerHTML = "Invalid vehicle number format";
+        document.getElementById("vehicleNumberError").style.color = "red";
+        return false;
+    }
+    document.getElementById("vehicleNumberError").innerHTML = "";
+    return true;
+}   
+
+
+function validatePhoneNumber() {
+    var phoneNumber = document.getElementById("phoneNumber").value.trim();
+    var phoneNumberError = document.getElementById("phoneNumberError");
+    var phoneNumberPattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
+
+    if (phoneNumber === "") {
+        phoneNumberError.textContent = "Please enter your phone number.";
+        phoneNumberError.style.color = "red"; // Set error message color to red
+        return false;
+    } else if (!phoneNumberPattern.test(phoneNumber)) {
+        phoneNumberError.textContent = "Invalid phone number. It should start with 6, 7, 8, or 9 and have 10 digits.";
+        phoneNumberError.style.color = "red"; // Set error message color to red
+        return false;
+    } else {
+        phoneNumberError.textContent = "";
+        return true;
+    }
+}
+function validateFile() {
+        var fileInput = document.getElementById('logo_image');
+        var fileError = document.getElementById('logoImageError');
+        var file = fileInput.files[0];
+
+        if (!file) {
+            fileError.textContent = 'Please select a file.';
+            fileError.style.color = 'red';
+            return false;
+        } else {
+            fileError.textContent = '';
+            return true;
+        }
+    }
+
+function validateForm() {
+    var isFormValid = true;
+
+    if (!validateUsername()) {
+        isFormValid = false;
+    }
+
+    if (!validateEmail()) {
+        isFormValid = false;
+    }
+
+    if (!validatePhoneNumber()) {
+        isFormValid = false;
+    }
+
+    if (!validateAddress()) {
+        isFormValid = false;
+    }
+
+    if (!validateVehicleNumber()) {
+        isFormValid = false;
+    }
+    if (!validateOwnername()) {
+        isFormValid = false;
+    }
+
+    if (!validateFile()) {
+        isFormValid = false;
+    }
+    if (isFormValid) {
+        return true; // Form will be submitted
+    } else {
+        return false; // Prevent form submission
+    }
+}
+</script>
+
+</html>

@@ -1,0 +1,12 @@
+{% extends "deliveryBase.html" %}
+{% block title %}Delivery home{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

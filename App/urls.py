@@ -67,7 +67,10 @@ urlpatterns = [
 
     # path('pump/', views.pump,name="pump"),
 
-    
+    path('registerDelivery/', views.register_delivery,name="registerDelivey"),
+    path('deliveryhome/', views.deliveryhome,name="deliveryhome"),
+    path('admindelivery/', views.admin_delivery,name="admindelivery"),
+
     path('userBase/', views.userBase,name="userBase"),
 
 

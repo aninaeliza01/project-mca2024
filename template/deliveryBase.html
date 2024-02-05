@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid Energy</title>
+<link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+/* Resetting default margin and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+.sidebar {
+  background-color: #FA9A50;
+  width: 250px;
+  height: 100vh;
+  float: left;
+  color: #fff;
+  padding-top: 20px;
+}
+
+.profile {
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+.profile img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.navigation ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navigation ul li a {
+  display: block;
+  padding: 15px 20px;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.navigation ul li a:hover {
+  background-color:#357a38;
+}
+
+.header {
+  background-color: #fff;
+  padding: 10px;
+  overflow: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.logo h1 {
+  color: #FA9A50;
+  font-size: 24px;
+}
+
+.user-settings {
+  float: right;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.user-settings img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-settings h2 {
+  margin-right: 10px;
+}
+</style>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="profile">
+      <img src="{% static 'images/avatar.png' %}" alt="John's Avatar">
+      <h2>John Doe</h2>
+    </div>
+    <nav class="navigation">
+        <ul>
+            <li><a href="/deliveryhome"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#"><i class="fas fa-gas-pump"></i> Pump</a></li>
+            <li><a href="#"><i class="fas fa-file-alt"></i> Order of Fuel</a></li>
+            <li><a href="#"><i class="fas fa-chart-bar"></i> Report</a></li>
+            <li><a href="#"><i class="fas fa-search"></i> Search</a></li>
+            <li><a href="/logout" class="nav-button" id="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+        </ul>        
+    </nav>
+  </div>
+  <div class="header">
+    <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Fuel Delivery System Logo">
+        <h1>Hybrid Energy</h1>
+    </div>
+  </div>
+  <main>
+    {% block content %}
+    {% endblock %}
+</main>
+ 
+</body>
+<script>
+    // Wait for the document to be fully loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        // Find the logout button by its ID
+        var logoutButton = document.getElementById("logout-link");
+        
+        // Add a click event listener to the logout button
+        logoutButton.addEventListener("click", function () {
+            // Reload the page after a short delay (you can adjust the delay as needed)
+            setTimeout(function () {
+                location.reload();
+            }, 1000); // Reload after 1 second (1000 milliseconds)
+        });
+    });
+</script>
+</html>
