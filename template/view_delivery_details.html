@@ -1,0 +1,55 @@
+{% extends "adminbase.html" %}
+{% block title %}Delivery Boy Details{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="card">
+                <div class="card-header bg-primary text-white">{{ delivery_boy.name }}</div>
+                <div class="card-body">
+                    <img src="{{ delivery_boy.propic.url }}" alt="Profile Image" class="img-fluid rounded-circle mb-3" style="max-width: 200px; max-height: 150px;">
+                    <p><strong>Username:</strong> {{ delivery_boy.user.username }}</p>
+                    <p><strong>Email:</strong> {{ delivery_boy.user.email }}</p>
+                    <p><strong>Phone Number:</strong> {{ delivery_boy.user.phone }}</p>
+                    <p><strong>Address:</strong> {{ delivery_boy.address }}</p>
+                    <p><strong>Location:</strong> {{ delivery_boy.location }}</p>
+                    <p><strong>Vehicle Number:</strong> {{ delivery_boy.vehno }}</p>
+                    <hr class="my-4">
+                    <h5 class="card-title">Driving License</h5>
+                    <img src="{{ delivery_boy.drivelic.url }}" alt="Driving License" class="img-fluid rounded" style="max-width: 200px;">
+                    <div class="mt-3">
+                        {% if delivery_boy.is_accepted%}
+                                <span class="status accepted">Accepted</span>
+                            {% elif delivery_boy.is_rejected %}
+                                <span class="status not accepted">Rejected</span>
+                            {% else %}
+
+                        <a href="{% url 'approve_delivery' delivery_boy.id %}" class="btn btn-success">Approve</a>
+                        <a href="{% url 'reject_delivery' delivery_boy.id %}" class="btn btn-danger">Reject</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .status.accepted {
+    color: green;
+    font-weight: bold;
+}
+
+/* Styles for Rejected status */
+.status.not.accepted {
+    color: red;
+    font-weight: bold;
+}
+</style>
+{% endblock content %}

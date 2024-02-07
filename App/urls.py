@@ -68,8 +68,13 @@ urlpatterns = [
     # path('pump/', views.pump,name="pump"),
 
     path('registerDelivery/', views.register_delivery,name="registerDelivey"),
+    path('delivertBase/', views.deliveryBase,name="delivertBase"),
     path('deliveryhome/', views.deliveryhome,name="deliveryhome"),
     path('admindelivery/', views.admin_delivery,name="admindelivery"),
+    path('delivery-boys/<int:delivery_boy_id>/', views.view_delivery_details, name='view_delivery_details'),
+    path('approve_delivery/<int:delivery_boy_id>/', views.approve_delivery, name='approve_delivery'),
+    path('reject_delivery/<int:delivery_boy_id>/', views.reject_delivery, name='reject_delivery'),
+    path('deliveryprofile/', views.deliveryProfile, name='deliveryprofile'),
 
     path('userBase/', views.userBase,name="userBase"),
 

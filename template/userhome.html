@@ -9,6 +9,10 @@
             </div>
         {% endfor %}
     {% endif %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <section class="pump_section layout_padding">
         <div class="container">
             <div class="heading_container">
@@ -45,7 +49,7 @@
                                             <strong>{{ fuel.fueltype }}</strong> -
                                             <span style="color: #555;"> ₹{{ fuel.price }} per Liter<br>
                                         
-                                        {% endfor %}<br>
+                                        {% endfor %}
 
                                         
                                         <strong>Rating:</strong>
@@ -57,6 +61,19 @@
 
                                     
                                 </p>
+                                <!-- Share Button -->
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn-share">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{  pump.station_name }}" target="_blank" class="btn-share">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="mailto:?subject={{  pump.station_name }}&body=Check out this product: {{ request.build_absolute_uri }}" class="btn-share">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                                <a href="https://www.instagram.com/?url={{ request.build_absolute_uri }}" target="_blank" class="btn-share">
+                                    <i class="fab fa-instagram"></i>
+                                </a><br>
                                 <button class="amazon-order-button">
                                     <a href="{% url 'place_order' pump.id %}" id="placeorder"class="order-link">Place Order</a>
                                 </button>
@@ -68,8 +85,9 @@
                         </div>
                     {% endfor %}
                 </div>
-            </div>
-            </div>
+
+            </div>            
+           
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const starsContainers = document.querySelectorAll('.stars');

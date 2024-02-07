@@ -105,16 +105,16 @@ body {
 <body>
   <div class="sidebar">
     <div class="profile">
-      <img src="{% static 'images/avatar.png' %}" alt="John's Avatar">
-      <h2>John Doe</h2>
-    </div>
+      <img src="{{ delivery_team.propic.url }}" alt="Profile Picture">
+      <h2>{{ user.username }}</h2>
+  </div>
     <nav class="navigation">
         <ul>
             <li><a href="/deliveryhome"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="#"><i class="fas fa-gas-pump"></i> Pump</a></li>
             <li><a href="#"><i class="fas fa-file-alt"></i> Order of Fuel</a></li>
             <li><a href="#"><i class="fas fa-chart-bar"></i> Report</a></li>
-            <li><a href="#"><i class="fas fa-search"></i> Search</a></li>
+            <li><a href="/deliveryprofile"><i class="fas fa-user"></i> Profile</a></li>
             <li><a href="/logout" class="nav-button" id="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
         </ul>        
     </nav>

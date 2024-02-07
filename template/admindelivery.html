@@ -17,20 +17,50 @@
                 <th>Email</th>
                 <th>Phone Number</th>
                 <th>Status</th>
+                <th>View Details</th>
                 <!-- Add more columns as needed -->
             </tr>
         </thead>
         <tbody>
             {% for delivery_boy in delivery_boys %}
                 <tr>
-                    <td>{{ delivery_boy.user.username }}</td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ delivery_boy.name }}</td>
                     <td>{{ delivery_boy.user.email }}</td>
                     <td>{{ delivery_boy.user.phone }}</td>
-                    <td>{{ delivery_boy.address }}</td>
-                    <td>{{ delivery_boy.vehno }}</td>
+                    <td>
+                        {% if delivery_boy.is_accepted %}
+                        <span class="status accepted">Accepted</span>
+                        {% elif delivery_boy.is_rejected %}
+                        <span class="status not-accepted">Rejected</span>
+                        {% else %}
+                        <span class="status pending">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="{% url 'view_delivery_details' delivery_boy.id %}">View Details</a></td>
                     <!-- Add more columns as needed -->
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    <style>
+        /* Styles for Accepted status */
+.status.accepted {
+    color: green;
+    font-weight: bold;
+}
+
+/* Styles for Rejected status */
+.status.not-accepted {
+    color: red;
+    font-weight: bold;
+}
+
+/* Styles for Pending status */
+.status.pending {
+    color: orange;
+    font-weight: bold;
+}
+
+    </style>
 {% endblock content %}

@@ -112,11 +112,11 @@
                         </div><br>
                         
                         <div id="map"></div>
-                            <input type="hidden" id="pumpLatInput" name="pump_lat">
-                            <input type="hidden" id="pumpLngInput" name="pump_lng">
-                            <!-- Input field for delivery area -->
-                            <input type="hidden" id="deliveryAreaLatInput" name="delivery_area_lat">
-                            <input type="hidden" id="deliveryAreaLngInput" name="delivery_area_lng">
+                        <input type="hidden" id="pumpLatInput" name="pump_lat">
+                        <input type="hidden" id="pumpLngInput" name="pump_lng">
+                        <!-- Input field for delivery area -->
+                        <input type="hidden" id="deliveryAreaLatInput" name="delivery_area_lat">
+                        <input type="hidden" id="deliveryAreaLngInput" name="delivery_area_lng">
             
                     <button id="saveLocationButton" type="submit">Create</button>
                 </form>
@@ -155,40 +155,48 @@
 
         marker.on('drag', function(event) {
             circle.setLatLng(event.target.getLatLng());
+            marker.setLatLng(event.latlng);
+            var lat = parseFloat(event.latlng.lat).toFixed(6);
+            var lng = parseFloat( event.latlng.lng).toFixed(6);
+            document.getElementById("pumpLatInput").value = lat;
+            document.getElementById("pumpLngInput").value = lng;
+            document.getElementById("deliveryAreaLatInput").value = lat;
+            document.getElementById("deliveryAreaLngInput").value = lng;
+
         });
 
         // Get user's current location
-        function getUserLocation() {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var userLat = position.coords.latitude;
-                    var userLng = position.coords.longitude;
-                    map.setView([userLat, userLng], 13); // Set map view to user's location
-                    marker.setLatLng([userLat, userLng]); // Set marker to user's location
-                    circle.setLatLng([userLat, userLng]); // Set circle center to user's location
-                });
-            } else {
-                console.log('Geolocation is not supported by this browser.');
-            }
+    function getUserLocation() {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var userLat = position.coords.latitude;
+                var userLng = position.coords.longitude;
+                map.setView([userLat, userLng], 13); // Set map view to user's location
+                marker.setLatLng([userLat, userLng]); // Set marker to user's location
+                circle.setLatLng([userLat, userLng]); // Set circle center to user's location
+            });
+        } else {
+            console.log('Geolocation is not supported by this browser.');
         }
+    }
 
-        // Call getUserLocation function to get the current location
-        getUserLocation();
+    // Call getUserLocation function to get the current location
+    getUserLocation();
 
-        // Save location and delivery area
-        document.getElementById('saveLocationButton').addEventListener('click', function() {
-            var pumpLocation = marker.getLatLng();
-            var deliveryArea = circle.getLatLng(); // Get circle center
-            console.log('Pump Location:', pumpLocation);
-            console.log('Delivery Area:', deliveryArea);
-            document.getElementById('pumpLatInput').value = pumpLocation.lat;
-            document.getElementById('pumpLngInput').value = pumpLocation.lng;
-            // Set delivery area values in hidden input fields
-            document.getElementById('deliveryAreaLatInput').value = deliveryArea.lat;
-            document.getElementById('deliveryAreaLngInput').value = deliveryArea.lng;
-            // Additional actions to save data
-        });
+    // Save location and delivery area
+    document.getElementById('saveLocationButton').addEventListener('click', function() {
+        var pumpLocation = marker.getLatLng();
+        var deliveryArea = circle.getLatLng(); // Get circle center
+        console.log('Pump Location:', pumpLocation);
+        console.log('Delivery Area:', deliveryArea);
+        document.getElementById('pumpLatInput').value = pumpLocation.lat;
+        document.getElementById('pumpLngInput').value = pumpLocation.lng;
+        // Set delivery area values in hidden input fields
+        document.getElementById('deliveryAreaLatInput').value = deliveryArea.lat;
+        document.getElementById('deliveryAreaLngInput').value = deliveryArea.lng;
+        // Additional actions to save data
     });
+});
 </script>
 
 

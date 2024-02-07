@@ -185,6 +185,9 @@ def login_user(request):
                 elif user.is_superuser:
                     request.session["username"] = user.username
                     return redirect('/adminhome')
+                elif user.is_deliveryteam:
+                    request.session["username"] = user.username
+                    return redirect('/deliveryhome')
             else:
                 # Invalid credentials - user not authenticated
                 messages.error(request, "Invalid credentials.")
@@ -269,6 +272,7 @@ def change_password(request):
 
 @never_cache
 def register_pump(request):
+    
     if request.method == 'POST':
         username = request.POST.get('username', None)
         email = request.POST.get('email', None)
@@ -278,6 +282,11 @@ def register_pump(request):
         gstn=request.POST.get('gstNumber',None)
         image = request.FILES.get('logo_image')
         user_type='VENDOR'
+
+        pump_lat = request.POST.get('pump_lat')
+        pump_lng = request.POST.get('pump_lng')
+        delivery_area_lat = request.POST.get('delivery_area_lat')
+        delivery_area_lng = request.POST.get('delivery_area_lng')
         # user_type = CustomUser.is_vendor
         if username and email and phone and password:
             if CustomUser.objects.filter(email=email).exists():
@@ -305,21 +314,29 @@ def register_pump(request):
                 
                 userFuel.save()
                 activateEmail(request, user)
-                
-                # Get map details from the form
-                pump_lat = request.POST.get('pump_lat')
-                pump_lng = request.POST.get('pump_lng')
-                delivery_area_lat = request.POST.get('delivery_area_lat')
-                delivery_area_lng = request.POST.get('delivery_area_lng')
+                try:
+                    map_location = MapLocation.objects.get(user=user)
+                except MapLocation.DoesNotExist:
+                    map_location = None
+                pump_lat = request.POST.get('pump_lat', None)
+                pump_lng = request.POST.get('pump_lng', None)
+                delivery_area_lat = request.POST.get('delivery_area_lat', None)
+                delivery_area_lng = request.POST.get('delivery_area_lng', None)
 
-                # Create and save MapLocation instance
-                map_location = Maploaction.objects.create(
-                    station=userFuel,
-                    pump_lat=pump_lat,
-                    pump_lng=pump_lng,
-                    delivery_area_lat=delivery_area_lat,
-                    delivery_area_lng=delivery_area_lng
-                )
+                pump_lat = request.POST.get('pump_lat', None)
+                pump_lng = request.POST.get('pump_lng', None)
+                delivery_area_lat = request.POST.get('delivery_area_lat', None)
+                delivery_area_lng = request.POST.get('delivery_area_lng', None)
+
+                if map_location is None:
+                    map_location = MapLocation(user=user)
+                
+                map_location.pump_lat = pump_lat
+                map_location.pump_lng = pump_lng
+                map_location.delivery_area_lat = delivery_area_lat
+                map_location.delivery_area_lng = delivery_area_lng
+                map_location.save()
+
                 return redirect('login') 
     locations = LocationDetails.objects.all()
     return render(request, 'registerPump.html', {'locations': locations})
@@ -515,8 +532,8 @@ def fuel_station_profile(request):
     fuel_station = get_object_or_404(FuelStation, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
     try:
-        map_location = Maploaction.objects.get(station=fuel_station.id)
-    except Maploaction.DoesNotExist:
+        map_location = MapLocation.objects.get(user=user_details)
+    except MapLocation.DoesNotExist:
         map_location = None
     if request.method == 'POST':
         if 'logo_image' in request.FILES:
@@ -537,7 +554,7 @@ def fuel_station_profile(request):
         delivery_area_lng = request.POST.get('delivery_area_lng', None)
 
         if map_location is None:
-            map_location = Maploaction(station=fuel_station)
+            map_location = MapLocation(user=user_details)
         
         map_location.pump_lat = pump_lat
         map_location.pump_lng = pump_lng
@@ -609,7 +626,7 @@ def place_order(request, pump_id):
     # Render the order placement form
     fuel_types = Fuel.objects.filter(station=pump_id)
     pump = get_object_or_404(FuelStation, pk=pump_id)
-    map_location = get_object_or_404(Maploaction, station_id=pump_id)
+    map_location = get_object_or_404(MapLocation, user=pump.user)
     context = {
         'fuel_types': fuel_types,
         'pump': pump,
@@ -1159,7 +1176,9 @@ def receipt(request, order_id):
 @never_cache
 @login_required(login_url='login')
 def deliveryhome(request):
-    return render(request, 'deliveryhome.html')
+    delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
+    user_details = CustomUser.objects.get(id=request.user.id)
+    return render(request, 'deliveryhome.html', {'delivery_team': delivery_team})
 
 @never_cache
 def register_delivery(request):
@@ -1205,7 +1224,97 @@ def register_delivery(request):
 @never_cache
 @login_required(login_url='login')
 def admin_delivery(request):
-    return render(request, 'admindelivery.html')
+    delivery_requests = DeliveryTeam.objects.all()
+    return render(request, 'admindelivery.html', {'delivery_boys': delivery_requests})
+
+@never_cache
+@login_required(login_url='login')
+def view_delivery_details(request, delivery_boy_id):
+    delivery_boy = get_object_or_404(DeliveryTeam, id=delivery_boy_id)
+    return render(request, 'view_delivery_details.html', {'delivery_boy': delivery_boy})
+
+
+@never_cache
+@login_required(login_url='login')
+def deliveryBase(request):
+    delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
+    user_details = CustomUser.objects.get(id=request.user.id)
+    return render(request, 'deliveryBase.html', {'delivery_team': delivery_team})
+    
+@never_cache
+@login_required(login_url='login')
+def deliveryProfile(request):
+    delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
+    user_details = CustomUser.objects.get(id=request.user.id)
+    return render(request, 'deliveryprofile.html', {'delivery_team': delivery_team})
+
+
+import string
+import random
+
+def generate_random_password():
+    # Generate a random password of length 8
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for i in range(8))
+
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+
+@never_cache
+@login_required(login_url='login')
+def approve_delivery(request, delivery_boy_id):
+    delivery_boy = get_object_or_404(DeliveryTeam, id=delivery_boy_id)
+    delivery_boy.is_accepted = True
+    delivery_boy.is_rejected = False
+    delivery_boy.save()
+
+    # Generate a random password
+    random_password = generate_random_password()
+
+    # Set the generated password for the user
+    delivery_boy_user = delivery_boy.user
+    delivery_boy_user.set_password(random_password)
+    delivery_boy_user.is_active=True
+    delivery_boy_user.save()
+    uidb64 = urlsafe_base64_encode(force_bytes(delivery_boy_user.pk))
+    token = default_token_generator.make_token(delivery_boy_user)
+    # Send an email to the delivery boy
+    subject = 'Delivery Team Approved'
+    message = f'''Your application as a delivery boy has been approved.
+    \n\nUsername: {delivery_boy_user.username}
+    \nPassword: {random_password}
+    \nBest Regards,
+    Hybrid Energy Team
+
+    To reset your password, click the link below:
+    "http://127.0.0.1:8000//reset/{uidb64}/{token}/"
+    '''
+    sender = 'aninaelizebeth2024a@mca.ajce.in'  # Replace with your email address
+    recipient = [delivery_boy_user.email]
+    send_mail(subject, message, sender, recipient)
+    return redirect('admindelivery')
+
+@never_cache
+@login_required(login_url='login')
+def reject_delivery(request, delivery_boy_id):
+    delivery_boy = get_object_or_404(DeliveryTeam, id=delivery_boy_id)
+    delivery_boy.is_accepted = False
+    delivery_boy.is_rejected = True
+    delivery_boy.save()
+
+    # Send rejection email to the delivery boy
+    subject = 'Delivery Team Application Rejected'
+    message = 'We regret to inform you that your application as a delivery boy has been rejected.\n Hybrid Energy Team'
+    sender = 'aninaelizebeth2024a@mca.ajce.in'  # Replace with your email address
+    recipient = [delivery_boy.user.email]
+    send_mail(subject, message, sender, recipient)
+
+    return redirect('admindelivery')
+
+
+
 import webbrowser
 
 def open_google_maps_with_nearby_fuel_bunks(request):

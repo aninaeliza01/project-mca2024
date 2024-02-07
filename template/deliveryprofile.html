@@ -1,0 +1,107 @@
+{% extends "deliveryBase.html" %}
+{% block title %}Delivery home{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="container">
+        <div class="profile-header">
+            <img src="{{ delivery_team.propic.url }}" class="profile-picture" alt="Profile Picture">
+            <div class="profile-info">
+                <h1>{{ delivery_team.name }}</h1>
+                <p><strong>Username:</strong> {{ delivery_team.user.username }}</p>
+                <p><strong>Email:</strong> {{ delivery_team.user.email }}</p>
+                <p><strong>Phone:</strong> {{ delivery_team.user.phone }}</p>
+                <p><strong>Address:</strong> {{ delivery_team.address }}</p>
+                <p><strong>Location:</strong> {{ delivery_team.location }}</p>
+                <p><strong>Vehicle Number:</strong> {{ delivery_team.vehno }}</p>
+            </div>
+        </div>
+
+        <div class="profile-images">
+            <p><strong>License:</strong></p>
+            <img src="{{ delivery_team.drivelic.url }}" class="profile-image" alt="Driving License">
+        </div>
+    </div>
+</div>
+
+<style>
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile header styles */
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-right: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h1 {
+    margin-bottom: 10px;
+    font-size: 24px;
+    color: #333;
+}
+
+.profile-info p {
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #666;
+}
+
+/* Profile images styles */
+.profile-images {
+    margin-top: 30px;
+}
+
+.profile-image {
+    width: calc(33.33% - 20px);
+    margin-right: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-image img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease-in-out;
+}
+
+.profile-image img:hover {
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}

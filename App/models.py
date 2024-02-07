@@ -123,8 +123,8 @@ class Rating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class Maploaction(models.Model):
-    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
+class MapLocation(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     pump_lat = models.DecimalField(max_digits=9, decimal_places=6)
     pump_lng = models.DecimalField(max_digits=9, decimal_places=6)
     delivery_area_lat = models.DecimalField(max_digits=9, decimal_places=6)
