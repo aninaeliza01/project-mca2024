@@ -34,6 +34,8 @@
                   <a href="/pumphome">Home</a>
                 {% elif user.is_superuser %}
                   <a href="/adminhome">Home</a>
+                {% elif user.is_deliveryteam %}
+                  <a href="/deliveryhome">Home</a>
                 {% endif %}
               {% else %}
                 <a href="login">Login</a>
@@ -66,7 +68,7 @@
                 <a href="/">Home</a>
                 <a href="about.html">About</a>
                 <a href="Pump.html">Pump</a>
-                <a href="contact.html">Contact Us</a>
+                <a href="contact.html">Help</a>
                 <a href="login">Login</a>
               </div>
             </div>

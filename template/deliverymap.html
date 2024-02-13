@@ -1,0 +1,77 @@
+{% extends "deliveryBase.html" %}
+{% block title %}Delivery home{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Add map container -->
+    <div id="map" style="height: 600px;"></div>
+
+    <!-- Include Leaflet library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Script to initialize map and markers -->
+    <script>
+        $(document).ready(function() {
+    // Define an empty array to store pump details
+    const pumps = [
+    {% for location in map_locations %}
+        {% for station in stations %}
+            {% if location.user == station.user %}
+                {
+                    "pump_lat": "{{ location.pump_lat }}",
+                    "pump_lng": "{{ location.pump_lng }}",
+                    "ownername": "{{ station.ownername }}",
+                    "station_name": "{{ station.station_name }}",
+                    "address": "{{ station.address }}",
+                    "location": "{{ station.location.name }}",
+                    "email": "{{ station.email }}",
+                    "phone_number": "{{ station.phone_number }}"
+                },
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    ];
+
+    // Initialize map
+    var map = L.map('map');
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; HybridEnergy'
+    }).addTo(map);
+
+    // Add markers for pumps
+    var markers = [];
+    pumps.forEach(function(pump) {
+        var details = "<b>Pump Details</b><br>" +
+                      "Owner Name: " + pump.ownername + "<br>" +
+                      "Station Name: " + pump.station_name + "<br>" +
+                      "Address: " + pump.address + "<br>" +
+                      "Location: " + pump.location + "<br>" +
+                      "Email: " + pump.email + "<br>" +
+                      "Phone Number: " + pump.phone_number;
+
+        var marker = L.marker([parseFloat(pump.pump_lat), parseFloat(pump.pump_lng)])
+                        .bindPopup(details); // Bind popup with pump details
+        markers.push(marker);
+    });
+
+    // Create a feature group from all the markers and fit the map view to contain all of them
+    var markerGroup = L.featureGroup(markers).addTo(map);
+    map.fitBounds(markerGroup.getBounds());
+});
+
+    </script>
+{% endblock %}

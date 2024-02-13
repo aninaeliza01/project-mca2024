@@ -9,10 +9,13 @@
             </div>
         {% endfor %}
     {% endif %}
+
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Include Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <section class="pump_section layout_padding">
         <div class="container">
             <div class="heading_container">
@@ -26,6 +29,9 @@
                     </div>
                     <button onclick="searchByLocation()"><i class="fa fa-search"></i></button>
                 </div>
+                <i class="fas fa-map-marker map-marker-icon" id="mapMarkerIcon" onclick="showModal()"></i>
+                <div id="address">Fetching location...</div>
+
             </div>
             <div class="pump_container">
                 <div class="row">
@@ -86,8 +92,171 @@
                     {% endfor %}
                 </div>
 
-            </div>            
-           
+            </div>   
+            <!-- Modal -->
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <div id="map" style="height: 600px;"></div>
+                    <div id="modalAddress"></div>
+                </div>
+            </div>
+            <!-- End Modal -->
+        </div>
+    </section>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // Function to display modal and update address
+    function showModal() {
+        modal.style.display = "block";
+        const addressElement = document.getElementById('address');
+        const address = addressElement.textContent;
+        document.getElementById("modalAddress").textContent = address;
+
+        // Initialize the map
+        initMap();
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function initMap() {
+    const pumps = [
+        {% for location in map_locations %}
+            {% for station in stations %}
+                {% if location.user == station.user %}
+                    {
+                        "pump_lat": "{{ location.pump_lat }}",
+                        "pump_lng": "{{ location.pump_lng }}",
+                        "ownername": "{{ station.ownername }}",
+                        "station_name": "{{ station.station_name }}",
+                        "address": "{{ station.address }}",
+                        "location": "{{ station.location.name }}",
+                        "email": "{{ station.email }}",
+                        "phone_number": "{{ station.phone_number }}"
+                    },
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    ];
+
+    // Initialize map
+    var map = L.map('map');
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; HybridEnergy'
+    }).addTo(map);
+
+    // Add markers for pumps
+    var markers = [];
+    pumps.forEach(function(pump) {
+        var details = "<b>Pump Details</b><br>" +
+                      "Owner Name: " + pump.ownername + "<br>" +
+                      "Station Name: " + pump.station_name + "<br>" +
+                      "Address: " + pump.address + "<br>" +
+                      "Location: " + pump.location + "<br>" +
+                      "Email: " + pump.email + "<br>" +
+                      "Phone Number: " + pump.phone_number;
+
+        var marker = L.marker([parseFloat(pump.pump_lat), parseFloat(pump.pump_lng)])
+                        .bindPopup(details); // Bind popup with pump details
+        markers.push(marker);
+    });
+
+    // Create a feature group from all the markers and fit the map view to contain all of them
+    var markerGroup = L.featureGroup(markers).addTo(map);
+    map.fitBounds(markerGroup.getBounds());
+
+    // Get user's current location
+navigator.geolocation.getCurrentPosition(function(position) {
+    var userLat = position.coords.latitude;
+    var userLng = position.coords.longitude;
+
+    // Define a red icon for the marker
+    var redIcon = new L.Icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
+    });
+
+    // Create a marker for the current location with the red icon
+    var userMarker = L.marker([userLat, userLng], { icon: redIcon }).addTo(map);
+
+    // Bind a popup to the user's marker
+    userMarker.bindPopup("Your Current Location").openPopup();
+});
+}
+
+
+</script>
+
+<script>
+    // Function to update the address element with the user's current location
+    function updateLocation(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        
+        // Call Nominatim reverse geocoding API to get address
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+        .then(response => response.json())
+        .then(data => {
+            const addressElement = document.getElementById('address');
+            if (data.display_name) {
+            const formattedAddress = data.display_name;
+            addressElement.textContent = `${formattedAddress}`;
+            } else {
+            addressElement.textContent = 'Unable to retrieve address for your location';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching address:', error);
+            const addressElement = document.getElementById('address');
+            addressElement.textContent = 'Error fetching address';
+        });
+    }
+    
+    // Function to handle errors in retrieving the user's location
+    function locationError(error) {
+        const addressElement = document.getElementById('address');
+        addressElement.textContent = 'Unable to retrieve your location';
+    }
+    
+    // Check if geolocation is supported by the browser
+    if (navigator.geolocation) {
+        // Request the user's current location
+        navigator.geolocation.getCurrentPosition(updateLocation, locationError);
+    } else {
+        // Geolocation is not supported by the browser
+        const addressElement = document.getElementById('address');
+        addressElement.textContent = 'Geolocation is not supported by your browser';
+    }
+</script> 
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const starsContainers = document.querySelectorAll('.stars');
@@ -106,15 +275,132 @@
         });
     });
 </script>            
-<style>
-.stars {
-        display: inline-block;
-        font-size: 20px;
-        color: #FFD700; /* Adjust color as needed */
+
+<script>
+    function searchByLocation() {
+        var input = document.getElementById('locationInput');
+        var filter = input.value.trim(); // Trim whitespace
+        if (filter) {
+            addToSearchHistory(filter);
+
+            var pumps = document.getElementsByClassName('amazon-order-box');
+
+            for (var i = 0; i < pumps.length; i++) {
+                var pump = pumps[i];
+                var location = pump.querySelector('.amazon-address-info');
+                var txtValue = location.textContent || location.innerText;
+
+                if (txtValue.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+                    pump.style.display = '';
+                } else {
+                    pump.style.display = 'none';
+                }
+            }
+        } else {
+            alert('Please enter a search term.');
+        }
     }
 
+    function showSearchHistory() {
+        var searchDropdown = document.getElementById('searchHistoryDropdown');
+        searchDropdown.classList.toggle('active');
+        displaySearchHistoryDropdown();
+    }
 
+    function addToSearchHistory(term) {
+        var searchHistory = localStorage.getItem('searchHistory');
+        var history = [];
 
+        if (searchHistory) {
+            history = JSON.parse(searchHistory);
+
+            // Check if the term is already in the history and remove it
+            var index = history.indexOf(term);
+            if (index !== -1) {
+                history.splice(index, 1);
+            }
+        }
+
+        history.push(term);
+
+        // Ensure only the latest 6 unique searches are stored
+        if (history.length > 6) {
+            history.shift(); // Remove the oldest entry
+        }
+
+        localStorage.setItem('searchHistory', JSON.stringify(history));
+        displaySearchHistoryDropdown();
+    }
+
+    function displaySearchHistoryDropdown() {
+        var searchHistory = localStorage.getItem('searchHistory');
+        var dropdownContent = document.getElementById('searchHistoryDropdown');
+        dropdownContent.innerHTML = '';
+
+        if (searchHistory) {
+            var history = JSON.parse(searchHistory);
+            history.forEach(function (term) {
+                dropdownContent.innerHTML += '<p onclick="fillSearch(\'' + term + '\')">' + term + '</p>';
+            });
+        }
+    }
+
+    function fillSearch(term) {
+        var locationInput = document.getElementById('locationInput');
+        locationInput.value = term;
+        var searchDropdown = document.getElementById('searchHistoryDropdown');
+        searchDropdown.classList.remove('active');
+    }
+
+    // Display search history on page load
+    displaySearchHistoryDropdown();
+</script>
+<style>
+    /* Common styles for modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.map-marker-icon {
+    font-size: 2em; /* Change the size of the icon as needed */
+    color: #15a317; /* Change the color of the icon as needed */
+}
+
+.stars {
+    display: inline-block;
+    font-size: 20px;
+    color: #FFD700; /* Adjust color as needed */
+}
 
 .dropdown {
     position: relative;
@@ -156,19 +442,12 @@
 .dropdown-content p:hover {
     background-color: #e9e9e9;
 }
-        /* Search Input and Button Styling */
+
+/* Search Input and Button Styling */
 .search-container {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-}
-
-#locationInput {
-    width: 300px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
 }
 
 button {
@@ -188,162 +467,86 @@ button:hover {
 button i {
     font-size: 18px;
 }
-        /* Updated styles for Amazon-like design */
-        .row {
+
+/* Updated styles for Amazon-like design */
+.row {
     display: flex;
     flex-wrap: wrap;
 }
-        .amazon-order-box {
-            width: calc(33.33% - 20px); /* Adjust width as needed */
-            margin: 10px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            transition: transform 0.3s ease-in-out;
-            height: 100%;
-            margin: 15px;
-        }
-    
-        .amazon-order-box:hover {
-            box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
-            transform: translateY(-5px);
-        }
-    
-        .amazon-img-box {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-    
-        .amazon-no-image-text {
-            font-size: 14px;
-            color: #f00;
-        }
-    
-        .amazon-detail-box {
-            padding: 15px 0;
-        }
-    
-        .amazon-detail-box h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-    
-        .amazon-address-info {
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 10px;
-        }
-    
-        .amazon-order-button {
-            padding: 10px 20px;
-            background-color: #ff9900;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-            text-align: center;
-            transition: background-color 0.3s;
-            display: inline-block;
-        }
-    
-        .amazon-order-button:hover {
-            background-color: #cc7a00;
-        }
-    
-        .order-link {
-            text-decoration: none;
-            color: #fff;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            background-color: #f8d7da; /* Default background color */
-            color: #721c24; /* Default text color */
-        }
-    </style>
-<script>
-    function searchByLocation() {
-    var input = document.getElementById('locationInput');
-    var filter = input.value.trim(); // Trim whitespace
-    if (filter) {
-        addToSearchHistory(filter);
 
-        var pumps = document.getElementsByClassName('amazon-order-box');
-
-        for (var i = 0; i < pumps.length; i++) {
-            var pump = pumps[i];
-            var location = pump.querySelector('.amazon-address-info');
-            var txtValue = location.textContent || location.innerText;
-
-            if (txtValue.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
-                pump.style.display = '';
-            } else {
-                pump.style.display = 'none';
-            }
-        }
-    } else {
-        alert('Please enter a search term.');
-    }
+.amazon-order-box {
+    width: calc(30.33% - 20px); /* Adjust width as needed */
+    margin: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+    height: 100%;
+    margin: 15px;
 }
 
-function showSearchHistory() {
-    var searchDropdown = document.getElementById('searchHistoryDropdown');
-    searchDropdown.classList.toggle('active');
-    displaySearchHistoryDropdown();
+.amazon-order-box:hover {
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
 }
 
-function addToSearchHistory(term) {
-    var searchHistory = localStorage.getItem('searchHistory');
-    var history = [];
-
-    if (searchHistory) {
-        history = JSON.parse(searchHistory);
-
-        // Check if the term is already in the history and remove it
-        var index = history.indexOf(term);
-        if (index !== -1) {
-            history.splice(index, 1);
-        }
-    }
-
-    history.push(term);
-
-    // Ensure only the latest 6 unique searches are stored
-    if (history.length > 6) {
-        history.shift(); // Remove the oldest entry
-    }
-
-    localStorage.setItem('searchHistory', JSON.stringify(history));
-    displaySearchHistoryDropdown();
+.amazon-img-box {
+    text-align: center;
+    margin-bottom: 10px;
 }
 
-function displaySearchHistoryDropdown() {
-    var searchHistory = localStorage.getItem('searchHistory');
-    var dropdownContent = document.getElementById('searchHistoryDropdown');
-    dropdownContent.innerHTML = '';
-
-    if (searchHistory) {
-        var history = JSON.parse(searchHistory);
-        history.forEach(function (term) {
-            dropdownContent.innerHTML += '<p onclick="fillSearch(\'' + term + '\')">' + term + '</p>';
-        });
-    }
+.amazon-no-image-text {
+    font-size: 14px;
+    color: #f00;
 }
 
-function fillSearch(term) {
-    var locationInput = document.getElementById('locationInput');
-    locationInput.value = term;
-    var searchDropdown = document.getElementById('searchHistoryDropdown');
-    searchDropdown.classList.remove('active');
+.amazon-detail-box {
+    padding: 15px 0;
 }
 
-// Display search history on page load
-displaySearchHistoryDropdown();
+.amazon-detail-box h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
 
-</script>
+.amazon-address-info {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.amazon-order-button {
+    padding: 10px 20px;
+    background-color: #ff9900;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    text-align: center;
+    transition: background-color 0.3s;
+    display: inline-block;
+}
+
+.amazon-order-button:hover {
+    background-color: #cc7a00;
+}
+
+.order-link {
+    text-decoration: none;
+    color: #fff;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-color: #f8d7da; /* Default background color */
+    color: #721c24; /* Default text color */
+}
+
+</style>
 {% endblock %}

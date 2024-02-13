@@ -31,10 +31,14 @@ def userhome(request):
     
     # Annotate each FuelStation with its average rating
     pumps_with_avg_rating = active_pumps.annotate(avg_rating=Avg('rating__value'))
+    map_locations = MapLocation.objects.all()
+    stations = FuelStation.objects.all()
 
     context = {
         'pumps': pumps_with_avg_rating,
         'users': users,
+        'map_locations': map_locations, 
+        'stations': stations,
     }
     return render(request, 'userhome.html', context)
 
@@ -531,13 +535,13 @@ def station_ratings(request):
 def fuel_station_profile(request):
     fuel_station = get_object_or_404(FuelStation, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
-    try:
-        map_location = MapLocation.objects.get(user=user_details)
-    except MapLocation.DoesNotExist:
-        map_location = None
+    
     if request.method == 'POST':
-        if 'logo_image' in request.FILES:
-            fuel_station.logo_image = request.FILES['logo_image']
+        profile_picture = request.FILES.get('profile_picture')
+        if profile_picture:
+            fuel_station.logo_image = profile_picture
+            fuel_station.save()
+            # messages.success(request, 'Profile picture updated successfully')
         
         fuel_station.phone_number = request.POST.get('phone_number', '')
         fuel_station.gst_number = request.POST.get('gst_number', '')
@@ -548,22 +552,8 @@ def fuel_station_profile(request):
         user_details.phone = request.POST.get('phone_number', '')
         user_details.save()
 
-        pump_lat = request.POST.get('pump_lat', None)
-        pump_lng = request.POST.get('pump_lng', None)
-        delivery_area_lat = request.POST.get('delivery_area_lat', None)
-        delivery_area_lng = request.POST.get('delivery_area_lng', None)
-
-        if map_location is None:
-            map_location = MapLocation(user=user_details)
-        
-        map_location.pump_lat = pump_lat
-        map_location.pump_lng = pump_lng
-        map_location.delivery_area_lat = delivery_area_lat
-        map_location.delivery_area_lng = delivery_area_lng
-        map_location.save()
-
         return redirect('/FuelProfile')  # Redirect to the profile page after saving
-    
+    map_location = get_object_or_404(MapLocation, user=request.user)
     context = {
         'fuel_station': fuel_station,
         'user_details': user_details,
@@ -1246,7 +1236,22 @@ def deliveryBase(request):
 def deliveryProfile(request):
     delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
+    if request.method == 'POST':
+        # Update the user profile fields directly from the form data
+        profile_picture = request.FILES.get('profile_picture')
+        if profile_picture:
+            delivery_team.propic = profile_picture
+            delivery_team.save()
     return render(request, 'deliveryprofile.html', {'delivery_team': delivery_team})
+
+
+@never_cache
+@login_required(login_url='login')
+def deliveryMap(request):
+    delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
+    map_locations = MapLocation.objects.all()
+    stations = FuelStation.objects.all()
+    return render(request, 'deliverymap.html', {'delivery_team': delivery_team,'map_locations': map_locations, 'stations': stations})
 
 
 import string
