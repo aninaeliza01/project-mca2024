@@ -14,13 +14,6 @@
         <div class="profile-header">
             <div>
                 <img src="{{ delivery_team.propic.url }}" class="profile-picture" alt="Profile Picture">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*"><br>
-                    <button type="submit">Upload</button>
-                </form>
-            </div>
-            <div class="profile-info">
                 <h1>{{ delivery_team.name }}</h1>
                 <p><strong>Username:</strong> {{ delivery_team.user.username }}</p>
                 <p><strong>Email:</strong> {{ delivery_team.user.email }}</p>
@@ -28,6 +21,26 @@
                 <p><strong>Address:</strong> {{ delivery_team.address }}</p>
                 <p><strong>Location:</strong> {{ delivery_team.location }}</p>
                 <p><strong>Vehicle Number:</strong> {{ delivery_team.vehno }}</p>
+                
+                
+            </div>
+            <div class="profile-info">
+                <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm(event)">
+                    {% csrf_token %}
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" value="{{ delivery_team.user.username }}" oninput="validateUsername()">
+                    <span id="usernameError" class="error"></span>
+
+                    <label for="phone">Phone Number:</label>
+                    <input type="text" id="phone" name="phone" value="{{ delivery_team.user.phone }}" oninput="validatePhoneNumber()">
+                    <span id="phoneError" class="error"></span>                 
+                    <label for="vehicleNumber">Vehicle Number</label>
+                        <input type="text" name="vehicleNumber" id="vehicleNumber" value="{{ delivery_team.vehno }}" oninput="validateVehicleNumber()">
+                        <span id="vehicleNumberError" class="error"></span>                
+                    <input type="file" id="profile_picture" name="profile_picture" onchange="validateFileType()" accept="image/*"><br>
+                   
+                    <button type="submit">Upload</button>
+                </form>
             </div>
         </div>
 
@@ -36,105 +49,191 @@
             <img src="{{ delivery_team.drivelic.url }}" class="profile-image" alt="Driving License">
         </div>
     </div>
+<script>
+     function validateFileType() {
+        var fileInput = document.getElementById('profile_picture');
+        var filePath = fileInput.value;
+        // Get the file extension
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Please upload only image files (jpg, jpeg, png, gif)');
+            fileInput.value = '';
+            return false;
+        }
+    }
+    function validateVehicleNumber() {
+    var vehicleNumber = document.getElementById("vehicleNumber").value;
+    var pattern = /^[A-Z]{2}[0-9]{2}[A-Z]{1}[0-9]{4}$/;
+    if (!pattern.test(vehicleNumber)) {
+        document.getElementById("vehicleNumberError").innerHTML = "Invalid vehicle number format";
+        document.getElementById("vehicleNumberError").style.color = "red";
+        return false;
+    }
+    document.getElementById("vehicleNumberError").innerHTML = "";
+    return true;
+}
+    function validateForm(event) {
+        event.preventDefault(); // Prevent the form from submitting automatically
 
+        var isUsernameValid = validateUsername();
+        var isPhoneNumberValid = validatePhoneNumber();
+
+        // Add other validations if needed
+
+        if (isUsernameValid && isPhoneNumberValid) {
+            // If all validations pass, submit the form
+            event.target.submit(); // Manually submit the form
+        }
+    }
+
+    function validateUsername() {
+        var usernameInput = document.getElementById("username");
+        var usernameValue = usernameInput.value.trim();
+        var usernameError = document.getElementById("usernameError");
+
+        if (usernameValue === "") {
+            usernameError.textContent = "Username is required";
+            usernameError.style.color = "red";
+            usernameInput.classList.add("is-invalid");
+            return false;
+        }
+
+        usernameError.textContent = "";
+        usernameInput.classList.remove("is-invalid");
+        return true;
+    }
+
+    function validatePhoneNumber() {
+        var phoneInput = document.getElementById("phone");
+        var phoneValue = phoneInput.value.trim();
+        var phoneError = document.getElementById("phoneError");
+
+        var phonePattern = /^[6789]\d{9}$/; // Starts with 6, 7, 8, or 9 and has 10 digits
+
+        if (phoneValue === "") {
+            phoneError.textContent = "Phone number is required";
+            phoneError.style.color = "red";
+            phoneInput.classList.add("is-invalid");
+            return false;
+        }
+
+        if (!phonePattern.test(phoneValue)) {
+            phoneError.textContent = "Invalid phone number format";
+            phoneError.style.color = "red";
+            phoneInput.classList.add("is-invalid");
+            return false;
+        }
+
+        phoneError.textContent = "";
+        phoneInput.classList.remove("is-invalid");
+        return true;
+    }
+</script>
     <style>
-        /* Global styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-        }
+       /* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fafafa; /* Light gray background */
+    margin: 0;
+    padding: 0;
+}
 
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff; /* White container background */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+}
 
-        /* Profile header styles */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+/* Profile header styles */
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
 
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            margin-right: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Circular profile picture */
+    margin-right: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
 
-        .profile-info {
-            flex: 1;
-        }
+.profile-info {
+    flex: 1;
+}
 
-        .profile-info h1 {
-            margin-bottom: 10px;
-            font-size: 24px;
-            color: #333;
-        }
+.profile-info h1 {
+    margin-bottom: 10px;
+    font-size: 24px;
+    color: #333;
+}
 
-        .profile-info p {
-            margin-bottom: 5px;
-            font-size: 16px;
-            color: #666;
-        }
+.profile-info p {
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #666;
+}
 
-        /* Profile images styles */
-        .profile-images {
-            margin-top: 30px;
-        }
+/* Profile images styles */
+.profile-images {
+    margin-top: 30px;
+}
 
-        .profile-image {
-            width: calc(33.33% - 20px);
-            margin-right: 20px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
+.profile-image {
+    width: calc(33.33% - 20px);
+    margin-right: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
 
-        .profile-image img {
-            width: 100%;
-            height: auto;
-            transition: transform 0.3s ease-in-out;
-        }
+.profile-image img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease-in-out;
+}
 
-        .profile-image img:hover {
-            transform: scale(1.05);
-        }
+.profile-image img:hover {
+    transform: scale(1.05);
+}
 
-        /* Form styles */
-        form {
-            margin-top: 20px;
-        }
+/* Form styles */
+form {
+    margin-top: 20px;
+}
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666; /* Dark gray label text */
+}
 
-        input[type="file"] {
-            margin-bottom: 10px;
-        }
+input[type="text"],
+input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd; /* Light gray border */
+    margin-bottom: 10px;
+}
 
-        button[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
+button[type="submit"] {
+    background-color: #3897f0; /* Instagram blue */
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
+button[type="submit"]:hover {
+    background-color: #2a5ad7; /* Darker blue on hover */
+}
+
     </style>
 {% endblock %}

@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Help & Support</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FA9A50;
+            display: grid;
+            grid-template-columns: 300px auto; /* Increase width of sidebar */
+            justify-content: center; /* Center the grid horizontally */
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+            grid-column: 1 / -1; /* Span across both columns */
+        }
+
+        p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+            grid-column: 1 / -1; /* Span across both columns */
+        }
+
+        /* Styles for the sidebar */
+        .sidebar {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            grid-column: 1; /* Align to the first column */
+            height: 100%; /* Make sidebar fill the entire height */
+            overflow: auto; /* Add scroll if content overflows */
+        }
+
+        /* Styles for the list items */
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0; /* Remove default margin */
+        }
+
+        .sidebar ul li {
+            cursor: pointer;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li:hover {
+            background-color: #e0e0e0;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Styles for the content container */
+        .content {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            grid-column: 2; /* Align to the second column */
+            overflow: auto; /* Add scroll if content overflows */
+            height: 100%; /* Make content fill the entire height */
+        }
+
+        .faq-answer {
+            display: none; /* Hide answer by default */
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        /* Styles for FAQ questions */
+        .faq-question {
+            cursor: pointer;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background-color: #f0f0f0;
+        }
+
+        .faq-question a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Styles for FAQ answers */
+        .faq-answer p {
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Help & Support</h1>
+    <p>Let's take a step ahead and help you better.</p>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul>
+            <li onclick="contact()">Partner Onboarding</li>
+            <li onclick="contact1()">Join Our Delivery Team</li>
+            <li onclick="contact2()">Contact Us</li>
+            
+            <!-- Add more list items if needed -->
+        </ul>
+    </div>
+    <div class="content">
+        
+    
+    {% block content %}
+    {% endblock %}
+
+</div>
+    <script>
+        function toggleAnswer(id) {
+            var answer = document.getElementById(id);
+            if (answer.style.display === "none") {
+                answer.style.display = "block";
+            } else {
+                answer.style.display = "none";
+            }
+        }
+    </script>
+    <script>
+        function contact() {
+            // Code to handle Partner Onboarding click event
+            // For example, you can redirect to a specific page
+            window.location.href = "/contact";
+        }
+    
+        function contact1() {
+            // Code to handle Join Our Delivery Team click event
+            // For example, you can redirect to a specific page
+            window.location.href = "/contact1";
+        }
+        function contact2() {
+            // Code to handle Join Our Delivery Team click event
+            // For example, you can redirect to a specific page
+            window.location.href = "/contact2";
+        }
+    </script>
+    
+</body>
+</html>

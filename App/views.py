@@ -13,10 +13,10 @@ from django.core.validators import validate_email
 # Create your views here.
 @never_cache
 def index(request):
-    fuels = Fuel.objects.all()  # Retrieve fuel records
+    location = LocationDetails.objects.all()  # Retrieve fuel records
     user = request.user
     context = {
-        'fuels': fuels,
+        'location': location,
         'user':user,
         # Other context data
     }
@@ -1318,22 +1318,11 @@ def reject_delivery(request, delivery_boy_id):
 
     return redirect('admindelivery')
 
+def contact(request):
+     return render(request, 'contact.html')
 
+def contact1(request):
+    return render(request, 'contact1.html')
 
-import webbrowser
-
-def open_google_maps_with_nearby_fuel_bunks(request):
-    # Define the location (e.g., latitude and longitude) where you want to find nearby fuel bunks.
-    # You can replace these coordinates with your desired location.
-    location = "40.7128,-74.0060"
-    
-    # Create a Google Maps URL with the location and search query for fuel bunks.
-    maps_url = f"https://www.google.com/maps/search/fuel+bunk/@{location},15z/data=!3m1!4b1"
-    
-    # Open the Google Maps URL in the default web browser.
-    webbrowser.open(maps_url)
-
-    return render(request, 'map.html')
-
-
-
+def contact2(request):
+    return render(request, 'contact2.html')

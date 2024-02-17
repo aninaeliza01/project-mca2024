@@ -144,7 +144,7 @@
     <input class="edit-input" type="text" id="gstNumberInput" name="gst_number" value="{{ fuel_station.gst_number }}" oninput="validateGST()">
     <span id="gstNumberError" style="color: red;"></span><br>
     <label for="profile_picture">Change Profile Picture:</label>
-    <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+    <input type="file" id="profile_picture" name="profile_picture" onchange="validateFileType()" accept="image/*">
     <!-- Update button -->
     <button class="update-button" type="submit">Update Profile</button>
     <button class="update-button"><a href="/changePassword">Change Password</a></button>
@@ -191,6 +191,17 @@
 </script>
 
 <script>
+     function validateFileType() {
+        var fileInput = document.getElementById('profile_picture');
+        var filePath = fileInput.value;
+        // Get the file extension
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Please upload only image files (jpg, jpeg, png, gif)');
+            fileInput.value = '';
+            return false;
+        }
+    }
 function validateUsername() {
     var username = document.getElementById("usernameInput").value.trim();
     var usernameError = document.getElementById("usernameError");

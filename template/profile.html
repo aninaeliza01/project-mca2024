@@ -52,7 +52,7 @@
                     <span id="phoneError" class="error"></span><br><br>
                     
                     <label for="profile_picture">Change Profile Picture:</label>
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                    <input type="file" id="profile_picture" name="profile_picture" onchange="validateFileType()" accept="image">
                     <!-- Other fields commented out for brevity -->
 
                     <input type="submit" value="Save">
@@ -142,6 +142,17 @@
     </style>
 
 <script>
+    function validateFileType() {
+        var fileInput = document.getElementById('profile_picture');
+        var filePath = fileInput.value;
+        // Get the file extension
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Please upload only image files (jpg, jpeg, png, gif)');
+            fileInput.value = '';
+            return false;
+        }
+    }
     function validateForm(event) {
         event.preventDefault(); // Prevent the form from submitting automatically
 

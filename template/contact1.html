@@ -1,0 +1,50 @@
+{% extends "contactBase.html" %}
+{% block title %}Pump{% endblock %}
+{% block content %}
+<style>
+    /* Styles for the link */
+    .apply-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #ff0000; /* Orange color */
+        color: #fff; /* White text color */
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Hover effect */
+    .apply-link:hover {
+        background-color: #FFA500; /* Darker orange color on hover */
+    }
+</style>
+    <div class="question">
+        <h2>Join Our Delivery Team</h2>
+        <div class="faq">
+            <div class="faq-question" onclick="toggleAnswer('faq1');">
+                <a href="#faq1">How can I apply to join the delivery team?  <i class="fas fa-caret-down" style="color:#FA9A50; font-size: 24px;"></i></a>
+            </div>
+            <div id="faq1" class="faq-answer">
+                <p>To apply to join our delivery team, Click <a href="registerDelivery" class="apply-link">Join Delivery Team</a></p>
+            </div>
+        </div>
+        <div class="faq">
+            <div class="faq-question" onclick="toggleAnswer('faq2');">
+                <a href="#faq2">What are the requirements to become a delivery partner?  <i class="fas fa-caret-down" style="color:#FA9A50; font-size: 24px;"></i></a>
+            </div>
+            <div id="faq2" class="faq-answer">
+                <p>The requirements to become a delivery partner may vary depending on the delivery service provider. However, common requirements may include having a valid driver's license, a reliable vehicle or mode of transportation, good communication skills, and the ability to navigate efficiently.</p>
+            </div>
+        </div>
+        <div class="faq">
+            <div class="faq-question" onclick="toggleAnswer('faq3');">
+                <a href="#faq3">Is prior delivery experience required?  <i class="fas fa-caret-down" style="color:#FA9A50; font-size: 24px;"></i></a>
+            </div>
+            <div id="faq3" class="faq-answer">
+                <p>Prior delivery experience may be preferred by some delivery service providers, but it is not always required. Many providers offer training programs for new delivery partners to help them learn the necessary skills and procedures.</p>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

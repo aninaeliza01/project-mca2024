@@ -80,7 +80,9 @@ urlpatterns = [
     path('userBase/', views.userBase,name="userBase"),
 
 
-    path('map/', views.open_google_maps_with_nearby_fuel_bunks,name="map"),
+    path('contact/',views.contact,name="contact"),
+    path('contact1/',views.contact1,name="contact1"),
+    path('contact2/',views.contact2,name="contact2"),
 ]
 
 if settings.DEBUG:

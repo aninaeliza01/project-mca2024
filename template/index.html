@@ -13,6 +13,27 @@
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
   <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
   <link rel="icon" href="{% static 'images/logo.png'%}" sizes="32x32" type="image/png">
+  <style>
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.location-container {
+    border: 1px solid #ccc; 
+    border-radius: 10px;
+    flex: 0 0 calc(25% - 22px); /* Adjusted width considering padding and border */
+    max-width: calc(25% - 22px); /* Adjusted width considering padding and border */
+    box-sizing: border-box;
+    padding: 10px;
+    text-align: center;
+}
+
+
+
+
+</style>
+
 </head>
 <body>
   <div class="hero_area">
@@ -25,8 +46,8 @@
           </a>
           <div class="navbar-collapse">
             <div class="user_option">
-              <a href="">Search</a>
-              <a href="">Offers</a>
+              <a href="contact">Help</a>
+              
               {% if user.is_authenticated %}
                 {% if user.is_customer %}
                   <a href="/userhome">Home</a>
@@ -66,9 +87,9 @@
             <div id="myNav" class="overlay">
               <div class="overlay-content">
                 <a href="/">Home</a>
-                <a href="about.html">About</a>
-                <a href="Pump.html">Pump</a>
-                <a href="contact.html">Help</a>
+                <a href="registerUser/">Customer SignUp</a>
+                <a href="registerPump">Vendor SignUp</a>
+                <a href="/contact">Help</a>
                 <a href="login">Login</a>
               </div>
             </div>
@@ -87,7 +108,7 @@
               <div class="carousel-item active">
                 <div class="detail-box">
                   <h1>"Fueling Your Journey: Quality, Convenience, and Reliability"</h1>
-                  <a href="#">Contact Us</a>
+                  <a href="/contact">Contact Us</a>
                 </div>
               </div>
               <div class="carousel-item">
@@ -115,33 +136,33 @@
     </section>
   </div>
   <section class="book_section">
-    <div class="form_container">
-      <form action="">
-        <div class="form-row">
-          
-<!-- HTML code with the styled link -->
-<a href="registerDelivery" class="apply-link">Apply to Join Delivery Team</a>
-        </div>
-      </form>
-    </div>
+    
     <div class="img-box">
       <img src="{% static 'images/.png'%}" alt="">
     </div>
   </section>
   
-  <!-- <section class="best_section">
+  <section class="best_section">
     <div class="container">
       <div class="book_now">
         <div class="detail-box">
-          <h2>Our Offers Of The Day</h2>
+          <h2> Were in these Locations</h2>
         </div>
         <div class="btn-box">
           <a href="/userhome">Order Now</a>
         </div>
       </div>
-      
+      <div class="form-row">
+        {% for loc in location %}
+            <div class="location-container">
+                <div>{{ loc.name }}</div>
+            </div>
+        {% endfor %}
+    </div>
+    
     </div>
   </section>
+  <!-- 
   <section class="rent_section layout_padding">
     <div class="container">
         <div class="table-responsive">
