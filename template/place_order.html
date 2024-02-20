@@ -64,7 +64,14 @@
                 <input type="text" name="delivery_point" id="delivery_point" class="text-field" readonly>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mapModal">Choose Location</button>
             </div>
-            
+            <input type="hidden" name="lat" id="lat">
+            <input type="hidden" name="lng" id="lng">
+            <!-- Add an element to display the distance -->
+            <div id="distance-info"></div>
+            <!-- Add an element to display the delivery amount -->
+            <div id="delivery-amount"></div>
+            <input type="hidden" name="delivery_amount" id="delivery_amount">
+
             <button type="submit" id="submit-button" class="submit-button">Place Order</button>
         </form>
     </div>
@@ -171,11 +178,59 @@
     const deliveryAreaLng = "{{ map_location.delivery_area_lng }}";
 </script>
 
-
 <script>
+    // Function to calculate haversine distance
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+        // Convert latitude and longitude from degrees to radians
+        const toRadians = (angle) => angle * (Math.PI / 180);
+        lat1 = toRadians(lat1);
+        lon1 = toRadians(lon1);
+        lat2 = toRadians(lat2);
+        lon2 = toRadians(lon2);
+
+        // Haversine formula
+        const dLat = lat2 - lat1;
+        const dLon = lon2 - lon1;
+        const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+        const c = 2 * Math.asin(Math.sqrt(a));
+
+        // Radius of the Earth in kilometers (mean value)
+        const radiusOfEarth = 6371;
+
+        // Calculate the distance
+        const distance = radiusOfEarth * c;
+
+        return distance;
+    }
+
     $(document).ready(function() {
         var map, marker, circle;
         var userLocation;
+
+        // Function to calculate the delivery charge based on distance
+        function calculateDeliveryCharge(distance) {
+            var fixedCharge = 20; // Fixed delivery charge for the first kilometer
+            var deliveryChargePerKm = 10; // Charge for each kilometer beyond the first
+
+            // Additional charge for each kilometer beyond the first
+            var additionalCharge = (distance - 1) * deliveryChargePerKm;
+
+            // Ensure the additional charge is not negative
+            additionalCharge = Math.max(0, additionalCharge);
+
+            // Total delivery charge
+            var totalCharge = fixedCharge + additionalCharge;
+
+            return totalCharge;
+        }
+
+        // Function to display the delivery amount
+        function displayDeliveryAmount(amount) {
+            // Display the delivery amount on the page
+            $('#delivery-amount').text('Delivery Amount: ₹' + amount.toFixed(2));
+        }
 
         // Initialize map when the modal is shown
         $('#mapModal').on('shown.bs.modal', function(e) {
@@ -222,6 +277,18 @@
                     };
                     map.setView(userLocation, 15); // Set map view to user's current location
                     marker.setLatLng(userLocation); // Set marker at user's current location
+
+                    // Calculate distance between user location and delivery area
+                    var distance = haversineDistance(userLocation.lat, userLocation.lng, deliveryAreaLat, deliveryAreaLng);
+
+                    // Display the distance on the page
+                    $('#distance-info').text('Distance to delivery location: ' + distance.toFixed(2) + ' km');
+
+                    // Calculate delivery charge
+                    var deliveryCharge = calculateDeliveryCharge(distance);
+
+                    // Display the delivery amount
+                    displayDeliveryAmount(deliveryCharge);
                 }, function(error) {
                     console.error('Error getting user location:', error);
                 });
@@ -243,19 +310,36 @@
             // Check if delivery is available within the circle radius
             if (distance > circle.getRadius()) {
                 alert('Delivery not available in this area.');
+                // Close the modal
+                $('#mapModal').modal('hide');
             } else {
+                $('#lat').val(marker.getLatLng().lat);
+                $('#lng').val(marker.getLatLng().lng);
                 // Set delivery point input field to user location address
                 $.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + userLocation.lat + '&lon=' + userLocation.lng, function(data) {
                     $('#delivery_point').val(data.display_name);
                 });
+                // Close the modal
+                $('#mapModal').modal('hide');
             }
         });
     });
 </script>
 
 
-
 <script>
+    $('#submit-button').on('click', function() {
+    // Get the delivery charge displayed on the page
+    var deliveryAmountText = $('#delivery-amount').text();
+    var deliveryAmount = parseFloat(deliveryAmountText.replace('Delivery Amount: ₹', ''));
+
+    // Set the delivery amount in a hidden field in the form
+    $('#delivery_amount').val(deliveryAmount);
+
+    // Submit the form
+    $('.order-form').submit();
+});
+
     document.querySelector('.order-form').addEventListener('submit', function(event) {
         // Prevent the form from submitting by default
         event.preventDefault();
@@ -294,127 +378,6 @@
         const selectedPrice = this.options[this.selectedIndex].getAttribute('data-price');
         document.getElementById('selected_price').innerText = `${selectedPrice} per liter`;
     });
-</script>
-<!-- 
-<script>
-    var marker, map, kilometer;
-    const SOURCE = [9.0827879, 76.5650678];
-    const RADIUS = 5;
-  
-    function haversineDistance(lat1, lon1, lat2, lon2) {
-      // Convert latitude and longitude from degrees to radians
-      const toRadians = (angle) => angle * (Math.PI / 180);
-      lat1 = toRadians(lat1);
-      lon1 = toRadians(lon1);
-      lat2 = toRadians(lat2);
-      lon2 = toRadians(lon2);
-  
-      // Haversine formula
-      const dLat = lat2 - lat1;
-      const dLon = lon2 - lon1;
-      const a =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.asin(Math.sqrt(a));
-  
-      // Radius of the Earth in kilometers (mean value)
-      const radiusOfEarth = 6371;
-  
-      // Calculate the distance
-      const distance = radiusOfEarth * c;
-  
-      return distance;
-    }
-  
-    $('#mapModal').on('shown.bs.modal', function (e) {
-      if (!map){
-        map = L.map('map').setView([9.0827879, 76.5650678], 15);
-  
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; Anjali Raj'
-        }).addTo(map);
-  
-        L.circle(SOURCE, {
-          color: 'blue',
-          fillColor: '#FFFFFF00',
-          // fillOpacity: 0.5,
-          radius: RADIUS * 1000,
-        }).addTo(map);
-  
-        var location = navigator.geolocation.getCurrentPosition(
-          function success(pos){
-            marker = L.marker(
-              [pos.coords.latitude, pos.coords.longitude],
-              // {draggable:true}
-            ).addTo(map);
-          }
-        );
-  
-        map.on('click', function onMapClick(e){
-          kilometer = haversineDistance(SOURCE[0], SOURCE[1], e.latlng.lat, e.latlng.lng);
-          if (kilometer > RADIUS){
-            alert(`Select a radius within ${RADIUS} Kilometers.`);
-            return;
-          }
-          if (marker){
-            map.removeLayer(marker);
-          }
-          marker = L.marker(e.latlng).addTo(map);
-        });
-  
-        $('#confirm-location').on('click', function onConfirmation(e){
-          destination = marker.getLatLng();
-          kilometer = haversineDistance(SOURCE[0], SOURCE[1], destination.lat, destination.lng);
-          $('#mapModal').modal('hide');
-          updateHomeCollectionCharge();
-          $.get(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${destination.lat}&lon=${destination.lng}`,
-            function (data){
-              console.log(data)
-              $('#location-address').val(data.display_name);
-              $('#location-distance').val(kilometer);
-              $('#location-lat').val(data.lat);
-              $('#location-lng').val(data.lon);
-            }
-          );
-        })
-      }
-    })
-    function updateHomeCollectionCharge() {
-      const FIXED_CHARGE = 20;
-      const PER_KM = 10;
-      let distance = window.kilometer;
-      let amount;
-  
-      if (!homeAppointment.checked || !distance){
-        amount = 0;
-      }
-      else if (distance <= 1){
-        amount = FIXED_CHARGE;
-      }
-      else {
-        amount = (FIXED_CHARGE + (distance - 1) * PER_KM).toFixed(2);
-      }
-      
-      if (!isNaN(amount)) {
-        homeCollectionChargeElement.textContent = ` ${amount}`;
-        calculateTotalAmount(); // Recalculate total amount
-      } else {
-        homeCollectionChargeElement.textContent = " N/A";
-        totalAmountElement.textContent = " N/A";
-      }
-    }
-  
-    // Add an event listener to the location dropdown to update home collection charge
-    // locationSelect.addEventListener("change", updateHomeCollectionCharge);
-  
-    // Call the updateHomeCollectionCharge function initially to set the default home collection charge
-    updateHomeCollectionCharge();
-  </script>
-   -->
-
-  
-  
+</script> 
  
 {% endblock content %}

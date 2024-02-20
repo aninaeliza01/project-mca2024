@@ -584,11 +584,13 @@ def place_order(request, pump_id):
         quantity = Decimal(request.POST.get('quantity', '0'))  # Convert quantity to Decimal
         delivery_point = request.POST.get('delivery_point')
         payment_method = request.POST.get('payment_method')
-
+        lat = Decimal(request.POST.get('lat'))  # Extract latitude from form submission
+        lng = Decimal(request.POST.get('lng'))
+        delivery_amount = Decimal(request.POST.get('delivery_amount', '0'))
         selected_fuel = get_object_or_404(Fuel, pk=fuel_type_id)
         price_per_liter = selected_fuel.price
-
-        total_price = quantity * price_per_liter  # Calculate total price
+        itemprice=quantity * price_per_liter
+        total_price = itemprice + delivery_amount
 
         # Assuming the user is logged in, replace this with your authentication logic
         if request.user.is_authenticated:
@@ -605,9 +607,13 @@ def place_order(request, pump_id):
             fuel_type=selected_fuel,
             station=station,
             quantity=quantity,
+            itemprice=itemprice,
+            deliveryprice=delivery_amount,
             total_price=total_price,
             delivery_address=delivery_point,
             payment_method=payment_method,
+            lat=lat,  # Save latitude to the order
+            lng=lng,
         )
 
         # Redirect to a success page or any other appropriate URL after successful order placement
@@ -1044,7 +1050,7 @@ def pay(request,order_id):
         }
         payment = client.order.create(data=data)
         rupee_amount = floatformat(payment['amount'] / 100, 2)
-        # Render the payment page with the payment details
+        
         return render(request, 'pay.html', {'payment': payment, 'order': order, 'rupee_amount': rupee_amount})
    
     return HttpResponse("Invalid request")
@@ -1083,10 +1089,94 @@ def success(request, order_id):
         )
     new_payment.save()
 
-    
-
+    assign_delivery_boy_to_order(order)
     messages.success(request, 'Payment successfully done.')
     return redirect('customer_orders')
+
+
+import qrcode
+from io import BytesIO
+from geopy.distance import geodesic
+from django.core.files import File
+
+def assign_delivery_boy_to_order(order):
+    
+    map_locations = MapLocation.objects.all()
+    
+    for map_location in map_locations:
+        if order.station.user == map_location.user:
+            ordered_station_location = (map_location.pump_lat, map_location.pump_lng)
+            break
+    else:
+        # If the order's station user is not found in any MapLocation instance, return
+        return
+    
+    # Get all accepted delivery boys
+    accepted_delivery_boys = DeliveryTeam.objects.filter(is_accepted=True)
+
+    # Initialize variables to keep track of the nearest delivery boy and their distance
+    nearest_delivery_boy = None
+    min_distance = float('inf')
+
+    # Calculate distance from each delivery boy to the ordered station
+    for delivery_boy in accepted_delivery_boys:
+        delivery_boy_location = (delivery_boy.latitude, delivery_boy.longitude)
+        distance_to_station = geodesic(ordered_station_location, delivery_boy_location).kilometers
+        if distance_to_station < min_distance:
+            min_distance = distance_to_station
+            nearest_delivery_boy = delivery_boy
+
+    # Assign the nearest delivery boy to the order
+    if nearest_delivery_boy:
+        order.delivery_team = nearest_delivery_boy
+         # Generate QR code for the order
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr_data = f"Order ID: {order.id}, Customer: {order.customer.username}, Delivery Address: {order.delivery_address}"
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill='black', back_color='white')
+
+        # Save QR code image to a BytesIO buffer
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        qr_image_file = File(buffer)
+
+        # Save QR code image to the order's qr_code field
+        order.qr_code.save(f'order_{order.id}_qr.png', qr_image_file)
+        
+        # Send email to customer
+        customer_email = order.customer.email
+        customer_message = '''
+        Dear Customer,
+        Your order QR code is attached below. Please present this QR code during the time of delivery.
+        
+        Hybrid Energy Team
+        '''
+        email_customer = EmailMessage(
+            'Order QR Code',
+            customer_message,
+            'aninaelizebeth2024a@mca.ajce.in',
+            [customer_email]
+        )
+        email_customer.attach_file(order.qr_code.path)
+        email_customer.send()
+        
+        # Send email to delivery boy
+        delivery_boy_email = order.delivery_team.user.email
+        delivery_boy_message = "You have been assigned to deliver the following order. The QR code is attached below."
+        email_delivery_boy = EmailMessage(
+            'Order Assignment',
+            delivery_boy_message,
+            'aninaelizebeth2024a@mca.ajce.in',
+            [delivery_boy_email]
+        )
+        email_delivery_boy.attach_file(order.qr_code.path)
+        email_delivery_boy.send()
+        order.save()
+
+
+
 
 
 from io import BytesIO
@@ -1241,7 +1331,16 @@ def deliveryProfile(request):
         profile_picture = request.FILES.get('profile_picture')
         if profile_picture:
             delivery_team.propic = profile_picture
-            delivery_team.save()
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        
+        # Update delivery team location
+        if latitude and longitude:
+            delivery_team.latitude = latitude
+            delivery_team.longitude = longitude
+        
+        delivery_team.save()
+        messages.success(request, 'Profile updated successfully')
     return render(request, 'deliveryprofile.html', {'delivery_team': delivery_team})
 
 
@@ -1253,7 +1352,14 @@ def deliveryMap(request):
     stations = FuelStation.objects.all()
     return render(request, 'deliverymap.html', {'delivery_team': delivery_team,'map_locations': map_locations, 'stations': stations})
 
-
+@never_cache
+@login_required(login_url='login')
+def delivery_boy_orders(request):
+    if request.user.is_authenticated and request.user.is_deliveryteam:
+        delivery_team = get_object_or_404(DeliveryTeam, user=request.user)    
+        orders = Order.objects.filter(delivery_team=delivery_team)
+        return render(request, 'deliveryOrders.html', {'delivery_team': delivery_team, 'orders': orders})
+    
 import string
 import random
 

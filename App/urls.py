@@ -76,6 +76,7 @@ urlpatterns = [
     path('reject_delivery/<int:delivery_boy_id>/', views.reject_delivery, name='reject_delivery'),
     path('deliveryprofile/', views.deliveryProfile, name='deliveryprofile'),
     path('deliveryMap/', views.deliveryMap,name="deliveryMap"),
+    path('delivery_boy_orders/', views.delivery_boy_orders, name='delivery_boy_orders'),
 
     path('userBase/', views.userBase,name="userBase"),
 

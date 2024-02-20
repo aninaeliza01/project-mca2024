@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import date
 from django.contrib.auth.models import AbstractUser
+from PIL import Image
 # Create your models here.
 class CustomUser(AbstractUser):
 
@@ -76,44 +77,6 @@ class Fuel(models.Model):
     def __str__(self):
         return self.fueltype  
 
-
-class Order(models.Model):
-    PAYMENT_METHOD_CHOICES = (
-        ('Credit Card', 'Credit Card'),
-        ('Debit Card', 'Debit Card'),
-        ('COD', 'COD'),
-        ('PayPal', 'PayPal'),
-    )
-
-    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
-    fuel_type = models.ForeignKey(Fuel, on_delete=models.CASCADE, blank=True, null=True)
-    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    order_date = models.DateTimeField(auto_now_add=True)
-    is_delivered = models.BooleanField(default=False)
-    is_accepted = models.BooleanField(default=False)
-    is_ordered = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
-    is_active= models.BooleanField(default=True)
-    delivery_address = models.CharField(max_length=255)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True, default='COD')
-
-    def __str__(self):
-        return f"Order {self.id} by {self.customer.username} at {self.order_date}"
-
-class Payment(models.Model):
-    order=models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
-    is_paid = models.BooleanField(default=False)
-    razor_pay_order_id=models.CharField(max_length=100, blank=True, null=True)
-    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a customer
-    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE, blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Store the payment amount
-    payment_date = models.DateTimeField(auto_now_add=True)  # Date and time of the payment
-    # Add other fields as per your requirements, like payment status, transaction ID, etc.
-    
-    def __str__(self):
-        return f"Payment of {self.amount} by {self.customer.username} on {self.payment_date}"
     
 class Rating(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -136,8 +99,54 @@ class DeliveryTeam(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=50, blank=True, null=True)
     location= models.ForeignKey(LocationDetails,on_delete=models.CASCADE)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     vehno = models.CharField(max_length=15,unique=True,)
     propic = models.ImageField(upload_to='media/delivery_pic', blank=True, null=True)
     drivelic = models.ImageField(upload_to='media/driving_license', blank=True, null=True)
     is_accepted = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
+
+class Order(models.Model):
+    PAYMENT_METHOD_CHOICES = (
+        ('Credit Card', 'Credit Card'),
+        ('Debit Card', 'Debit Card'),
+        ('COD', 'COD'),
+        ('PayPal', 'PayPal'),
+    )
+
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
+    fuel_type = models.ForeignKey(Fuel, on_delete=models.CASCADE, blank=True, null=True)
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    itemprice=models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    deliveryprice=models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    order_date = models.DateTimeField(auto_now_add=True)
+    is_delivered = models.BooleanField(default=False)
+    is_accepted = models.BooleanField(default=False)
+    is_ordered = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
+    is_active= models.BooleanField(default=True)
+    delivery_address = models.CharField(max_length=255)
+    lat = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    lng = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True, default='COD')
+    delivery_team = models.ForeignKey(DeliveryTeam, on_delete=models.SET_NULL, blank=True, null=True)
+    qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)  # New field for storing QR code image
+
+    def __str__(self):
+        return f"Order {self.id} by {self.customer.username} at {self.order_date}"
+    
+class Payment(models.Model):
+    order=models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
+    is_paid = models.BooleanField(default=False)
+    razor_pay_order_id=models.CharField(max_length=100, blank=True, null=True)
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a customer
+    station = models.ForeignKey(FuelStation, on_delete=models.CASCADE, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Store the payment amount
+    payment_date = models.DateTimeField(auto_now_add=True)  # Date and time of the payment
+    # Add other fields as per your requirements, like payment status, transaction ID, etc.
+    
+    def __str__(self):
+        return f"Payment of {self.amount} by {self.customer.username} on {self.payment_date}"
