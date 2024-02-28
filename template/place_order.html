@@ -279,24 +279,15 @@
                     marker.setLatLng(userLocation); // Set marker at user's current location
 
                     // Calculate distance between user location and delivery area
-                    var distance = haversineDistance(userLocation.lat, userLocation.lng, deliveryAreaLat, deliveryAreaLng);
+                    var distances = haversineDistance(userLocation.lat, userLocation.lng, deliveryAreaLat, deliveryAreaLng);
 
-                    // Display the distance on the page
-                    $('#distance-info').text('Distance to delivery location: ' + distance.toFixed(2) + ' km');
+                    
 
                     // Calculate delivery charge
-                    var deliveryCharge = calculateDeliveryCharge(distance);
+                    var deliveryCharge = calculateDeliveryCharge(distances);
 
-                    // Display the delivery amount
-                    displayDeliveryAmount(deliveryCharge);
-                }, function(error) {
-                    console.error('Error getting user location:', error);
-                });
-            } else {
-                console.log('Geolocation is not supported by this browser.');
-            }
-        });
-
+                    
+                
         // Confirm location button click event
         $('#confirm-location').on('click', function() {
             if (!userLocation) {
@@ -319,65 +310,78 @@
                 $.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + userLocation.lat + '&lon=' + userLocation.lng, function(data) {
                     $('#delivery_point').val(data.display_name);
                 });
+                // Display the distance on the page
+                $('#distance-info').text('Distance to delivery location: ' + distances.toFixed(2) + ' km');
+                // Display the delivery amount
+                displayDeliveryAmount(deliveryCharge);
                 // Close the modal
                 $('#mapModal').modal('hide');
+            }
+        });
+    }, function(error) {
+                    console.error('Error getting user location:', error);
+                });
+            } 
+else {
+                console.log('Geolocation is not supported by this browser.');
             }
         });
     });
 </script>
 
-
 <script>
     $('#submit-button').on('click', function() {
-    // Get the delivery charge displayed on the page
-    var deliveryAmountText = $('#delivery-amount').text();
-    var deliveryAmount = parseFloat(deliveryAmountText.replace('Delivery Amount: ₹', ''));
+        // Get the delivery charge displayed on the page
+        var deliveryAmountText = $('#delivery-amount').text();
+        var deliveryAmount = parseFloat(deliveryAmountText.replace('Delivery Amount: ₹', ''));
 
-    // Set the delivery amount in a hidden field in the form
-    $('#delivery_amount').val(deliveryAmount);
+        // Set the delivery amount in a hidden field in the form
+        $('#delivery_amount').val(deliveryAmount);
 
-    // Submit the form
-    $('.order-form').submit();
-});
+        // Submit the form
+        $('.order-form').submit();
+    });
 
-    document.querySelector('.order-form').addEventListener('submit', function(event) {
-        // Prevent the form from submitting by default
-        event.preventDefault();
+    $(document).ready(function() {
+        $('.order-form').on('submit', function(event) {
+            // Prevent the form from submitting by default
+            event.preventDefault();
 
-        // Get the form inputs
-        const fuelType = document.getElementById('fuel_type');
-        const selectedPrice = document.getElementById('selected_price');
-        const quantity = document.getElementById('quantity');
-        const deliveryPoint = document.getElementById('delivery_point');
-        const paymentMethod = document.getElementById('payment_method');
+            // Get the form inputs
+            const fuelType = document.getElementById('fuel_type');
+            const selectedPrice = document.getElementById('selected_price');
+            const quantity = document.getElementById('quantity');
+            const deliveryPoint = document.getElementById('delivery_point');
+            const paymentMethod = document.getElementById('payment_method');
 
-        // Validation flag
-        let isValid = true;
+            // Validation flag
+            let isValid = true;
 
-        // Validation functions
-        function validateField(field, errorMessage) {
-            if (field.value.trim() === '') {
-                isValid = false;
-                alert(errorMessage);
+            // Validation functions
+            function validateField(field, errorMessage) {
+                if (field.value.trim() === '') {
+                    isValid = false;
+                    alert(errorMessage);
+                }
             }
-        }
 
-        // Perform validation for each field
-        validateField(fuelType, 'Please select a fuel type');
-        validateField(quantity, 'Please select a quantity');
-        validateField(deliveryPoint, 'Please enter a delivery point');
-        validateField(paymentMethod, 'Please select a payment method');
+            // Perform validation for each field
+            validateField(fuelType, 'Please select a fuel type');
+            validateField(quantity, 'Please select a quantity');
+            validateField(deliveryPoint, 'Please enter a delivery point');
+            validateField(paymentMethod, 'Please select a payment method');
 
-        // If all fields are valid, submit the form
-        if (isValid) {
-            this.submit(); // Submit the form
-        }
+            // If all fields are valid, submit the form
+            if (isValid) {
+                this.submit(); // Submit the form
+            }
+        });
+
+        $('#fuel_type').on('change', function() {
+            const selectedPrice = this.options[this.selectedIndex].getAttribute('data-price');
+            $('#selected_price').text(`${selectedPrice} per liter`);
+        });
     });
-
-    document.getElementById('fuel_type').addEventListener('change', function() {
-        const selectedPrice = this.options[this.selectedIndex].getAttribute('data-price');
-        document.getElementById('selected_price').innerText = `${selectedPrice} per liter`;
-    });
-</script> 
+</script>
  
 {% endblock content %}

@@ -75,6 +75,8 @@ urlpatterns = [
     path('approve_delivery/<int:delivery_boy_id>/', views.approve_delivery, name='approve_delivery'),
     path('reject_delivery/<int:delivery_boy_id>/', views.reject_delivery, name='reject_delivery'),
     path('deliveryprofile/', views.deliveryProfile, name='deliveryprofile'),
+    path('check_in/<int:delivery_team_id>/', views.check_in, name='check_in'),
+    path('check_out/<int:delivery_team_id>/', views.check_out, name='check_out'),
     path('deliveryMap/', views.deliveryMap,name="deliveryMap"),
     path('delivery_boy_orders/', views.delivery_boy_orders, name='delivery_boy_orders'),
 
@@ -84,6 +86,8 @@ urlpatterns = [
     path('contact/',views.contact,name="contact"),
     path('contact1/',views.contact1,name="contact1"),
     path('contact2/',views.contact2,name="contact2"),
+
+    path('messages_page/', views.messages_page,name='messages_page'),
 ]
 
 if settings.DEBUG:

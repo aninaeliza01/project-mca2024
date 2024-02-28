@@ -669,8 +669,7 @@ def delete_order(request, order_id):
 def customer_orders(request):
     # Fetch ordered orders sorted by order_date in descending order (most recent first)
     ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True).order_by('-order_date')
-    
-    # Fetch payment details for the filtered ordered orders
+
     payment_details = Payment.objects.filter(order__in=ordered_orders).values_list('order_id', flat=True)
     
     # Add a flag 'is_paid' to each order indicating if it's paid or not
@@ -1100,7 +1099,9 @@ from geopy.distance import geodesic
 from django.core.files import File
 
 def assign_delivery_boy_to_order(order):
-    
+    if order.is_delivered or order.delivery_team_id or not order.is_active:
+        raise ValidationError("Order cannot be assigned to a delivery boy.")
+
     map_locations = MapLocation.objects.all()
     
     for map_location in map_locations:
@@ -1112,7 +1113,7 @@ def assign_delivery_boy_to_order(order):
         return
     
     # Get all accepted delivery boys
-    accepted_delivery_boys = DeliveryTeam.objects.filter(is_accepted=True)
+    accepted_delivery_boys = DeliveryTeam.objects.filter(is_accepted=True, is_assigned=False, is_checkin=True)
 
     # Initialize variables to keep track of the nearest delivery boy and their distance
     nearest_delivery_boy = None
@@ -1172,8 +1173,12 @@ def assign_delivery_boy_to_order(order):
             [delivery_boy_email]
         )
         email_delivery_boy.attach_file(order.qr_code.path)
+        
         email_delivery_boy.send()
         order.save()
+        # Mark the delivery boy as assigned
+        nearest_delivery_boy.is_assigned = True
+        nearest_delivery_boy.save()
 
 
 
@@ -1296,7 +1301,7 @@ def register_delivery(request):
                     drivelic=driving_license
                 )
 
-                
+                messages.success(request,("Successfully registered."))
                 return redirect('login') 
     locations = LocationDetails.objects.all()
     return render(request, 'registerDelivery.html', {'locations': locations})
@@ -1342,6 +1347,26 @@ def deliveryProfile(request):
         delivery_team.save()
         messages.success(request, 'Profile updated successfully')
     return render(request, 'deliveryprofile.html', {'delivery_team': delivery_team})
+
+
+def check_in(request, delivery_team_id):
+    delivery_team = get_object_or_404(DeliveryTeam, id=delivery_team_id)
+    if not delivery_team.is_checkin:
+        checkin_record = CheckInOutRecord.objects.create(delivery_team=delivery_team, checkin_time=timezone.now())
+        delivery_team.is_checkin = True
+        delivery_team.save()
+    return redirect('deliveryprofile')
+
+def check_out(request, delivery_team_id):
+    delivery_team = get_object_or_404(DeliveryTeam, id=delivery_team_id)
+    if delivery_team.is_checkin:
+        checkin_record = CheckInOutRecord.objects.filter(delivery_team=delivery_team, checkout_time__isnull=True).first()
+        if checkin_record:
+            checkin_record.checkout_time = timezone.now()
+            checkin_record.save()
+        delivery_team.is_checkin = False
+        delivery_team.save()
+    return redirect('deliveryprofile')
 
 
 @never_cache
@@ -1400,7 +1425,7 @@ def approve_delivery(request, delivery_boy_id):
     Hybrid Energy Team
 
     To reset your password, click the link below:
-    "http://127.0.0.1:8000//reset/{uidb64}/{token}/"
+    "http://127.0.0.1:8000/reset/{uidb64}/{token}/"
     '''
     sender = 'aninaelizebeth2024a@mca.ajce.in'  # Replace with your email address
     recipient = [delivery_boy_user.email]
@@ -1432,3 +1457,20 @@ def contact1(request):
 
 def contact2(request):
     return render(request, 'contact2.html')
+
+
+
+from django.core.exceptions import ObjectDoesNotExist
+@login_required
+def messages_page(request):
+    threads = Thread.objects.by_user(user=request.user).prefetch_related('chatmessage_thread').order_by('timestamp')
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        user_profile = None  # Set user_profile to None if UserProfile does not exist
+    
+    context = {
+        'Threads': threads,
+        'user_profile': user_profile
+    }
+    return render(request, 'messages.html', context)

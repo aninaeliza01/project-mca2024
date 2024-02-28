@@ -10,10 +10,45 @@
         {% endfor %}
     {% endif %}
 
-    <h1>Orders Assigned to {{ delivery_boy.name }}</h1>
-    <ul>
-    {% for order in orders %}
-        <li>{{ order }}</li>
-    {% endfor %}
+    <h1>Orders Assigned</h1>
+    <ul class="orders-list">
+        {% for order in orders %}
+            <li class="order-item">
+                <strong>Order ID:</strong> {{ order.id }} <br>
+                <strong>Station Name:</strong> {{ order.station.station_name }} <br>
+                <strong>Fuel Type:</strong> {{ order.fuel_type }} <br>
+                <strong>Quantity:</strong> {{ order.quantity }} <br>
+            </li>
+        {% endfor %}
     </ul>
+
+    <style>
+        /* General styles */
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        /* Styles for the orders list */
+        .orders-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        /* Styles for each order item */
+        .order-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        /* Styles for specific elements within order items */
+        .order-item strong {
+            color: #555;
+        }
+
+        /* Additional styles as needed */
+
+    </style>
 {% endblock %}

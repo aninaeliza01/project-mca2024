@@ -2,6 +2,7 @@ from django.db import models
 from datetime import date
 from django.contrib.auth.models import AbstractUser
 from PIL import Image
+from django.db.models import Q
 # Create your models here.
 class CustomUser(AbstractUser):
 
@@ -93,6 +94,7 @@ class MapLocation(models.Model):
     delivery_area_lat = models.DecimalField(max_digits=9, decimal_places=6)
     delivery_area_lng = models.DecimalField(max_digits=9, decimal_places=6)
 
+from django.utils import timezone
 
 class DeliveryTeam(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -106,6 +108,14 @@ class DeliveryTeam(models.Model):
     drivelic = models.ImageField(upload_to='media/driving_license', blank=True, null=True)
     is_accepted = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
+    is_checkin = models.BooleanField(default=False)
+    is_assigned = models.BooleanField(default=False)
+
+
+class CheckInOutRecord(models.Model):
+    delivery_team = models.ForeignKey(DeliveryTeam, on_delete=models.CASCADE)
+    checkin_time = models.DateTimeField(default=timezone.now)
+    checkout_time = models.DateTimeField(blank=True, null=True)
 
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = (
@@ -150,3 +160,29 @@ class Payment(models.Model):
     
     def __str__(self):
         return f"Payment of {self.amount} by {self.customer.username} on {self.payment_date}"
+    
+class ThreadManager(models.Manager):
+    def by_user(self, **kwargs):
+        user = kwargs.get('user')
+        lookup = Q(first_person=user) | Q(second_person=user)
+        qs = self.get_queryset().filter(lookup).distinct()
+        return qs
+
+
+class Thread(models.Model):
+    first_person = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name='thread_first_person')
+    second_person = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True,
+                                     related_name='thread_second_person')
+    updated = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    objects = ThreadManager()
+    class Meta:
+        unique_together = ['first_person', 'second_person']
+
+
+class ChatMessage(models.Model):
+    thread = models.ForeignKey(Thread, null=True, blank=True, on_delete=models.CASCADE, related_name='chatmessage_thread')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)

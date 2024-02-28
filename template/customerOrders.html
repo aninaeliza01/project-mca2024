@@ -1,6 +1,15 @@
 {% extends "userBase.html" %}
 {% block title %}Customer Orders{% endblock %}
 {% block content %}
+<!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     {% if messages %}
         {% for message in messages %}
             <div class="alert" role="alert">
@@ -27,6 +36,7 @@
                         <th>Rate</th>
                         <th>Receipt</th>
                         <th>Delivery Status</th>
+                        <th>Track</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,15 +87,78 @@
                                 <p>Not Yet Delivered</p>
                                 {% endif %}
                             </td>
+                            <td>
+                                {% if order.payment_set.first.is_paid %}
+                                <button type="button" class="btn btn-primary view-details-btn" data-toggle="modal" data-target="#deliveryModal" data-order-id="{{ order.id }}">
+                                    Track
+                                </button>
+                                
+                                <div class="hidden delivery-details" id="deliveryDetails_{{ order.id }}" style="display: none;">
+                                    <p>Order Date: {{ order.order_date }}</p>
+                                    <p>Payment Date: {{ order.payment_set.first.payment_date }}</p>
+                                    <div class="delivery-team-details">
+                                        <p>Delivery Boy: {{ order.delivery_team.name }}</p>
+                                        <p>Phone Number: {{ order.delivery_team.user.phone }}</p>
+                                        <p>Email: {{ order.delivery_team.user.email }}</p>
+                                        {% if order.delivery_team.propic %}
+                                            <!-- Display the delivery team profile picture -->
+                                            <img src="{{ order.delivery_team.propic.url }}" alt="Delivery Team Profile Picture" style="width: 100px; height: 100px;">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                   
+                                    
+                                {% endif %}
+                                                                
+                            </td>
+                            
                         </tr>
                         {% empty %}
                         <tr>
                         <td colspan="2">No Orders available.</td>
+                        
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         
+
+<!-- Modal for Delivery Details -->
+<div class="modal fade" id="deliveryModal" tabindex="-1" role="dialog" aria-labelledby="deliveryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document"> <!-- Change modal-lg to adjust the size as needed -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deliveryModalLabel">Delivery Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Content will be dynamically loaded here -->
+                <div id="deliveryDetailsPlaceholder"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+        $('.view-details-btn').click(function() {
+    var orderId = $(this).data('order-id');
+    var deliveryDetailsHtml = $('#deliveryDetails_' + orderId).html();
+    $('#deliveryDetailsPlaceholder').html(deliveryDetailsHtml);
+    $('#deliveryModal').modal('show'); // Manually trigger the modal
+});
+
+    });
+</script>
+
+    
+
 
             <div class="pagination">
                 <span class="step-links">
@@ -106,6 +179,45 @@
             </div>
 
     <style>
+/* Custom styles for the Track button */
+.view-details-btn {
+    background-color: #800000; /* Maroon background color */
+    color: #fff; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding for button content */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Cursor style */
+}
+
+.view-details-btn:hover {
+    background-color: #660000; /* Darker maroon on hover */
+}
+
+.view-details-btn:focus {
+    outline: none; /* Remove outline on focus */
+}
+
+        .delivery-team-details {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.delivery-team-details p {
+    margin: 5px 0;
+}
+
+.delivery-team-details img {
+    margin-top: 10px;
+    border-radius: 50%; /* Makes the profile picture round */
+}
+
+        .modal-dialog {
+    max-width: 800px; /* Set the maximum width of the modal */
+}
+
         /* Styles for the payment button */
 .payment-btn {
   display: inline-block;

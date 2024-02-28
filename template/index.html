@@ -135,6 +135,7 @@
       </div>
     </section>
   </div>
+  
   <section class="book_section">
     
     <div class="img-box">
@@ -146,10 +147,15 @@
     <div class="container">
       <div class="book_now">
         <div class="detail-box">
-          <h2> Were in these Locations</h2>
+          <h2> We're in these Locations</h2>
         </div>
         <div class="btn-box">
+        {% if user.is_customer %}
           <a href="/userhome">Order Now</a>
+        {% else %}
+            <script>alert("You are not allowed to use this page.");</script><a href="login">Order Now</a>
+        {% endif %}
+
         </div>
       </div>
       <div class="form-row">
@@ -162,23 +168,31 @@
     
     </div>
   </section>
-  <!-- 
+  
   <section class="rent_section layout_padding">
     <div class="container">
         <div class="table-responsive">
-            <table class="table fuel-table">
-                <tbody>
-                    {% for fuel in fuels %}
-                    <tr>
-                        <th scope="row">{{ fuel.fueltype }}</th>
-                        <td>${{ fuel.price }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+          <h2>Join Our Delivery Team</h2>
+          <p>We're looking for enthusiastic individuals to join our delivery team and help us bring smiles to our customers' faces!</p>
+          <h3>Job Responsibilities:</h3>
+          <ul>
+              <li>Deliver packages promptly and efficiently to customers' doorsteps</li>
+              <li>Ensure the safety and security of packages during transit</li>
+              <li>Provide exceptional customer service and address any delivery-related inquiries</li>
+              <li>Adhere to delivery schedules and maintain accurate delivery records</li>
+          </ul>
+          <h3>Requirements:</h3>
+          <ul>
+              <li>Valid driver's license and a reliable vehicle</li>
+              <li>Excellent time management and organizational skills</li>
+              <li>Ability to work independently and as part of a team</li>
+              <li>Good communication skills and a friendly demeanor</li>
+              <li>Flexibility to work evenings and weekends as needed</li>
+          </ul>
+          <a href="registerDelivery" class="apply-link">Apply Now</a>
         </div>
     </div>
-</section> -->
+</section>
 
   
   <section class="about_section layout_padding-bottom">
