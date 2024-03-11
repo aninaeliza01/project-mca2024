@@ -370,28 +370,22 @@ def pumphome(request):
 @login_required(login_url='login')        
 def order(request):
     if request.user.is_vendor:
-        # Retrieve the FuelStation instance associated with the user
-        fuel_station = request.user.fuelstation  # Assuming this is the attribute that holds the FuelStation reference for the user
-
+        
+        fuel_station = request.user.fuelstation 
         if fuel_station:
-            # Fetch orders associated with this station
             pump_order = Order.objects.filter(station=fuel_station, is_ordered=True)
             pump_orders = list(reversed( pump_order))
             
             items_per_page = 10
             paginator = Paginator(pump_orders, items_per_page)
 
-            # Get the current page number from the request's GET parameters
             page = request.GET.get('page')
 
             try:
-                # Get the orders for the current page
                 pump_orders = paginator.page(page)
             except PageNotAnInteger:
-                # If page is not an integer, deliver the first page
                 pump_orders = paginator.page(1)
             except EmptyPage:
-                # If page is out of range (e.g., 9999), deliver the last page
                 pump_orders = paginator.page(paginator.num_pages)
 
 
@@ -493,7 +487,11 @@ def mark_delivered(request, order_id):
     if not order.is_delivered:
         order.is_delivered = True
         order.save()
-        customer_email = order.customer.email  # Assuming 'customer' is the ForeignKey field
+        delivery_team = order.delivery_team
+        if delivery_team:
+            delivery_team.is_assigned = False
+            delivery_team.save()
+        customer_email = order.customer.email 
         email_subject = 'Your Order Has Been Successfully Delivered'
         email_body = '''
         Dear Customer,
@@ -516,7 +514,7 @@ def mark_delivered(request, order_id):
         )
     
     # Redirect to the same page or wherever appropriate after marking as delivered
-    return redirect('fuelDelivery')
+    return redirect('delivery_boy_orders')
 
 @never_cache
 @login_required(login_url='login')
@@ -581,25 +579,28 @@ from decimal import Decimal
 def place_order(request, pump_id):
     if request.method == 'POST':
         fuel_type_id = request.POST.get('fuel_type_id')
-        quantity = Decimal(request.POST.get('quantity', '0'))  # Convert quantity to Decimal
+        quantity = Decimal(request.POST.get('quantity', '0'))  
         delivery_point = request.POST.get('delivery_point')
         payment_method = request.POST.get('payment_method')
-        lat = Decimal(request.POST.get('lat'))  # Extract latitude from form submission
+        lat = Decimal(request.POST.get('lat'))  
         lng = Decimal(request.POST.get('lng'))
         delivery_amount = Decimal(request.POST.get('delivery_amount', '0'))
         selected_fuel = get_object_or_404(Fuel, pk=fuel_type_id)
-        price_per_liter = selected_fuel.price
+
+        if selected_fuel.sale_price:
+            price_per_liter = selected_fuel.sale_price  
+        else:
+            price_per_liter = selected_fuel.price
+
         itemprice=quantity * price_per_liter
         total_price = itemprice + delivery_amount
 
-        # Assuming the user is logged in, replace this with your authentication logic
+        
         if request.user.is_authenticated:
             customer = request.user
         else:
-            # Handle unauthenticated user case as needed
             customer = None
 
-        # Assuming 'station' is defined elsewhere or retrieved
         station = get_object_or_404(FuelStation, pk=pump_id)
 
         order = Order.objects.create(
@@ -612,14 +613,12 @@ def place_order(request, pump_id):
             total_price=total_price,
             delivery_address=delivery_point,
             payment_method=payment_method,
-            lat=lat,  # Save latitude to the order
+            lat=lat, 
             lng=lng,
         )
+        return redirect('ordersummary',order_id=order.id) 
 
-        # Redirect to a success page or any other appropriate URL after successful order placement
-        return redirect('ordersummary',order_id=order.id)  # Replace 'order_success' with your success URL name
-
-    # Render the order placement form
+    
     fuel_types = Fuel.objects.filter(station=pump_id)
     pump = get_object_or_404(FuelStation, pk=pump_id)
     map_location = get_object_or_404(MapLocation, user=pump.user)
@@ -627,7 +626,7 @@ def place_order(request, pump_id):
         'fuel_types': fuel_types,
         'pump': pump,
         'map_location': map_location,
-        # Include other context data you need
+        
     }
     return render(request, 'place_order.html', context)
 
@@ -638,14 +637,14 @@ def order_summary(request, order_id):
     if request.method == 'POST':
         order.is_ordered = True
         order.save()
-        fuel_station_email = order.station.email  # Assuming 'fuel_station' is the ForeignKey field
+        fuel_station_email = order.station.email  
 
-        # Sending an email notification to the fuel station
+        
         send_mail(
             'New Order Placed',
             f'An order has been placed for Fuel Station: {order.station.station_name} at {order.order_date}. Quantity: {order.quantity}, Payment Method: {order.payment_method}, Delivery Address: {order.delivery_address}',
-            'aninaelizebeth2024a@mca.ajce.in',  # Your email
-            [fuel_station_email],  # Email of the fuel station
+            'aninaelizebeth2024a@mca.ajce.in',  
+            [fuel_station_email],  
             fail_silently=False,
         )
         messages.success(request, 'Order placed successfully!')
@@ -656,7 +655,6 @@ def order_summary(request, order_id):
 @login_required(login_url='login')
 def delete_order(request, order_id):
     if request.method == 'POST':
-        # Fetch the order and delete it
         order = Order.objects.get(pk=order_id)
         order.is_active=False
         order.save()
@@ -667,29 +665,29 @@ def delete_order(request, order_id):
 @never_cache
 @login_required(login_url='login')
 def customer_orders(request):
-    # Fetch ordered orders sorted by order_date in descending order (most recent first)
+    
     ordered_orders = Order.objects.filter(customer=request.user, is_ordered=True).order_by('-order_date')
 
     payment_details = Payment.objects.filter(order__in=ordered_orders).values_list('order_id', flat=True)
     
-    # Add a flag 'is_paid' to each order indicating if it's paid or not
+   
     for order in ordered_orders:
         order.is_paid = order.id in payment_details
 
     items_per_page = 10
     paginator = Paginator(ordered_orders, items_per_page)
 
-    # Get the current page number from the request's GET parameters
+   
     page = request.GET.get('page')
 
     try:
-        # Get the orders for the current page
+        
         orders = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver the first page
+        
         orders = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g., 9999), deliver the last page
+        
         orders = paginator.page(paginator.num_pages)
 
     context = {
@@ -978,6 +976,7 @@ def fuel(request):
         if request.method == 'POST':
             fueltype = request.POST.get('fueltype')
             price = request.POST.get('price')
+            price = float(price)
 
             existing_fuel = Fuel.objects.filter(fueltype=fueltype, station=station).first()
 
@@ -1004,11 +1003,14 @@ def update_fuel(request, fuel_id):
     fuel = get_object_or_404(Fuel, pk=fuel_id)
 
     if request.method == 'POST':
-        # Get the updated values from the POST request
-        fuel.price = request.POST.get('price')
-        # if(fuel.price<=0):
+        price = float(request.POST.get('price'))  # Retrieve price from request data
+        discount = float(request.POST.get('discount'))
+        sale_price = price - (price * (discount / 100))
 
-        # Save the updated fuel object
+        fuel.price = price
+        fuel.discount = discount
+        fuel.sale_price = sale_price
+
         fuel.save()
 
         return redirect('fuel')  # Redirect to the fuel records page after updating
@@ -1199,10 +1201,9 @@ def generate_receipt_pdf(order_id):
 
     buffer = BytesIO()
 
-    # Create a PDF document
+    
     pdf = SimpleDocTemplate(buffer, pagesize=letter, title="HybridEnergy")
 
-    # Title
     title_style = ParagraphStyle(
         name='TitleText',
         alignment=1,
@@ -1223,7 +1224,7 @@ def generate_receipt_pdf(order_id):
         ["Payment Date", f"{payment.payment_date}"],
     ]
 
-    # Create a table with receipt details
+    
     receipt_table = Table(receipt_details, colWidths=[150, 200])
     receipt_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -1248,7 +1249,7 @@ def receipt(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     receipt_pdf = generate_receipt_pdf(order_id)
 
-    # Return the PDF as a downloadable response
+    
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="receipt_{order_id}.pdf"'
     response.write(receipt_pdf.getvalue())
@@ -1256,7 +1257,7 @@ def receipt(request, order_id):
     return response
 
 
-#####DELIVERY TEAM##
+#####DELIVERY TEAM#################
 
 @never_cache
 @login_required(login_url='login')
@@ -1459,18 +1460,24 @@ def contact2(request):
     return render(request, 'contact2.html')
 
 
-
 from django.core.exceptions import ObjectDoesNotExist
-@login_required
+@never_cache
+@login_required(login_url='login')
 def messages_page(request):
     threads = Thread.objects.by_user(user=request.user).prefetch_related('chatmessage_thread').order_by('timestamp')
     try:
         user_profile = UserProfile.objects.get(user=request.user)
     except ObjectDoesNotExist:
-        user_profile = None  # Set user_profile to None if UserProfile does not exist
+        user_profile = None
     
+    # Check if the user is a customer
+    if request.user.is_authenticated and request.user.is_customer:  # Adjust this condition based on your user model
+        template = 'messages.html'
+    else:
+        template = 'adminChat.html'
+
     context = {
         'Threads': threads,
         'user_profile': user_profile
     }
-    return render(request, 'messages.html', context)
+    return render(request, template, context)

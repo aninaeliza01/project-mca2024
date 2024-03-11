@@ -42,6 +42,8 @@
                     <tr>
                         <th style="color: #4285f4;">Fuel Type</th>
                         <th style="color: #4285f4;">Price</th>
+                        <th style="color: #4285f4;">Discount</th>
+                        <th style="color: #4285f4;">Sales Price</th>
                         <th style="color: #4285f4;">Date Recorded</th>
                         <th style="color: #4285f4;">Actions</th>
                     </tr>
@@ -55,6 +57,11 @@
                             <td>
                                 <input type="number" id="price_{{ fuel.id }}" name="price" value="{{ fuel.price }}" class="form-control">
                             </td>
+                            <td><input type="number" id="discount_{{ fuel.id }}" name="discount" class="form-control" value="{{ fuel.discount }}" oninput="calculateSalePrice(this)">
+                            </td>
+                            <td><input type="number" id="sale-price_{{ fuel.id }}" name="sale-price" class="form-control" value="{{ fuel.sale_price }}" readonly>
+                            </td>
+                            
                             <td>{{ fuel.profile_modified_at }}</td>
                             <td>
                                 <button type="submit" class="btn btn-primary" name="update_fuel" value="{{ fuel.id }}">Update</button>
@@ -69,6 +76,22 @@
 </div>
 
 <script>
+function calculateSalePrice(discountInput) {
+    const fuelId = discountInput.id.split("_")[1];
+    const priceInput = document.getElementById(`price_${fuelId}`);
+    const salePriceInput = document.getElementById(`sale-price_${fuelId}`);
+
+    const price = parseFloat(priceInput.value);
+    const discount = parseFloat(discountInput.value);
+
+    if (!isNaN(price) && !isNaN(discount)) {
+        const salePrice = price - (price * (discount / 100));
+        salePriceInput.value = salePrice.toFixed(2);
+    } else {
+        salePriceInput.value = "";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const inputField = document.getElementById('id_fueltype');
     inputField.addEventListener('input', function(event) {

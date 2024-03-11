@@ -1,7 +1,198 @@
 {% extends "deliveryBase.html" %}
+
 {% block title %}Delivery home{% endblock %}
 
 {% block content %}
+<style>
+/* Styles for the container */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fafafa; /* Light gray background */
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+/* Styles for headings */
+h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Styles for alerts */
+.alert {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #fff3cd; /* Light yellow background for alerts */
+    border: 1px solid #ffeeba; /* Yellow border for alerts */
+}
+
+/* Styles for the orders list */
+.orders-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+/* Styles for each order item */
+.order-item {
+    background-color: #fff; /* White background */
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+/* Styles for specific elements within order items */
+.order-item strong {
+    color: #333;
+}
+
+/* Styles for not delivered orders */
+.not-delivered {
+    background-color: #fce8e6; /* Light red background */
+}
+
+/* Styles for delivered orders */
+.delivered {
+    background-color: #d4edda; /* Light green background */
+}
+
+/* Styles for the table */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.order-table th {
+    background-color: #f5f5f5; /* Light gray background for table headers */
+}
+
+.order-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Alternate row background color */
+}
+
+/* Styles for buttons */
+.action-button {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
+.action-button.deliver {
+    background-color: #ed0808; /* Instagram blue */
+    color: #fff;
+}
+
+.action-button.deliver:hover {
+    background-color: #1e88e5; /* Darker blue when hovered */
+}
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#map {
+    height: 400px;
+}
+
+.show-map-btn {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #048e08; /* Instagram blue */
+    color: #fff;
+}
+
+.show-map-btn:hover {
+    background-color: #1e88e5; /* Darker blue when hovered */
+}
+
+.show-map-btn i {
+    margin-right: 5px; /* Adjust spacing between icon and text */
+}
+.button-row {
+    display: flex;
+    align-items: center;
+}
+
+#customerDetailsModal {
+    display: none;
+    /* Modal styles */
+    /* ... */
+}
+
+/* Styles for the customer details button */
+.show-customer-details-btn {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #007bff; /* Blue background color */
+    color: #fff; /* White text color */
+    font-size: 16px; /* Font size */
+}
+
+.show-customer-details-btn:hover {
+    background-color: #0056b3; /* Darker blue background color on hover */
+}
+
+
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="container">
     {% if messages %}
         {% for message in messages %}
             <div class="alert" role="alert">
@@ -11,44 +202,205 @@
     {% endif %}
 
     <h1>Orders Assigned</h1>
-    <ul class="orders-list">
-        {% for order in orders %}
-            <li class="order-item">
-                <strong>Order ID:</strong> {{ order.id }} <br>
-                <strong>Station Name:</strong> {{ order.station.station_name }} <br>
-                <strong>Fuel Type:</strong> {{ order.fuel_type }} <br>
-                <strong>Quantity:</strong> {{ order.quantity }} <br>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <style>
-        /* General styles */
-        h1 {
-            font-size: 24px;
-            color: #333;
-        }
+    {% if orders %}
+        <div class="container">
+            <ul class="orders-list">
+                {% for order in orders %}
+                    {% if not order.is_delivered %}
+                    <li class="order-item not-delivered">
+                        <strong>Order ID:</strong> {{ order.id }} <br>
+                        <strong>Station Name:</strong> {{ order.station.station_name }} <br>
+                        <strong>Fuel Type:</strong> {{ order.fuel_type }} <br>
+                        <strong>Quantity:</strong> {{ order.quantity }} <br>
+                        <div class="button-row">
+                        <button class="show-map-btn" data-delivery-lat="{{ order.delivery_team.latitude }}" data-delivery-lng="{{ order.delivery_team.longitude }}" data-order-lat="{{ order.lat }}" data-order-lng="{{ order.lng }}"><i class="fas fa-map-marker-alt"></i>Show Route</button>
+                        <form method="post" action="{% url 'mark_delivered' order.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <button type="submit" class="action-button deliver"><i class="fas fa-check-circle"></i>Mark Delivered</button>
+                        </form>
+                        <button class="show-customer-details-btn"><i class="fas fa-user"></i>Show Customer Details</button>
+                        </div>
+                    </li>
+                    {% endif %}
+<!-- Modal for customer details -->
+<div id="customerDetailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Customer Details</h2>
+        <p><strong>Name:</strong> {{ order.customer.username }}</p>
+        <p><strong>Email:</strong> {{ order.customer.email }}</p>
+        <p><strong>Phone:</strong> {{ order.customer.phone }}</p>
+    </div>
+</div>
+                {% endfor %}
+            </ul>
+        </div>
         
-        /* Styles for the orders list */
-        .orders-list {
-            list-style-type: none;
-            padding: 0;
+        <div class="table-wrapper">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>O.ID</th>
+                        <th>Fuel Type</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Delivery Point</th>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Order Date & Time</th>
+                        <th>Payment Status</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        {% if order.is_delivered %}
+                            <tr class="delivered">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ order.id }}</td>
+                                <td>{{ order.fuel_type }}</td>
+                                <td>{{ order.quantity }} Liters</td>
+                                <td>{{ order.total_price }}</td>
+                                <td>{{ order.delivery_address }}</td>
+                                <td>{{ order.customer }}</td>
+                                <td>{{ order.customer.email }}</td>
+                                <td>{{ order.customer.phone }}</td>
+                                <td>{{ order.order_date|date:"M d, Y H:i A" }}</td>
+                                <td>{% if order.is_paid %}
+                                        <p>Paid</p>
+                                    {% else %}
+                                        <p>Not Paid</p>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.is_accepted %}
+                                        <span class="status accepted">Accepted</span>
+                                    {% elif order.is_rejected %}
+                                        <span class="status not-accepted">Rejected</span>
+                                    {% else %}
+                                        <form method="post" action="{% url 'accept_order' order.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                                            <button type="submit" class="action-button accept">Accept</button>
+                                        </form>
+                                        <form method="post" action="{% url 'reject_order' order.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                                            <button type="submit" class="action-button reject">Reject</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not order.is_delivered %}
+                                        <form method="post" action="{% url 'mark_delivered' order.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                                            <button type="submit" class="action-button deliver">Mark Delivered</button>
+                                        </form>
+                                    {% else %}
+                                        <p class="delivered-message">Delivered</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No orders available for this pump.</p>
+    {% endif %}
+</div>
+<!-- Modal for the map -->
+<div id="mapModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div id="map"></div>
+  </div>
+</div>
+
+
+
+<script>
+    // JavaScript to handle modal display
+document.querySelectorAll('.show-customer-details-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var modal = document.getElementById('customerDetailsModal');
+        modal.style.display = 'block';
+    });
+});
+
+document.getElementsByClassName('close')[0].addEventListener('click', function() {
+    var modal = document.getElementById('customerDetailsModal');
+    modal.style.display = 'none';
+});
+
+window.onclick = function(event) {
+    var modal = document.getElementById('customerDetailsModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+</script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Function to show the map with directions
+    function showMap(deliveryLat, deliveryLng, orderLat, orderLng) {
+        var map = L.map('map').setView([orderLat, orderLng], 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        var orderLocation = L.latLng(orderLat, orderLng);
+        var deliveryLocation = L.latLng(deliveryLat, deliveryLng);
+
+        L.Routing.control({
+            waypoints: [
+                orderLocation,
+                deliveryLocation
+            ],
+            routeWhileDragging: true
+        }).addTo(map);
+    }
+
+    // Add event listener to the button
+    document.querySelectorAll('.show-map-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var deliveryLat = parseFloat(this.getAttribute('data-delivery-lat'));
+            var deliveryLng = parseFloat(this.getAttribute('data-delivery-lng'));
+            var orderLat = parseFloat(this.getAttribute('data-order-lat'));
+            var orderLng = parseFloat(this.getAttribute('data-order-lng'));
+
+            // Show the map modal
+            var modal = document.getElementById('mapModal');
+            modal.style.display = 'block';
+
+            // Call the showMap function
+            showMap(deliveryLat, deliveryLng, orderLat, orderLng);
+        });
+    });
+
+    // Close the modal when the close button is clicked
+    document.getElementsByClassName('close')[0].addEventListener('click', function() {
+        var modal = document.getElementById('mapModal');
+        modal.style.display = 'none';
+    });
+
+    // Close the modal when clicking outside the modal content
+    window.onclick = function(event) {
+        var modal = document.getElementById('mapModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
         }
-
-        /* Styles for each order item */
-        .order-item {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-
-        /* Styles for specific elements within order items */
-        .order-item strong {
-            color: #555;
-        }
-
-        /* Additional styles as needed */
-
-    </style>
+    }
+</script>
 {% endblock %}

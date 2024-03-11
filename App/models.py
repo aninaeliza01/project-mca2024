@@ -71,9 +71,17 @@ class FuelStation(models.Model):
     
 class Fuel(models.Model):
     fueltype = models.CharField(max_length=255)  
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     price = models.DecimalField(max_digits=10, decimal_places=2)  
     station = models.ForeignKey(FuelStation, on_delete=models.CASCADE, blank=True, null=True, related_name='fuels')
     profile_modified_at = models.DateTimeField(auto_now=True)
+    def save(self, *args, **kwargs):
+        # Calculate the sale price based on the discount and price
+        self.sale_price = self.price - (self.price * (self.discount / 100))
+
+        super(Fuel, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.fueltype  
@@ -161,6 +169,8 @@ class Payment(models.Model):
     def __str__(self):
         return f"Payment of {self.amount} by {self.customer.username} on {self.payment_date}"
     
+
+
 class ThreadManager(models.Manager):
     def by_user(self, **kwargs):
         user = kwargs.get('user')

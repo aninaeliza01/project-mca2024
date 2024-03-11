@@ -295,10 +295,10 @@
                 return;
             }
 
-            // Calculate distance between user location and delivery area
+            
             var distance = marker.getLatLng().distanceTo(circle.getLatLng());
 
-            // Check if delivery is available within the circle radius
+            
             if (distance > circle.getRadius()) {
                 alert('Delivery not available in this area.');
                 // Close the modal
@@ -306,7 +306,7 @@
             } else {
                 $('#lat').val(marker.getLatLng().lat);
                 $('#lng').val(marker.getLatLng().lng);
-                // Set delivery point input field to user location address
+                
                 $.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + userLocation.lat + '&lon=' + userLocation.lng, function(data) {
                     $('#delivery_point').val(data.display_name);
                 });
@@ -331,33 +331,33 @@ else {
 
 <script>
     $('#submit-button').on('click', function() {
-        // Get the delivery charge displayed on the page
+        
         var deliveryAmountText = $('#delivery-amount').text();
         var deliveryAmount = parseFloat(deliveryAmountText.replace('Delivery Amount: ₹', ''));
 
-        // Set the delivery amount in a hidden field in the form
+        
         $('#delivery_amount').val(deliveryAmount);
 
-        // Submit the form
+        
         $('.order-form').submit();
     });
 
     $(document).ready(function() {
         $('.order-form').on('submit', function(event) {
-            // Prevent the form from submitting by default
+            
             event.preventDefault();
 
-            // Get the form inputs
+            
             const fuelType = document.getElementById('fuel_type');
             const selectedPrice = document.getElementById('selected_price');
             const quantity = document.getElementById('quantity');
             const deliveryPoint = document.getElementById('delivery_point');
             const paymentMethod = document.getElementById('payment_method');
 
-            // Validation flag
+            
             let isValid = true;
 
-            // Validation functions
+            
             function validateField(field, errorMessage) {
                 if (field.value.trim() === '') {
                     isValid = false;
@@ -365,15 +365,15 @@ else {
                 }
             }
 
-            // Perform validation for each field
+            
             validateField(fuelType, 'Please select a fuel type');
             validateField(quantity, 'Please select a quantity');
             validateField(deliveryPoint, 'Please enter a delivery point');
             validateField(paymentMethod, 'Please select a payment method');
 
-            // If all fields are valid, submit the form
+            
             if (isValid) {
-                this.submit(); // Submit the form
+                this.submit(); 
             }
         });
 
