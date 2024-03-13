@@ -45,8 +45,11 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'channels',
+    'crispy_forms',
 ]
 
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 

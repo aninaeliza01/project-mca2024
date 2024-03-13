@@ -1,0 +1,56 @@
+{% extends "deliveryBase.html" %}
+{% block title %}Delivery home{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="reels-container">
+        {% for video in videos %}
+        <div class="reel-item">
+            <h4>{{ video.title }}</h4>
+            <video controls class="video-element">
+                <source src="{{ video.video_file.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="reel-info">
+                <p>{{ video.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+<style>
+    .reels-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Increased minimum width */
+    grid-gap: 20px;
+}
+
+.reel-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.video-element {
+    width: 100%; /* Make the video element fill its container */
+    height: auto; /* Allow the video to maintain its aspect ratio */
+}
+
+.reel-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 10px;
+}
+
+</style>    
+{% endblock %}

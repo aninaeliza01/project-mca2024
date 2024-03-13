@@ -1481,3 +1481,33 @@ def messages_page(request):
         'user_profile': user_profile
     }
     return render(request, template, context)
+
+
+
+@never_cache
+@login_required(login_url='login')
+def admin_guidance(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        video_file = request.FILES.get('video_file')
+
+        if not (title and description and video_file):
+            messages.error(request, "Please fill in all fields.")
+        else:
+            allowed_extensions = ['mp4', 'avi', 'mov', 'wmv']
+            file_extension = video_file.name.split('.')[-1].lower()
+            if file_extension not in allowed_extensions:
+                messages.error(request, "Only video files (mp4, avi, mov, wmv) are allowed.")
+            else:
+                Video.objects.create(title=title, description=description, video_file=video_file)
+                messages.success(request, "Video uploaded successfully.")
+    videos = Video.objects.all()            
+    return render(request, 'adminguidance.html', {'videos': videos})
+
+@never_cache
+@login_required(login_url='login')
+def delivery_guid(request):
+    delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
+    videos = Video.objects.all() 
+    return render(request, 'deliveryGuidance.html', {'delivery_team': delivery_team,'videos': videos})

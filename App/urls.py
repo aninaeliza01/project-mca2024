@@ -88,6 +88,9 @@ urlpatterns = [
     path('contact2/',views.contact2,name="contact2"),
 
     path('messages_page/', views.messages_page,name='messages_page'),
+
+    path('admin_guidance/', views.admin_guidance, name='admin_guidance'),
+    path('delivery_guid/', views.delivery_guid, name='delivery_guid'),
 ]
 
 if settings.DEBUG:
