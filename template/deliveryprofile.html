@@ -28,7 +28,7 @@
                 <p><strong>Vehicle Number:</strong> {{ delivery_team.vehno }}</p>
                 {% if delivery_team.is_checkin %}
                 <p>Status: Checked In</p>
-                <p>Check-in Time: {{ delivery_team.checkin_time }}</p>
+                <!-- <p>Check-in Time: {{ delivery_team.checkin_time }}</p> -->
                 <form action="{% url 'check_out' delivery_team.id %}" method="post" class="checkout-form">
                     {% csrf_token %}
                     <input type="submit" value="Check Out" class="checkout-button">
@@ -43,7 +43,7 @@
             
             </div>
             <div class="profile-info">
-                <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm(event)">
+                <form method="POST" action="{% url 'deliveryprofile' %}"enctype="multipart/form-data" onsubmit="return validateForm(event)">
                     {% csrf_token %}
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" value="{{ delivery_team.user.username }}" oninput="validateUsername()">

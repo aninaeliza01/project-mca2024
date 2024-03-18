@@ -31,6 +31,25 @@
                 </div>
                 <i class="fas fa-map-marker map-marker-icon" id="mapMarkerIcon" onclick="showModal()"></i>
                 <div id="address">Fetching location...</div>
+                <!-- Add HTML elements for price and rating filter inputs -->
+                <div class="filter-container">
+                    <label for="priceFilter">Price Range:</label>
+                    <input type="range" id="priceRange" min="0" max="100" value="0" step="1">
+                    <output for="priceRange" id="priceOutput">0</output>
+
+                    <label for="ratingFilter">Minimum Rating:</label>
+    <div class="rating-input">
+        <!-- Replace the input with star icons -->
+        <input type="hidden" id="ratingValue" name="rating" value="0">
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+    </div>
+
+                    <button onclick="applyFilters()">Apply Filters</button>
+                </div>
 
             </div>
             <div class="pump_container">
@@ -53,23 +72,25 @@
                                         {% for fuel in pump.fuels.all %}
                                         <p style="margin-bottom: 5px; color: #333; font-weight: bold;">
                                             <strong>{{ fuel.fueltype }}</strong> -
-                                            <span style="color: #555;"> 
+                                            <span class="fuel-price" style="color: #555;"> 
                                             {% if fuel.discount > 0 %}
+                                            
+
                                                 <del style="color: #777;">₹{{ fuel.price }} per Liter</del> 
                                                 <span style="color: #555;"> ₹{{ fuel.sale_price }} per Liter</span>
                                                 <span style="color: rgb(237, 0, 0); font-weight: bold;"> ({{ fuel.discount }}% off)</span>
                                             {% else %}
                                                 ₹{{ fuel.price }} per Liter
-                                            {% endif %}<br>
+                                            {% endif %}</span><br>
                                         
                                         {% endfor %}
 
                                         
                                         <strong>Rating:</strong>
                                         {% if pump.avg_rating %}
-                                             <span class="stars" data-rating="{{ pump.avg_rating }}"></span>
+                                             <span class="stars rating-value" data-rating="{{ pump.avg_rating }}"></span>
                                         {% else %}
-                                            <p>No ratings available</p>
+                                            <p class="rating-value no-rating" data-rating="0">No ratings available</p>
                                         {% endif %}                  
 
                                     
@@ -111,7 +132,139 @@
             <!-- End Modal -->
         </div>
     </section>
+    <style>
+        /* Star rating styles */
+    .rating-input {
+        display: flex;
+    }
 
+    .star {
+        font-size: 24px;
+        color: #ccc;
+        cursor: pointer;
+    }
+
+    .star.active {
+        color: #FFD700; /* Change color for active (selected) stars */
+    }
+
+        /* Styles for filter container */
+        .filter-container {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    
+        .filter-container label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    
+        .filter-container input[type="range"] {
+            width: 200px;
+            margin-right: 10px;
+        }
+    
+        .filter-container output {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+    <script>
+    // JavaScript for star rating input
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('.star');
+        const ratingValue = document.getElementById('ratingValue');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                ratingValue.value = value;
+                updateStarRating(value);
+            });
+        });
+
+        function updateStarRating(value) {
+            stars.forEach(star => {
+                const starValue = parseInt(star.getAttribute('data-value'));
+                if (starValue <= value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
+</script>
+    <script>
+        // JavaScript to update output value based on slider position
+        const priceRange = document.getElementById('priceRange');
+        const priceOutput = document.getElementById('priceOutput');
+    
+        priceRange.addEventListener('input', function() {
+            priceOutput.textContent = this.value;
+        });
+    </script>
+    <style>
+   
+
+    .filter-container button {
+        padding: 8px 20px;
+        background-color: #ff9900;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .filter-container button:hover {
+        background-color: #cc7a00;
+    }
+</style>
+
+<script>
+    function applyFilters() {
+        var maxPrice = parseFloat(document.getElementById('priceOutput').value) || 0;
+        var minRating = parseFloat(document.getElementById('ratingValue').value) || 0;
+
+        var pumps = document.querySelectorAll('.amazon-order-box');
+
+        pumps.forEach(function(pump) {
+            var priceElement = pump.querySelector('.fuel-price');
+            var price = priceElement ? parseFloat(priceElement.textContent.trim().replace('₹', '')) : 0;
+
+            var ratingElement = pump.querySelector('.rating-value');
+            var rating = ratingElement ? parseFloat(ratingElement.getAttribute('data-rating')) : 0;
+
+            var display = 'block'; // Default display value
+
+            // Check price filter
+            if (maxPrice > 0 && price > maxPrice) {
+                display = 'none';
+            }
+
+            // Check rating filter
+            if (minRating > 0 && rating < minRating) {
+                display = 'none';
+            }
+
+            // Hide or show the pump based on filters
+            pump.style.display = display;
+        });
+    }
+</script>
+
+    
+    
+    
+    
+    
     <script type="text/javascript">
         (function(d, m){
             var kommunicateSettings = 

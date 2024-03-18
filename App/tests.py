@@ -193,3 +193,62 @@
 
 # if __name__ == "__main__":
 #     unittest.main()
+
+
+#########search######
+import time
+import unittest
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+class UserInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Chrome()
+        self.base_url = "http://localhost:8000"
+        self.driver.implicitly_wait(10)
+
+    def test_login_and_place_order(self):
+        self.driver.get(self.base_url + '/login')
+        self.assertIn("Login Form", self.driver.title)
+
+        # Fill in login credentials and submit
+        username = self.driver.find_element(By.NAME, 'username')
+        password = self.driver.find_element(By.NAME, 'password')
+        username.send_keys("godwin")
+        password.send_keys("Godwi@123")
+        self.driver.find_element(By.ID, "logout-link").click()
+        self.driver.implicitly_wait(5)
+
+        # Wait for redirection to user home page
+        WebDriverWait(self.driver, 10).until(EC.url_contains('userhome'))
+        search_input = self.driver.find_element(By.ID, 'locationInput')
+        
+        # Enter the search query
+        search_input.send_keys('ne')  # Replace with your test search query
+        
+        # Click the search button
+        search_button = self.driver.find_element(By.CSS_SELECTOR, '.search-container button')
+        search_button.click()
+        
+        # Wait for search results to load
+        WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'amazon-order-box')))
+        
+        # Assert that search results are displayed
+        search_results = self.driver.find_elements(By.CLASS_NAME, 'amazon-order-box')
+        self.assertGreater(len(search_results), 0)   
+        time.sleep(30)
+        if len(search_results) > 0:
+            print("Successfully Searched results")
+            
+            
+        else:
+            print("Search results: No result.")
+
+
+    def tearDown(self):
+        self.driver.quit()
+
+if __name__ == "__main__":
+    unittest.main()

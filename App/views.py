@@ -1118,7 +1118,7 @@ def assign_delivery_boy_to_order(order):
     accepted_delivery_boys = DeliveryTeam.objects.filter(is_accepted=True, is_assigned=False, is_checkin=True)
 
     # Initialize variables to keep track of the nearest delivery boy and their distance
-    nearest_delivery_boy = None
+    nearest_delivery_boy = []
     min_distance = float('inf')
 
     # Calculate distance from each delivery boy to the ordered station
@@ -1127,11 +1127,18 @@ def assign_delivery_boy_to_order(order):
         distance_to_station = geodesic(ordered_station_location, delivery_boy_location).kilometers
         if distance_to_station < min_distance:
             min_distance = distance_to_station
-            nearest_delivery_boy = delivery_boy
+            nearest_delivery_boys = [delivery_boy]
+        elif distance_to_station == min_distance:
+            nearest_delivery_boys.append(delivery_boy)
 
+    
     # Assign the nearest delivery boy to the order
-    if nearest_delivery_boy:
+    if nearest_delivery_boys:  # Corrected variable name
+        next_delivery_boy_index = order.id % len(nearest_delivery_boys)
+        nearest_delivery_boy = nearest_delivery_boys[next_delivery_boy_index]
         order.delivery_team = nearest_delivery_boy
+    
+
          # Generate QR code for the order
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr_data = f"Order ID: {order.id}, Customer: {order.customer.username}, Delivery Address: {order.delivery_address}"
@@ -1264,7 +1271,17 @@ def receipt(request, order_id):
 def deliveryhome(request):
     delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
-    return render(request, 'deliveryhome.html', {'delivery_team': delivery_team})
+    
+    available_orders_count = Order.objects.filter(delivery_team=delivery_team, is_delivered=False).count()
+    delivered_orders_count = Order.objects.filter(delivery_team=delivery_team, is_delivered=True).count()
+
+    context = {
+        'available_orders_count': available_orders_count,
+        'delivered_orders_count': delivered_orders_count,
+        'delivery_team': delivery_team,
+    }
+    
+    return render(request, 'deliveryhome.html', context)
 
 @never_cache
 def register_delivery(request):
@@ -1333,8 +1350,19 @@ def deliveryProfile(request):
     delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
     if request.method == 'POST':
-        # Update the user profile fields directly from the form data
+        
         profile_picture = request.FILES.get('profile_picture')
+        username = request.POST.get('username')
+        phone = request.POST.get('phone')
+        vehicle_number = request.POST.get('vehicleNumber')
+
+        # Update delivery team details
+        if username:
+            delivery_team.user.username = username
+        if phone:
+            delivery_team.user.phone = phone
+        if vehicle_number:
+            delivery_team.vehno = vehicle_number
         if profile_picture:
             delivery_team.propic = profile_picture
         latitude = request.POST.get('latitude')
@@ -1344,7 +1372,7 @@ def deliveryProfile(request):
         if latitude and longitude:
             delivery_team.latitude = latitude
             delivery_team.longitude = longitude
-        
+        delivery_team.user.save()
         delivery_team.save()
         messages.success(request, 'Profile updated successfully')
     return render(request, 'deliveryprofile.html', {'delivery_team': delivery_team})
@@ -1511,3 +1539,6 @@ def delivery_guid(request):
     delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
     videos = Video.objects.all() 
     return render(request, 'deliveryGuidance.html', {'delivery_team': delivery_team,'videos': videos})
+
+
+ 

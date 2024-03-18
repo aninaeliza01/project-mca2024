@@ -136,6 +136,9 @@
             <div class="modal-body">
                 <!-- Content will be dynamically loaded here -->
                 <div id="deliveryDetailsPlaceholder"></div>
+                <button type="button" class="btn btn-primary rate-delivery-btn" data-toggle="modal" data-target="#ratingModal" data-order-id="{{ order.id }}">
+                    Rate
+                </button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -143,6 +146,65 @@
         </div>
     </div>
 </div>
+
+
+<!-- Modal for Rating Delivery Boy -->
+<div class="modal fade" id="ratingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Rate Delivery Boy</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Rating form -->
+                <form id="ratingForm">
+                    <div class="form-group">
+                        <label for="rating">Rating:</label>
+                        <div class="rating-input">
+                            <!-- Replace the input with star icons -->
+                            <input type="hidden" id="ratingValue" name="rating" value="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="orderId" name="orderId">
+                    {% csrf_token %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitRating">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $('.rate-delivery-btn').click(function() {
+            var orderId = $(this).data('order-id');
+            $('#orderId').val(orderId);
+        });
+
+        $('#submitRating').click(function() {
+            var orderId = $('#orderId').val();
+            var rating = $('#rating').val();
+            
+            // You can send the rating data via AJAX to the server and update the delivery boy's rating
+            // Here, for demonstration purposes, we'll just log the data
+            console.log("Order ID: " + orderId);
+            console.log("Rating: " + rating);
+
+            // Close the modal
+            $('#ratingModal').modal('hide');
+        });
+    });
+</script>
 
 
 <script>
@@ -177,8 +239,47 @@
                     {% endif %}
                 </span>
             </div>
-
+    <script>
+        // JavaScript for star rating input
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star');
+            const ratingValue = document.getElementById('ratingValue');
+    
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    ratingValue.value = value;
+                    updateStarRating(value);
+                });
+            });
+    
+            function updateStarRating(value) {
+                stars.forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-value'));
+                    if (starValue <= value) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
     <style>
+        /* Star rating styles */
+    .rating-input {
+        display: flex;
+    }
+
+    .star {
+        font-size: 24px;
+        color: #ccc;
+        cursor: pointer;
+    }
+
+    .star.active {
+        color: #FFD700; /* Change color for active (selected) stars */
+    }
 /* Custom styles for the Track button */
 .view-details-btn {
     background-color: #800000; /* Maroon background color */

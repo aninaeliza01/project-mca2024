@@ -4,9 +4,80 @@
 {% block content %}
     {% if messages %}
         {% for message in messages %}
-            <div class="alert" role="alert">
+            <div class="alert alert-success" role="alert">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
+
+    <div class="dashboard-container">
+        <h1 class="dashboard-heading">Welcome {{ request.user.username }}</h1>
+        <div class="order-summary">
+            <div class="order-summary-item">
+                <h2 class="order-summary-title">Available Delivery Orders</h2>
+                <span class="order-summary-count highlight">{{ available_orders_count }}</span>
+            </div>
+            <div class="order-summary-item">
+                <h2 class="order-summary-title">Delivered Orders</h2>
+                <span class="order-summary-count highlight">{{ delivered_orders_count }}</span>
+            </div>
+        </div>
+    </div>
+
+<style>
+    /* Style for alerts */
+    .alert {
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    /* Style for dashboard */
+    .dashboard-container {
+        margin: 50px auto;
+        text-align: center;
+    }
+
+    .dashboard-heading {
+        font-size: 28px;
+        margin-bottom: 30px;
+    }
+
+    .order-summary {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .order-summary-item {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-summary-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .order-summary-count {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    /* Highlighting the counts */
+    .highlight {
+        background-color: #ffc107;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+</style>
 {% endblock %}
