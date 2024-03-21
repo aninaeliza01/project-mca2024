@@ -1350,19 +1350,8 @@ def deliveryProfile(request):
     delivery_team = get_object_or_404(DeliveryTeam, user=request.user)
     user_details = CustomUser.objects.get(id=request.user.id)
     if request.method == 'POST':
-        
+        # Update the user profile fields directly from the form data
         profile_picture = request.FILES.get('profile_picture')
-        username = request.POST.get('username')
-        phone = request.POST.get('phone')
-        vehicle_number = request.POST.get('vehicleNumber')
-
-        # Update delivery team details
-        if username:
-            delivery_team.user.username = username
-        if phone:
-            delivery_team.user.phone = phone
-        if vehicle_number:
-            delivery_team.vehno = vehicle_number
         if profile_picture:
             delivery_team.propic = profile_picture
         latitude = request.POST.get('latitude')
@@ -1372,6 +1361,19 @@ def deliveryProfile(request):
         if latitude and longitude:
             delivery_team.latitude = latitude
             delivery_team.longitude = longitude
+        
+        username = request.POST.get('username')
+        phone = request.POST.get('phone')
+        vehicle_number = request.POST.get('vehicleNumber')
+        
+        if username:
+            delivery_team.user.username = username
+        if phone:
+            delivery_team.user.phone = phone
+        if vehicle_number:
+            delivery_team.vehno = vehicle_number
+        
+        # Save changes
         delivery_team.user.save()
         delivery_team.save()
         messages.success(request, 'Profile updated successfully')
